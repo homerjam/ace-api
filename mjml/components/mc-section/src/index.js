@@ -1,0 +1,236 @@
+import { MJMLElement, helpers } from 'mjml-core'
+import cloneDeep from 'lodash/cloneDeep'
+import merge from 'lodash/merge'
+import React, { Component } from 'react'
+
+const tagName = 'mc-section'
+const parentTag = ['mj-container']
+const defaultMJMLDefinition = {
+  attributes: {
+    'mc:hideable': null,
+    'mc:repeatable': null,
+    'mc:variant': null,
+    'background-color': null,
+    'background-url': null,
+    'background-repeat': 'repeat',
+    'background-size': 'auto',
+    'border': null,
+    'border-bottom': null,
+    'border-left': null,
+    'border-radius': null,
+    'border-right': null,
+    'border-top': null,
+    'direction': 'ltr',
+    'full-width': null,
+    'padding': '20px 0',
+    'padding-top': null,
+    'padding-bottom': null,
+    'padding-left': null,
+    'padding-right': null,
+    'text-align': 'center',
+    'vertical-align': 'top',
+  }
+}
+const baseStyles = {
+  div: {
+    margin: '0 auto'
+  },
+  table: {
+    fontSize: '0px',
+    width: '100%'
+  },
+  td: {
+    textAlign: 'center',
+    verticalAlign: 'top'
+  }
+}
+const postRender = $ => {
+  $('.mc-section-outlook-background').each(function () {
+    const url = $(this).data('url')
+    const width = $(this).data('width')
+
+    $(this)
+      .removeAttr('class')
+      .removeAttr('data-url')
+      .removeAttr('data-width')
+
+    if (!url) {
+      return
+    }
+
+    $(this).before(`${helpers.startConditionalTag}
+      <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:${width}px;">
+        <v:fill origin="0.5, 0" position="0.5,0" type="tile" src="${url}" />
+        <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
+      ${helpers.endConditionalTag}`)
+
+    $(this).after(`${helpers.startConditionalTag}
+        </v:textbox>
+      </v:rect>
+      ${helpers.endConditionalTag}`)
+  })
+
+  $('.mc-section-outlook-open').each(function () {
+    const $columnDiv = $(this).next()
+
+    $(this).replaceWith(`${helpers.startConditionalTag}
+      <table border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:${$columnDiv.data('vertical-align')};width:${parseInt($(this).data('width'))}px;">
+      ${helpers.endConditionalTag}`)
+
+    $columnDiv.removeAttr('data-vertical-align')
+  })
+
+  $('.mc-section-outlook-line').each(function () {
+    const $columnDiv = $(this).next()
+
+    $(this).replaceWith(`${helpers.startConditionalTag}
+      </td><td style="vertical-align:${$columnDiv.data('vertical-align')};width:${parseInt($(this).data('width'))}px;">
+      ${helpers.endConditionalTag}`)
+
+    $columnDiv.removeAttr('data-vertical-align')
+  })
+
+  $('.mc-section-outlook-close').each(function () {
+    $(this).replaceWith(`${helpers.startConditionalTag}
+      </td></tr></table>
+      ${helpers.endConditionalTag}`)
+  })
+
+  $('[data-mc-hideable]').each(function () {
+    $(this)
+      .attr('mc:hideable', '')
+      .removeAttr('data-mc-hideable')
+  })
+
+  $('[data-mc-repeatable]').each(function () {
+    $(this)
+      .attr('mc:repeatable', $(this).attr('data-mc-repeatable'))
+      .removeAttr('data-mc-repeatable')
+  })
+
+  $('[data-mc-variant]').each(function () {
+    $(this)
+      .attr('mc:variant', $(this).attr('data-mc-variant'))
+      .removeAttr('data-mc-variant')
+  })
+
+  return $
+}
+
+@MJMLElement
+class Section extends Component {
+
+  styles = this.getStyles()
+
+  isFullWidth () {
+    const { mjAttribute } = this.props
+
+    return mjAttribute('full-width') == 'full-width'
+  }
+
+  getStyles () {
+    const { mjAttribute, parentWidth, defaultUnit } = this.props
+
+    const background = mjAttribute('background-url') ? {
+      background: `${mjAttribute('background-color') || ''} url(${mjAttribute('background-url')}) top center / ${mjAttribute('background-size') || ''} ${mjAttribute('background-repeat') || ''}`.trim()
+    } : {
+      background: mjAttribute('background-color')
+    }
+
+    return merge({}, baseStyles, {
+      td: {
+        fontSize: '0px',
+        padding: defaultUnit(mjAttribute('padding'), 'px'),
+        paddingBottom: defaultUnit(mjAttribute('padding-bottom'), 'px'),
+        paddingLeft: defaultUnit(mjAttribute('padding-left'), 'px'),
+        paddingRight: defaultUnit(mjAttribute('padding-right'), 'px'),
+        paddingTop: defaultUnit(mjAttribute('padding-top'), 'px'),
+        textAlign: mjAttribute('text-align'),
+        verticalAlign: mjAttribute('vertical-align')
+      },
+      div: {
+        maxWidth: defaultUnit(parentWidth)
+      }
+    }, {
+      div: this.isFullWidth() ? {} : cloneDeep(background),
+      table: this.isFullWidth() ? {} : cloneDeep(background),
+      tableFullwidth: this.isFullWidth() ? cloneDeep(background) : {}
+    })
+  }
+
+  renderFullWidthSection () {
+    const { mjAttribute } = this.props
+
+    return (
+      <table
+        cellPadding="0"
+        cellSpacing="0"
+        data-legacy-background={mjAttribute('background-url')}
+        data-legacy-border="0"
+        data-mc-hideable={mjAttribute('mc:hideable')}
+        data-mc-repeatable={mjAttribute('mc:repeatable')}
+        data-mc-variant={mjAttribute('mc:variant')}
+        style={merge({}, this.styles.tableFullwidth, this.styles.table)}>
+        <tbody>
+          <tr>
+            <td>
+              {this.renderSection()}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    )
+  }
+
+  renderSection () {
+    const { renderWrappedOutlookChildren, mjAttribute, children, parentWidth } = this.props
+    const fullWidth = this.isFullWidth()
+
+    return (
+      <div
+        data-mc-hideable={mjAttribute('mc:hideable')}
+        data-mc-repeatable={mjAttribute('mc:repeatable')}
+        data-mc-variant={mjAttribute('mc:variant')}
+        style={this.styles.div}>
+        <table
+          cellPadding="0"
+          cellSpacing="0"
+          className="mc-section-outlook-background"
+          data-legacy-align="center"
+          data-legacy-background={fullWidth ? undefined : mjAttribute('background-url')}
+          data-legacy-border="0"
+          data-url={mjAttribute('background-url') || ''}
+          data-width={parentWidth}
+          style={this.styles.table}>
+          <tbody>
+            <tr>
+              <td style={this.styles.td}>
+                {renderWrappedOutlookChildren(children)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  render () {
+    return this.isFullWidth() ? this.renderFullWidthSection() : this.renderSection()
+  }
+
+}
+
+Section.tagName = tagName
+Section.parentTag = parentTag
+Section.defaultMJMLDefinition = defaultMJMLDefinition
+Section.baseStyles = baseStyles
+Section.postRender = postRender
+
+import Column from 'mjml-column'
+Column.parentTag.push(tagName)
+import Group from 'mjml-group'
+Group.parentTag.push(tagName)
+import Raw from 'mjml-raw'
+Raw.parentTag.push(tagName)
+
+export default Section

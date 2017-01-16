@@ -1,0 +1,99 @@
+mjml
+
+  mj-head
+
+    mj-font(name="fonts", href=(baseUrl || '') + "/fonts/font/styles.css")
+
+    mj-attributes
+      mj-all(font-family="fonts")
+      mc-section(background-color="#F1F1F1", padding="10px 0")
+      mj-text(padding="10px 24px 0")
+      mc-image(padding="0 24px")
+
+  mj-body
+
+    mj-container(width="720px")
+
+      mj-raw
+        style #{style}
+
+      mj-section
+        mj-column
+          mj-spacer(height="50px")
+
+      mc-section(padding="50px 0", background-color="#FFF")
+
+        mj-column
+          //- mc-image(width="225px", href=baseUrl, src=(baseUrl || '') + "/img/logo.png")
+          mc-image(width="225px", href=baseUrl, src="http://placehold.it/225x75")
+
+      mc-section(mc:hideable, padding="50px 0")
+
+        mj-column
+          mj-text(align="center")
+            h2 *|MC:SUBJECT|*
+
+      mc-section(mc:hideable, mc:repeatable="section", mc:variant="Image (single)")
+
+        mj-column
+          mc-image(mc:edit="image1", src="http://placehold.it/672x448")
+
+      mc-section(mc:hideable, mc:repeatable="section", mc:variant="Image (pair)")
+
+        mj-group
+
+          mj-column
+            mc-image(mc:edit="image2", src="http://placehold.it/324x458", padding-right="10")
+
+          mj-column
+            mc-image(mc:edit="image3", src="http://placehold.it/324x458", padding-left="10")
+
+      mc-section(mc:hideable, mc:repeatable="section", mc:variant="Text")
+
+        mj-column(width="33%")
+          mj-text(padding-bottom="20px")
+            h3(mc:edit="heading1") Heading
+            h4(mc:edit="heading2", mc:hideable) Heading 2
+
+        mj-column(width="66%")
+          mj-text(padding-bottom="20px")
+            span(mc:edit="body1")
+              p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat, <a href="http://google.com">link here</a>.
+
+        mj-raw
+          .divider
+
+      mc-section(padding-top="50px")
+
+      mc-section(background-color="grey", padding="50px 0 0")
+
+        mj-column
+          //- mc-image(width="150px", href=baseUrl, src=(baseUrl || '') + "/img/logo.png")
+          mc-image(width="150px", href=baseUrl, src="http://placehold.it/150x50")
+
+      mc-section(background-color="grey", padding="0 0 50px")
+
+        mj-column
+          mj-text(color="white", align="center")
+            p Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+      mc-section(background-color="#FFF", padding="50px 0")
+
+        mj-column
+          mj-text(align="center")
+            h5
+              a(href="*|ARCHIVE|*") View in browser
+
+        mj-column
+          mj-text(align="center")
+            h5
+              a(href="*|FORWARD|*") Forward
+
+        mj-column
+          mj-text(align="center")
+            h5
+              a(href="*|UNSUB|*") Unsubscribe
+
+      mj-section
+        mj-column
+          mj-spacer(height="50px")

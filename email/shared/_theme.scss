@@ -1,0 +1,83 @@
+// @import 'settings';
+// @import '../../node_modules/foundation-emails/scss/foundation-emails';
+
+/* Fonts */
+
+@mixin sans {
+    font-family: Arial, sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+}
+
+@mixin serif {
+	font-family: "Times New Roman", serif;
+	font-weight: 400;
+}
+
+/* General */
+
+html, body {
+  min-height: 100%;
+  background: #FFF;
+}
+
+/* Type */
+
+h2, h3 {
+	@include serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin: 0;
+
+  a {
+    text-decoration: none;
+    color: black;
+  }
+}
+
+h4, h5 {
+  @include sans;
+  font-size: 10px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+h5 {
+  color: #ccc;
+
+  a {
+    text-decoration: none;
+    color: #ccc;
+  }
+}
+
+p {
+  @include serif;
+  font-size: 18px;
+  line-height: 24px;
+  margin-top: 0 !important;
+
+  a {
+    color: black;
+  }
+
+  &.white {
+    color: white;
+
+    a {
+      color: white;
+    }
+  }
+}
+
+.divider {
+  margin: 20px auto 50px;
+  width: 75%;
+  border-top: 1px solid black;
+}
+
+/* Fix Mailchimp editor */
+.mc-image img {
+  width: 100% !important;
+  height: auto !important;
+}
