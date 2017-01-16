@@ -2,6 +2,13 @@
   "name": "ace-api",
   "version": "0.2.1",
   "description": "ACE API",
+  "author": {
+    "name": "Studio Thomas",
+    "email": "hello@studiothomas.co.uk",
+    "url": "http://studiothomas.co.uk"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": "https://github.com/studiothomas/ace-api.git",
   "main": "index.js",
   "scripts": {
     "start": "nodemon test",
@@ -9,8 +16,6 @@
     "mc-section": "babel mjml/components/mc-section/src/index.js -o mjml/components/mc-section/lib/index.js",
     "mc-image": "babel mjml/components/mc-image/src/index.js -o mjml/components/mc-image/lib/index.js"
   },
-  "author": "hello@studiothomas.co.uk",
-  "repository": "https://github.com/studiothomas/ace-api.git",
   "apidoc": {
     "name": "ACE API",
     "description": "ACE API Documentation",
