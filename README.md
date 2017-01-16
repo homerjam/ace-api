@@ -14,7 +14,7 @@ RESTish API module used by ACE projects
 
     PORT=5000
 
-    ENVIRONMENT=development
+    ENVIRONMENT=development|testing|production
     DEBUG=false # Change to nano etc
     CACHE=false
 

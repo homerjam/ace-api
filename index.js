@@ -8,7 +8,6 @@ const lru = require('lru-cache');
 const jwt = require('jsonwebtoken');
 const CircularJSON = require('circular-json');
 const memwatch = require('memwatch-next');
-const heapdump = require('heapdump');
 
 if (!process.env.ENVIRONMENT) {
   env('.env');
@@ -110,7 +109,7 @@ function Api (config) {
     });
   }
 
-  const router = express.Router();
+  const router = config._router || express.Router();
 
   router.get('/cache/clear', (req, res) => {
     if (config.cache) {
@@ -184,15 +183,13 @@ function Api (config) {
   }
 
   function cacheAndSendResponse (req, res, body) {
-    if (!config.cache) {
-      return;
-    }
+    if (config.cache) {
+      if (req.session.guestAuthorised && cache.has(req.url)) {
+        cache.del(req.url);
 
-    if (req.session.guestAuthorised && cache.has(req.url)) {
-      cache.del(req.url);
-
-    } else {
-      cache.set(req.url, body);
+      } else {
+        cache.set(req.url, body);
+      }
     }
 
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -214,6 +211,7 @@ function Api (config) {
     }
 
     if (req.query.heapdump) {
+      const heapdump = require('heapdump');
       heapdump.writeSnapshot((error, filename) => {
         console.log('Heap dump written to', filename);
       });
@@ -223,19 +221,25 @@ function Api (config) {
   if (config._app) {
     if (config.environment !== 'production') {
       config._app.use((req, res, next) => {
-          res.on('finish', afterResponse.bind(null, req, res));
-          res.on('close', afterResponse.bind(null, req, res));
+        res.on('finish', afterResponse.bind(null, req, res));
+        res.on('close', afterResponse.bind(null, req, res));
 
-          if (req.query.heapdiff) {
-            res._hd = new memwatch.HeapDiff();
-          }
+        if (req.query.heapdiff) {
+          res._hd = new memwatch.HeapDiff();
+        }
 
         next();
       });
     }
 
+    if (config._router) {
+      config._router.use(`/${config.apiPrefix}`, preAuth, router);
+
+    } else {
+      config._app.use(`/${config.apiPrefix}`, preAuth, router);
+    }
+
     config._router = router;
-    config._app.use(`/${config.apiPrefix}`, preAuth, router);
     config._cache = cache;
     config._ensureAuthenticated = config._ensureAuthenticated;
     config._handleError = handleError;
