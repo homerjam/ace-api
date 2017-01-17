@@ -109,7 +109,7 @@ function Api (config) {
     });
   }
 
-  const router = config._router || express.Router();
+  const router = express.Router();
 
   router.get('/cache/clear', (req, res) => {
     if (config.cache) {
