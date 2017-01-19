@@ -1,6 +1,6 @@
 {
   "name": "ace-api",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "ACE API",
   "author": {
     "name": "Studio Thomas",
@@ -64,6 +64,7 @@
     "passport-auth0": "^0.6.0",
     "password-hash": "^1.2.2",
     "perfy": "^1.1.2",
+    "pug": "^2.0.0-beta6",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "shippo": "^1.1.3",

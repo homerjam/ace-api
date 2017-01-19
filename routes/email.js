@@ -1,4 +1,5 @@
 const Email = require('../lib/email');
+const Entity = require('../lib/entity');
 
 module.exports = (config) => {
   const email = new Email(config);
@@ -16,7 +17,9 @@ module.exports = (config) => {
    *    "payload": <json>
    *  }
    *
-   * @apiParam {boolean} previewOnly=false Preview only (disable inlining of styles etc)
+   * @apiParam {string} entityId Entity `id` from which to render the template
+   * @apiParam {boolean} data=false Data mode, show locals available within templates
+   * @apiParam {boolean} preview=false Preview mode (disable inlining of styles etc)
    * @apiParam {boolean} skipValidation=false Skip MJML validation
    *
    * @apiError (Error 500) TemplateErrors
@@ -27,21 +30,45 @@ module.exports = (config) => {
    *  }
    */
   config._router.all('/email/template/:templateSlug.:ext?', (req, res) => {
-    let data = Object.keys(req.body).length ? req.body : req.query || {};
-
-    if (data.payload) {
-      data = JSON.parse(data.payload);
-    }
+    const input = Object.keys(req.body).length ? req.body : req.query || {};
 
     const options = {
-      previewOnly: req.query.previewOnly ? JSON.parse(req.query.previewOnly) : false,
-      skipValidation: req.query.skipValidation ? JSON.parse(req.query.skipValidation) : false,
+      preview: input.preview ? JSON.parse(input.preview) : false,
+      data: input.data ? JSON.parse(input.data) : false,
+      skipValidation: input.skipValidation ? JSON.parse(input.skipValidation) : false,
     };
 
-    email.getTemplate(req.params.templateSlug, data, options)
-      .then((template) => {
-        config._sendResponse(res, template.html);
-      }, config._handleError.bind(null, res));
+    function renderTemplate(data = {}) {
+      if (options.data) {
+        config._sendResponse(res, data);
+        return;
+      }
+
+      email.getTemplate(req.params.templateSlug, data, options)
+        .then((template) => {
+          config._sendResponse(res, template.html);
+        }, config._handleError.bind(null, res));
+    }
+
+    if (input.payload) {
+      renderTemplate(JSON.parse(input.payload));
+      return;
+    }
+
+    if (input.entityId) {
+      const entity = new Entity(config._db.bind(null, req));
+
+      entity.entitiesById([input.entityId], true, false, true)
+        .then((entities) => {
+          entities = Entity.flattenValues(entities);
+
+          renderTemplate(entities[0]);
+        });
+
+      return;
+    }
+
+    renderTemplate();
   });
 
   config._router.post('/email/subscribe.:ext?', (req, res) => {
