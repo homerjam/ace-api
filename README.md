@@ -2,7 +2,7 @@
 
 RESTish API module used by ACE projects
 
-#### Environment Variables
+### Environment Variables
 
     # The database used during authorisation to map users to agents
     AUTH_DB_NAME=
@@ -29,3 +29,10 @@ RESTish API module used by ACE projects
     DEV_DB_NAME=
     DEV_ROLE=admin
     DEV_SUPER=true
+
+### Useful
+
+    # Heroku rebuild (similar to rm -rf node_modules locally)
+    $ heroku repo:purge_cache -a appname && \
+        git commit --allow-empty -m "rebuild" && \
+        git push heroku master
