@@ -11,7 +11,7 @@ module.exports = (config) => {
    *    tags:
    *      - entities
    *    summary: Search entities
-   * #   description: Search entities
+   *    description: This endpoint extends Cloudant's Lucene based search, learn more from their [documentation](https://docs.cloudant.com/search.html).
    *    produces:
    *      - application/json
    *    parameters:
@@ -19,6 +19,27 @@ module.exports = (config) => {
    *        description: Lucene search query
    *        in: query
    *        required: true
+   *        type: string
+   *      - name: include_docs
+   *        description: Include docs in search results (ignored if `children` or `parents` is `true`)
+   *        in: query
+   *        required: false
+   *        type: boolean
+   *        default: false
+   *      - name: sort
+   *        description: Field to sort results by. Prefixed with `-` to reverse order. Suffixed with &#60;`string|number`&#62;
+   *        in: query
+   *        required: false
+   *        type: string
+   *      - name: limit
+   *        description: Limit results (max 200)
+   *        in: query
+   *        required: false
+   *        type: number
+   *      - name: group_field
+   *        description: Field to group results by
+   *        in: query
+   *        required: false
    *        type: string
    *      - name: index
    *        description: Search index
@@ -34,6 +55,12 @@ module.exports = (config) => {
    *        default: false
    *      - name: parents
    *        description: Get parent entities
+   *        in: query
+   *        required: false
+   *        type: boolean
+   *        default: false
+   *      - name: trashed
+   *        description: Get trashed entities
    *        in: query
    *        required: false
    *        type: boolean
@@ -78,7 +105,7 @@ module.exports = (config) => {
 
     const entity = new Entity(config._db.bind(null, req));
 
-    entity.entitySearch(req.query.index || 'all', req.query, children, parents, req.session.userAuthorised || req.session.guestAuthorised)
+    entity.entitySearch(req.query, children, parents, req.session.userAuthorised || req.session.guestAuthorised)
       .then(config._cacheAndSendResponse.bind(null, req, res), config._handleError.bind(null, res));
   });
 
