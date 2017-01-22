@@ -7,29 +7,32 @@ module.exports = (config) => {
   /**
    * @swagger
    * /email/template:
-   *   get:
-   *     description: Render email template
-   *     produces:
-   *       - text/html
-   *     parameters:
-   *       - name: templateSlug
-   *         description: Template slug (folder name of the template)
-   *         in: query
-   *         required: true
-   *         type: string
-   *       - name: entityId
-   *         description: Entity `id` from which to render the template
-   *         in: query
-   *         required: false
-   *         type: string
-   *       - name: preview
-   *         description: Preview mode (disable inlining of styles etc)
-   *         in: query
-   *         required: false
-   *         type: boolean
-   *     responses:
-   *       200:
-   *         description: template
+   *  get:
+   *    tags:
+   *      - email
+   *    summary: Render email template
+   * #   description: Render email template
+   *    produces:
+   *      - text/html
+   *    parameters:
+   *      - name: templateSlug
+   *        description: Template slug (folder name of the template)
+   *        in: query
+   *        required: true
+   *        type: string
+   *      - name: entityId
+   *        description: Entity `id` from which to render the template
+   *        in: query
+   *        required: false
+   *        type: string
+   *      - name: preview
+   *        description: Preview mode (disable inlining of styles etc)
+   *        in: query
+   *        required: false
+   *        type: boolean
+   *    responses:
+   *      200:
+   *        description: template
    */
   config._router.all('/email/template.:ext?', (req, res) => {
     const input = Object.keys(req.body).length ? req.body : req.query || {};

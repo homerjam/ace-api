@@ -4,7 +4,45 @@ const Entity = require('../lib/entity');
 
 module.exports = (config) => {
 
-  config._router.get('/entities/search/:index?.:ext?', config._useCachedResponse, (req, res) => {
+  /**
+   * @swagger
+   * /entities/search:
+   *  get:
+   *    tags:
+   *      - entities
+   *    summary: Search entities
+   * #   description: Search entities
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: q
+   *        description: Lucene search query
+   *        in: query
+   *        required: true
+   *        type: string
+   *      - name: index
+   *        description: Search index
+   *        in: query
+   *        required: false
+   *        type: string
+   *        default: all
+   *      - name: children
+   *        description: Get child entities
+   *        in: query
+   *        required: false
+   *        type: boolean
+   *        default: false
+   *      - name: parents
+   *        description: Get parent entities
+   *        in: query
+   *        required: false
+   *        type: boolean
+   *        default: false
+   *    responses:
+   *      200:
+   *        description: Search result
+   */
+  config._router.get('/entities/search?.:ext?', config._useCachedResponse, (req, res) => {
     let children = req.query.children !== undefined ? JSON.parse(req.query.children) : false;
     let parents = req.query.parents !== undefined ? JSON.parse(req.query.parents) : false;
     const trashed = req.query.trashed !== undefined ? JSON.parse(req.query.trashed) : false;
@@ -32,7 +70,7 @@ module.exports = (config) => {
       query.push('published:true');
     }
 
-    if (req.query.q !== '') {
+    if (req.query.q) {
       query.push(req.query.q);
     }
 
@@ -40,7 +78,7 @@ module.exports = (config) => {
 
     const entity = new Entity(config._db.bind(null, req));
 
-    entity.entitySearch(req.params.index || 'all', req.query, children, parents, req.session.userAuthorised || req.session.guestAuthorised)
+    entity.entitySearch(req.query.index || 'all', req.query, children, parents, req.session.userAuthorised || req.session.guestAuthorised)
       .then(config._cacheAndSendResponse.bind(null, req, res), config._handleError.bind(null, res));
   });
 
