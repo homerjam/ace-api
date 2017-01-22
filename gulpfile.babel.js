@@ -1,29 +1,33 @@
+const fs = require('fs');
 const gulp = require('gulp');
 const livereload = require('gulp-livereload');
-const apidoc = require('gulp-apidoc');
-const serve = require('gulp-serve');
 const opn = require('opn');
+const swaggerJSDoc = require('swagger-jsdoc');
 
-gulp.task('apidoc', () => {
-  apidoc({
-    src: './routes/',
-    dest: './docs/api/',
-    config: './',
-  }, livereload.reload);
+const swagger = require('./docs/swagger');
+const docsConfig = require('./docs/config');
+
+gulp.task('reload', () => {
+  livereload.reload();
 });
 
-gulp.task('serve', serve({
-  root: './docs/api/',
-  port: 8080,
-}));
+gulp.task('docs:compile', () => {
+  const swaggerSpec = swaggerJSDoc(docsConfig);
 
-gulp.task('watch', () => {
+  fs.writeFileSync('./docs/api.json', JSON.stringify(swaggerSpec));
+});
+
+gulp.task('docs:watch', () => {
   livereload.listen();
 
-  gulp.watch('./routes/*.js', ['apidoc']);
-
-  opn('http://localhost:8080');
+  gulp.watch(docsConfig.apis, ['docs:compile', 'reload']);
 });
 
-gulp.task('docs', ['serve', 'watch']);
+gulp.task('docs:ui', () => {
+  swagger((config) => {
+    opn(`http://localhost:${config.port}?url=/docs/api.json`);
+  });
+});
+
+gulp.task('docs', ['docs:compile', 'docs:watch', 'docs:ui']);
 

@@ -5,32 +5,6 @@ module.exports = (config) => {
   const email = new Email(config);
 
   /**
-   * @api {get} /email/template/:templateSlug Render template
-   * @apiName RenderTemplate
-   * @apiGroup Email
-   * @apiPermission none
-   *
-   * @apiDescription Render email template. You can also use POST to send data to the template.
-   *
-   * @apiExample Example POST Request Body
-   *  {
-   *    "payload": <json>
-   *  }
-   *
-   * @apiParam {string} entityId Entity `id` from which to render the template
-   * @apiParam {boolean} data=false Data mode, show locals available within templates
-   * @apiParam {boolean} preview=false Preview mode (disable inlining of styles etc)
-   * @apiParam {boolean} skipValidation=false Skip MJML validation
-   *
-   * @apiError (Error 500) TemplateErrors
-   * @apiErrorExample {json} Response
-   *  {
-   *    "errors": [],
-   *    "html": ""
-   *  }
-   */
-
-/**
    * @swagger
    * /email/template:
    *   get:
