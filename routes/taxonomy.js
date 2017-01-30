@@ -38,10 +38,54 @@ module.exports = (config) => {
       .then(config._sendResponse.bind(null, res), config._handleError.bind(null, res));
   });
 
-  config._router.get('/taxonomy/:slug.:ext?', config._useCachedResponse, (req, res) => {
+  /**
+   * @swagger
+   * /taxonomy:
+   *  get:
+   *    tags:
+   *      - taxonomy
+   *    summary: Get taxonomy
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: slug
+   *        description: Taxonomy slug
+   *        in: query
+   *        required: true
+   *        type: string
+   *    responses:
+   *      200:
+   *        description: Taxonomy
+   *        schema:
+   *          type: object
+   *          properties:
+   *            _id:
+   *              type: string
+   *            _rev:
+   *              type: string
+   *            title:
+   *              type: string
+   *            slug:
+   *              type: string
+   *            terms:
+   *              type: array
+   *              items:
+   *                schema:
+   *                  type: object
+   *                  properties:
+   *                    id:
+   *                      type: string
+   *                    title:
+   *                      type: string
+   *                    slug:
+   *                      type: string
+   *                    terms:
+   *                      type: array
+   */
+  config._router.get('/taxonomy.:ext?', config._useCachedResponse, (req, res) => {
     const taxonomy = new Taxonomy(config._db.bind(null, req));
 
-    taxonomy.read(req.params.slug)
+    taxonomy.read(req.query.slug)
       .then(config._cacheAndSendResponse.bind(null, req, res), config._handleError.bind(null, res));
   });
 };

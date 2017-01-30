@@ -6,16 +6,65 @@ module.exports = (config) => {
 
   /**
    * @swagger
+   * definitions:
+   *  Entity:
+   *    type: object
+   *    required:
+   *      - _id
+   *      - _rev
+   *    properties:
+   *      _id:
+   *        type: string
+   *      _rev:
+   *        type: string
+   *      schema:
+   *        type: string
+   *      title:
+   *        type: string
+   *      slug:
+   *        type: string
+   *      thumbnail:
+   *        type: object
+   *      fields:
+   *        type: object
+   *      published:
+   *        type: boolean
+   *      publishedAt:
+   *        type: date
+   */
+
+  /**
+   * @swagger
+   * /entities/index:
+   *  get:
+   *    tags:
+   *      - entities
+   *    summary: Show indexes
+   *    description: Show all indexes, use this to find fields available for search/query.
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *    responses:
+   *      200:
+   *        description: Indexes
+   */
+  config._router.get('/entities/index.:ext?', (req, res) => {
+    config._db(req).indexAsync()
+      .then(config._sendResponse.bind(null, res), config._handleError.bind(null, res));
+  });
+
+  /**
+   * @swagger
    * /entities/search:
    *  get:
    *    tags:
    *      - entities
    *    summary: Search entities
-   *    description: This endpoint extends Cloudant's Lucene based search, learn more from their [documentation](https://docs.cloudant.com/search.html).
+   *    description: This endpoint extends Cloudant's Lucene based search. Learn more from Cloudant's [documentation](https://docs.cloudant.com/search.html).
    *    produces:
    *      - application/json
    *    parameters:
-   *      - name: q
+   *      - name: query
    *        description: Lucene search query
    *        in: query
    *        required: true
@@ -68,6 +117,17 @@ module.exports = (config) => {
    *    responses:
    *      200:
    *        description: Search result
+   *        schema:
+   *          type: object
+   *          properties:
+   *            bookmark:
+   *              type: string
+   *            total_rows:
+   *              type: number
+   *            rows:
+   *              type: array
+   *              items:
+   *                $ref: '#/definitions/Entity'
    */
   config._router.get('/entities/search?.:ext?', config._useCachedResponse, (req, res) => {
     let children = req.query.children !== undefined ? JSON.parse(req.query.children) : false;
@@ -97,11 +157,11 @@ module.exports = (config) => {
       query.push('published:true');
     }
 
-    if (req.query.q) {
-      query.push(req.query.q);
+    if (req.query.query || req.query.q) {
+      query.push(req.query.query || req.query.q);
     }
 
-    req.query.q = query.join(' AND ');
+    req.query.query = query.join(' AND ');
 
     const entity = new Entity(config._db.bind(null, req));
 
@@ -109,6 +169,47 @@ module.exports = (config) => {
       .then(config._cacheAndSendResponse.bind(null, req, res), config._handleError.bind(null, res));
   });
 
+  /**
+   * @swagger
+   * /entities/find:
+   *  get:
+   *    tags:
+   *      - entities
+   *    summary: Query entities
+   *    description: This endpoint extends CouchDB's Mango query. Learn more from Cloudant's [documentation](https://docs.cloudant.com/cloudant_query.html#finding-documents-using-an-index).
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: query
+   *        description: JSON query object, refer to CouchDB/Cloudant docs.
+   *        in: query
+   *        required: true
+   *        type: string
+   *      - name: children
+   *        description: Get child entities
+   *        in: query
+   *        required: false
+   *        type: boolean
+   *        default: false
+   *      - name: parents
+   *        description: Get parent entities
+   *        in: query
+   *        required: false
+   *        type: boolean
+   *        default: false
+   *    responses:
+   *      200:
+   *        description: Query result
+   *        schema:
+   *          type: object
+   *          properties:
+   *            bookmark:
+   *              type: string
+   *            docs:
+   *              type: array
+   *              items:
+   *                $ref: '#/definitions/Entity'
+   */
   config._router.get('/entities/find.:ext?', config._useCachedResponse, (req, res) => {
     const query = JSON.parse(req.query.query);
     let children = req.query.children !== undefined ? JSON.parse(req.query.children) : false;
@@ -140,6 +241,47 @@ module.exports = (config) => {
       .then(config._sendResponse.bind(null, res), config._handleError.bind(null, res));
   });
 
+  /**
+   * @swagger
+   * /entities:
+   *  get:
+   *    tags:
+   *      - entities
+   *    summary: Get all entities
+   *    description:
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: id
+   *        description: Entity ID
+   *        in: query
+   *        required: false
+   *        type: string
+   *      - name: ids
+   *        description: Entity IDs
+   *        in: query
+   *        required: false
+   *        type: array
+   *      - name: children
+   *        description: Get child entities
+   *        in: query
+   *        required: false
+   *        type: boolean
+   *        default: false
+   *      - name: parents
+   *        description: Get parent entities
+   *        in: query
+   *        required: false
+   *        type: boolean
+   *        default: false
+   *    responses:
+   *      200:
+   *        description: Entities
+   *        schema:
+   *          type: array
+   *          items:
+   *            $ref: '#/definitions/Entity'
+   */
   config._router.all('/entities/:view?/:list?.:ext?', config._useCachedResponse, (req, res) => {
     let children = req.query.children !== undefined ? JSON.parse(req.query.children) : false;
     let parents = req.query.parents !== undefined ? JSON.parse(req.query.parents) : false;
@@ -153,7 +295,9 @@ module.exports = (config) => {
 
     const keys = req.query.ids || req.query.id || req.body.ids || req.body.id;
 
-    req.query.keys = _.isArray(keys) ? keys : [keys];
+    if (keys) {
+      req.query.keys = _.isArray(keys) ? keys : [keys];
+    }
     req.query.include_docs = true;
 
     if (req.session.userAuthorised || req.session.guestAuthorised) {

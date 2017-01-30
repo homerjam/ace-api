@@ -32,7 +32,7 @@ module.exports = (config) => {
    *        type: boolean
    *    responses:
    *      200:
-   *        description: template
+   *        description: Template
    */
   config._router.all('/email/template.:ext?', (req, res) => {
     const input = Object.keys(req.body).length ? req.body : req.query || {};
