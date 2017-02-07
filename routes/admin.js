@@ -1,5 +1,7 @@
+const _ = require('lodash');
 const Auth = require('../lib/auth');
 const Admin = require('../lib/admin');
+const Roles = require('../lib/roles');
 
 const types = ['user', 'schema', 'field', 'action', 'taxonomy'];
 
@@ -10,6 +12,15 @@ module.exports = (config) => {
 
     admin.getUser(req.session.email, req.session.superUser)
       .then(config._sendResponse.bind(null, res), config._handleError.bind(null, res));
+  });
+
+  config._router.get('/admin/roles.:ext?', config._ensureAuthenticated, (req, res) => {
+    const roles = _.mapValues(Roles, (role, slug) => {
+      role.slug = slug;
+      return role;
+    });
+
+    res.status(200).send(roles);
   });
 
   types.forEach((type) => {

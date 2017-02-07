@@ -258,7 +258,6 @@ function Api (config) {
     require('./routes/file')(config);
     require('./routes/metadata')(config);
     require('./routes/pdf')(config);
-    require('./routes/role')(config);
     require('./routes/settings')(config);
     require('./routes/shippo')(config);
     require('./routes/social')(config);
@@ -286,7 +285,6 @@ function Api (config) {
     Helpers: require('./lib/helpers'),
     Instagram: require('./lib/instagram'),
     Pdf: require('./lib/pdf'),
-    Roles: require('./lib/roles'),
     Settings: require('./lib/settings'),
     Shippo: require('./lib/shippo'),
     Stripe: require('./lib/stripe'),
