@@ -12,6 +12,9 @@ var ddoc = {
     byId: {
       map: require('./views/byId'),
     },
+    byIdExtended: {
+      map: require('./views/byIdExtended'),
+    },
     byTaxonomyTerm: {
       map: function (doc) {
         if (doc.type === 'entity') {

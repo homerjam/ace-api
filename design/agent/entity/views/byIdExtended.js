@@ -18,6 +18,11 @@ module.exports = function (doc) {
               slug: fieldSlug,
               index: index,
             });
+
+            emit(item.id, {
+              _id: doc.id,
+              type: 'parent',
+            });
           }
         });
       }
