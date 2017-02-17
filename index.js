@@ -8,6 +8,7 @@ const lru = require('lru-cache');
 const jwt = require('jsonwebtoken');
 const CircularJSON = require('circular-json');
 const memwatch = require('memwatch-next');
+const sizeof = require('object-sizeof');
 
 if (!process.env.ENVIRONMENT) {
   env('.env');
@@ -104,7 +105,11 @@ function Api (config) {
   if (config.cache) {
     cache = lru({
       max: cacheMaxSize,
-      length: item => Buffer.byteLength(item, 'utf8'),
+      length: (item, key) => {
+        // const length = Buffer.byteLength(item, 'utf8');
+        const length = sizeof(item);
+        return length;
+      },
       maxAge: cacheMaxAge,
     });
   }

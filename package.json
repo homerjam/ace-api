@@ -1,6 +1,6 @@
 {
   "name": "ace-api",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "ACE API",
   "author": {
     "name": "Studio Thomas",
@@ -60,6 +60,7 @@
     "node-uuid": "^1.4.7",
     "nodemailer": "^2.7.2",
     "nodemailer-mailgun-transport": "^1.2.4",
+    "object-sizeof": "^1.1.1",
     "passport": "^0.3.2",
     "passport-auth0": "^0.6.0",
     "password-hash": "^1.2.2",
