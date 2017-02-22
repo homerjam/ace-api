@@ -116,19 +116,6 @@ function Api (config) {
 
   const router = express.Router();
 
-  router.get('/cache/clear', (req, res) => {
-    if (config.cache) {
-      const itemsCount = cache.keys().length;
-
-      cache.reset();
-
-      res.status(200).send(`Successfully cleared ${itemsCount} items from the cache`);
-
-    } else {
-      res.status(200).send('Cache disabled');
-    }
-  });
-
   function useCachedResponse (req, res, next) {
     req.session.guestAuthorised = req.session.guestAuthorised ? req.session.guestAuthorised : config.forceAuth;
 
@@ -253,6 +240,7 @@ function Api (config) {
     config._cacheAndSendResponse = cacheAndSendResponse;
 
     require('./routes/admin')(config);
+    require('./routes/cache')(config);
     require('./routes/analytics')(config);
     require('./routes/auth')(config);
     require('./routes/debug')(config);

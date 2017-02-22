@@ -85,6 +85,11 @@ module.exports = (config) => {
    *        in: query
    *        required: false
    *        type: number
+   *      - name: bookmark
+   *        description: Bookmark for the next page of results
+   *        in: query
+   *        required: false
+   *        type: string
    *      - name: group_field
    *        description: Field to group results by
    *        in: query
