@@ -38,7 +38,24 @@ module.exports = (config) => {
     s3.getSignedUrl(req.query.bucket, req.query.key, req.query.filename)
       .then((url) => {
         res.status(200);
+
+        if (req.query.redirect && !JSON.parse(req.query.redirect)) {
+          res.send(url);
+          return;
+        }
+
         res.redirect(url);
       }, config._handleError.bind(null, res));
   });
+
+  config._router.get('/file/download/s3/:filename.:ext?', (req, res) => {
+    const s3 = new S3(config);
+
+    s3.getObject(req.query.bucket, req.query.key)
+      .then((result) => {
+        res.attachment(req.params.filename);
+        res.send(result);
+      }, config._handleError.bind(null, res));
+  });
+
 };
