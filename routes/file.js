@@ -48,13 +48,13 @@ module.exports = (config) => {
       }, config._handleError.bind(null, res));
   });
 
-  config._router.get('/file/download/s3/:filename.:ext?', (req, res) => {
+  config._router.get('/file/download/s3/:filename', (req, res) => {
     const s3 = new S3(config);
 
     s3.getObject(req.query.bucket, req.query.key)
       .then((result) => {
         res.attachment(req.params.filename);
-        res.send(result);
+        res.send(result.Body);
       }, config._handleError.bind(null, res));
   });
 
