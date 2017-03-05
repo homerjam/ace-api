@@ -48,11 +48,17 @@ module.exports = (config) => {
       }, config._handleError.bind(null, res));
   });
 
-  config._router.get('/file/s3/:filename', (req, res) => {
+  config._router.all('/file/s3/:filename', (req, res) => {
     const s3 = new S3(config);
 
     s3.getObject(req.query.bucket, req.query.key)
       .then((result) => {
+        res.removeHeader('x-content-type-options');
+        res.removeHeader('x-dns-prefetch-control');
+        res.removeHeader('x-download-options');
+        res.removeHeader('x-frame-options');
+        res.removeHeader('x-xss-protection');
+
         res.type(req.params.filename.split('.').splice(-1)[0]);
 
         if (req.query.download && JSON.parse(req.query.download)) {
