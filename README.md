@@ -1,12 +1,6 @@
 # ACE API
 
-RESTish API module used by ACE projects
-
-### Documentation
-
-Documentation is currently a work in progress.
-
-http://petstore.swagger.io/?url=https://rawgit.com/StudioThomas/ace-api/master/docs/api.json#/
+API module used by ACE projects
 
 ### Environment Variables
 

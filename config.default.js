@@ -4,6 +4,8 @@ const config = {
   environment: process.env.ENVIRONMENT || 'development',
   debug: process.env.DEBUG || false,
   cache: process.env.CACHE || false,
+  cacheMaxSize: process.env.CACHE_MAX_SIZE || 32 * 1000 * 1000, // ~32mb
+  cacheMaxAge: process.env.CACHE_MAX_AGE || 30 * 60 * 1000, // 30mins
 
   apiPrefix: 'api',
 
