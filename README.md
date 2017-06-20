@@ -16,7 +16,7 @@ API module used by ACE projects
 
     ENVIRONMENT=development|testing|production
     DEBUG=false # Change to nano etc
-    CACHE=false
+    CACHE_ENABLED=false
 
     DB_NAME=
     DB_URL=
