@@ -32,7 +32,7 @@
     "express": "^4.15.3",
     "express-useragent": "^1.0.7",
     "formidable": "^1.0.17",
-    "googleapis": "^20.0.0",
+    "googleapis": "^19.0.0",
     "hashids": "^1.1.1",
     "heapdump": "^0.3.9",
     "html-to-text": "^3.3.0",
