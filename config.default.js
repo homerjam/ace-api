@@ -14,25 +14,25 @@ const config = {
 
   forceAuth: false,
 
-  slug: process.env.SLUG || '',
+  slug: process.env.SLUG,
   baseUrl: process.env.BASE_URL || '',
 
   db: {
-    url: process.env.DB_URL || '',
-    host: process.env.DB_HOST || null,
-    name: process.env.DB_NAME || '',
+    url: process.env.DB_URL,
+    host: process.env.DB_HOST,
+    name: process.env.DB_NAME,
   },
 
   auth: {
-    dbName: process.env.AUTH_DB_NAME || '',
+    dbName: process.env.AUTH_DB_NAME,
     superUserId: process.env.AUTH_SUPER_USER_ID || '',
-    tokenSecret: process.env.AUTH_TOKEN_SECRET || '',
+    tokenSecret: process.env.AUTH_TOKEN_SECRET || 'change_this_secret',
   },
 
   dev: {
+    slug: process.env.DEV_SLUG,
+    dbName: process.env.DEV_DB_NAME,
     email: process.env.DEV_EMAIL || '',
-    slug: process.env.DEV_SLUG || '',
-    dbName: process.env.DEV_DB_NAME || '',
     role: process.env.DEV_ROLE || '',
     superUser: process.env.DEV_SUPER_USER ? JSON.parse(process.env.DEV_SUPER_USER) : false,
     storeName: process.env.DEV_STORE_NAME,
@@ -128,7 +128,7 @@ const config = {
   },
 
   email: {
-    templatesPath: path.join(__dirname, 'email'),
+    templatesPath: path.resolve(__dirname, 'email'),
   },
 };
 
