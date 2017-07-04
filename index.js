@@ -20,6 +20,7 @@ Api.File = require('./lib/file');
 Api.Flow = require('./lib/flow');
 Api.Helpers = require('./lib/helpers');
 Api.Instagram = require('./lib/instagram');
+Api.Jwt = require('./lib/jwt');
 Api.Pdf = require('./lib/pdf');
 Api.Settings = require('./lib/settings');
 Api.Shippo = require('./lib/shippo');

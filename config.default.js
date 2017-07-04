@@ -25,16 +25,15 @@ const config = {
 
   auth: {
     dbName: process.env.AUTH_DB_NAME,
-    superUserId: process.env.AUTH_SUPER_USER_ID || '',
+    superUserId: process.env.AUTH_SUPER_USER_ID,
     tokenSecret: process.env.AUTH_TOKEN_SECRET || 'change_this_secret',
   },
 
   dev: {
+    userId: process.env.DEV_USER_ID,
     slug: process.env.DEV_SLUG,
-    dbName: process.env.DEV_DB_NAME,
-    email: process.env.DEV_EMAIL || '',
-    role: process.env.DEV_ROLE || '',
-    superUser: process.env.DEV_SUPER_USER ? JSON.parse(process.env.DEV_SUPER_USER) : false,
+    role: process.env.DEV_ROLE,
+    email: process.env.DEV_EMAIL,
     storeName: process.env.DEV_STORE_NAME,
     senderName: process.env.DEV_SENDER_NAME,
     senderAddress: process.env.DEV_SENDER_ADDRESS,
