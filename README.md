@@ -35,3 +35,6 @@ API module used by ACE projects
     $ heroku repo:purge_cache -a appname && \
         git commit --allow-empty -m "rebuild" && \
         git push heroku master
+
+    # Push design documents to database
+    $ source .env; node design $DB_URL $DB_NAME agent

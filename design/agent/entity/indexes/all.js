@@ -63,19 +63,20 @@ module.exports = function (doc) {
     function indexFields (fields) {
       for (var fieldSlug in fields) {
         var fieldValue = fields[fieldSlug].value;
+        var fieldType = fields[fieldSlug].fieldType;
+
+        var indexValue = null;
+        var indexSortValue = null;
+        var indexSlugValue = null;
+
+        var titles;
+        var slugs;
+
+        var fieldValueObjectType = toString.call(fieldValue);
 
         if (fieldValue) {
 
-          var indexValue;
-          var indexSortValue;
-          var indexSlugValue;
-
-          var titles;
-          var slugs;
-
-          var dataType = toString.call(fieldValue);
-
-          if (dataType === '[object Array]') {
+          if (fieldValueObjectType === '[object Array]') {
             titles = [];
             slugs = [];
 
@@ -94,23 +95,23 @@ module.exports = function (doc) {
             titles = titles.filter(unique);
             slugs = slugs.filter(unique);
 
-            indexValue = indexSortValue = titles.length ? titles.join(', ') : 'EMPTY';
-            indexSlugValue = slugs.length ? slugs.join(', ') : 'EMPTY';
+            indexValue = indexSortValue = titles.length ? titles.join(', ') : 'NULL';
+            indexSlugValue = slugs.length ? slugs.join(', ') : 'NULL';
           }
 
-          if (dataType === '[object Object]') {
+          if (fieldValueObjectType === '[object Object]') {
             var fieldValueType = fieldValue.type;
 
-            if (fieldValueType === 'entity' || fieldValueType === 'option') {
+            if (fieldType === 'entity' || fieldValueType === 'option') {
               indexValue = indexSortValue = fieldValue.title;
               indexSlugValue = fieldValue.slug;
             }
 
-            if (fieldValueType === 'richText') {
+            if (fieldType === 'richText') {
               indexValue = fieldValue.html ? fieldValue.html.replace(/(<([^>]+)>)/ig, '') : 'NULL';
             }
 
-            if (fieldValueType === 'taxonomy') {
+            if (fieldType === 'taxonomy') {
               titles = [];
               slugs = [];
 
@@ -131,11 +132,11 @@ module.exports = function (doc) {
               titles = titles.filter(unique);
               slugs = slugs.filter(unique);
 
-              value = indexSortValue = titles.length ? titles.join(', ') : 'EMPTY';
-              indexSlugValue = slugs.length ? slugs.join(', ') : 'EMPTY';
+              indexValue = indexSortValue = titles.length ? titles.join(', ') : 'NULL';
+              indexSlugValue = slugs.length ? slugs.join(', ') : 'NULL';
             }
 
-            if (fieldValueType === 'file') {
+            if (fieldType === 'file') {
               index('fields.' + fieldSlug + '.fileName', fieldValue.fileName || '', {
                 store: false,
                 index: 'analyzed',
@@ -147,7 +148,7 @@ module.exports = function (doc) {
             }
           }
 
-          if (dataType === '[object String]' || dataType === '[object Number]') {
+          if (fieldValueObjectType === '[object String]' || fieldValueObjectType === '[object Number]') {
             if (/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/.test(fieldValue)) {
               indexValue = fieldValue;
               indexSortValue = new Date(Date.parse(fieldValue)).getTime();
