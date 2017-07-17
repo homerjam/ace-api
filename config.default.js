@@ -15,6 +15,8 @@ const config = {
   slug: process.env.SLUG,
   baseUrl: process.env.BASE_URL || '',
 
+  forceHttps: process.env.FORCE_HTTPS ? JSON.parse(process.env.FORCE_HTTPS) : false,
+
   db: {
     url: process.env.DB_URL,
     host: process.env.DB_HOST,
