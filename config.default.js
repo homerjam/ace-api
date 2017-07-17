@@ -10,9 +10,7 @@ const config = {
     maxAge: process.env.CACHE_MAX_AGE || 30 * 60 * 1000, // 30mins
   },
 
-  apiPrefix: 'api',
-
-  forceAuth: false,
+  apiPrefix: '',
 
   slug: process.env.SLUG,
   baseUrl: process.env.BASE_URL || '',
