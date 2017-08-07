@@ -1,59 +1,12 @@
 var ddoc = {
   _id: '_design/file',
   views: {
-    revs: {
-      map: function (doc) {
-        if (doc.type === 'file') {
-          emit(doc._id, doc._rev);
-        }
-      },
-    },
-    active: {
-      map: function (doc) {
-        if (doc.type === 'file' && doc.entity) {
-          emit([doc.location, new Date(Date.parse(doc.uploaded || 0)).getTime()], null);
-        }
-      },
-    },
     trashed: {
       map: function (doc) {
         if (doc.type === 'file' && !doc.entity) {
-          emit([doc.location, new Date(Date.parse(doc.uploaded || 0)).getTime()], null);
+          emit(doc._id, null);
         }
       },
-    },
-  },
-  lists: {
-    key: function () {
-      provides('json', function () {
-        var row;
-        var rows = [];
-
-        while (row = getRow()) {
-          rows.push(row.key);
-        }
-
-        send(JSON.stringify(rows));
-      });
-    },
-    sort: function (head, req) {
-      var row;
-      var rows = [];
-
-      while (row = getRow()) {
-        rows.push(row);
-      }
-
-      rows.sort(function (a, b) {
-        if (a.doc[req.query.prop] < b.doc[req.query.prop]) return -1;
-        if (a.doc[req.query.prop] > b.doc[req.query.prop]) return 1;
-        return 0;
-      });
-
-      send(JSON.stringify({
-        total_rows: rows.length,
-        rows: rows,
-      }));
     },
   },
   indexes: {

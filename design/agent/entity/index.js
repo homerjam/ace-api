@@ -6,14 +6,17 @@ var ddoc = {
     lib: {
       lodash: fs.readFileSync('./node_modules/lodash/lodash.min.js').toString('utf8'),
     },
-    byFile: {
-      map: require('./views/byFile'),
-    },
     byId: {
       map: require('./views/byId'),
     },
     byIdExtended: {
       map: require('./views/byIdExtended'),
+    },
+    byChildren: {
+      map: require('./views/byChildren'),
+    },
+    byFile: {
+      map: require('./views/byFile'),
     },
     byTaxonomyTerm: {
       map: require('./views/byTaxonomyTerm'),
@@ -24,29 +27,12 @@ var ddoc = {
         return values.filter(unique);
       },
     },
-    revs: {
-      map: function (doc) {
-        if (doc.type === 'entity') {
-          emit(doc._id, doc._rev);
-        }
-      },
-    },
-    active: {
-      map: function (doc) {
-        if (doc.type === 'entity' && !doc.trashed) {
-          emit([doc.schema, doc.modified], null);
-        }
-      },
-    },
     trashed: {
       map: function (doc) {
         if (doc.type === 'entity' && doc.trashed) {
-          emit([doc.schema, doc.modified], null);
+          emit(doc._id, null);
         }
       },
-    },
-    children: {
-      map: require('./views/children'),
     },
   },
   indexes: {

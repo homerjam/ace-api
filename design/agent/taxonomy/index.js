@@ -1,7 +1,7 @@
 var ddoc = {
   _id: '_design/taxonomy',
   views: {
-    byKey: {
+    bySlug: {
       map: function(doc) {
         if (doc.type === 'taxonomy') {
           emit(doc.slug, null);
