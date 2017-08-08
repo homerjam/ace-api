@@ -14,7 +14,7 @@ module.exports = function (doc) {
 
         if (obj.type === 'entity') {
           emit(obj.id, {
-            _id: doc._id
+            _id: doc._id,
           });
         }
       });

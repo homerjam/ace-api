@@ -1,17 +1,10 @@
-const env = require('node-env-file');
-
-if (!process.env.ENVIRONMENT) {
-  env('.env');
-}
-
-function Api() {
-
-}
+function Api() { }
 
 Api.Admin = require('./lib/admin');
 Api.Analytics = require('./lib/analytics');
 Api.Assist = require('./lib/assist');
 Api.Auth = require('./lib/auth');
+Api.ClientConfig = require('./lib/clientConfig');
 Api.Ecommerce = require('./lib/ecommerce');
 Api.Email = require('./lib/email');
 Api.Embedly = require('./lib/embedly');
