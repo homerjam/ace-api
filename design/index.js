@@ -1,10 +1,7 @@
 var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
-var env = require('node-env-file');
 var request = require('request-promise');
-
-env('.env');
 
 var args = process.argv.slice(2);
 

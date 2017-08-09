@@ -63,7 +63,7 @@ module.exports = function (doc) {
     function indexFields (fields) {
       for (var fieldSlug in fields) {
         var fieldValue = fields[fieldSlug].value;
-        var fieldType = fields[fieldSlug].fieldType;
+        var fieldType = fields[fieldSlug].type;
 
         var indexValue = null;
         var indexSortValue = null;
