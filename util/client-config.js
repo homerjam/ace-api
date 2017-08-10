@@ -109,12 +109,12 @@ args.forEach(async (dbName) => {
       ecommerce: (generalSettings.ecommerce && generalSettings.ecommerce.enabled),
     },
     module: {
-      ecommerce: _.omit(ecommerceSettings, ['_id', '_rev', 'modified', 'modifiedBy']),
+      ecommerce: _.omit(ecommerceSettings, ['_id', '_rev', 'modified', 'modifiedBy', 'stripe']),
     },
     providerEnabled: generalSettings.providers,
     provider: {
       instagram: generalSettings.instagram || false,
-      // stripe: generalSettings.stripe || false,
+      stripe: ecommerceSettings.stripe || false,
       vimeo: generalSettings.vimeo || false,
     },
     schemas: updatedSchemas,
