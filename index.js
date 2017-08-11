@@ -1,6 +1,6 @@
 function Api() { }
 
-Api.Admin = require('./lib/admin');
+// Api.Admin = require('./lib/admin');
 Api.Analytics = require('./lib/analytics');
 Api.Assist = require('./lib/assist');
 Api.Auth = require('./lib/auth');
@@ -22,6 +22,7 @@ Api.S3 = require('./lib/s3');
 Api.Taxonomy = require('./lib/taxonomy');
 Api.Tools = require('./lib/tools');
 Api.Transcode = require('./lib/transcode');
+Api.User = require('./lib/user');
 Api.Zencode = require('./lib/zencode');
 
 module.exports = Api;
