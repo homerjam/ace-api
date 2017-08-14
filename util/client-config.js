@@ -38,17 +38,23 @@ args.forEach(async (dbName) => {
     doc = _.omit(doc, ['_id', '_rev', 'trashed']);
     doc.type = doc.actionType;
     delete doc.actionType;
+    if (!doc.settings) {
+      doc.settings = {};
+    }
+    if (doc.url) {
+      doc.settings = {
+        url: doc.url,
+      };
+      delete doc.url;
+    }
     return doc;
   });
 
   schemas = schemas.map((doc) => {
     doc = _.omit(doc, ['_id', '_rev', 'trashed', 'locked', 'type', 'filterFields', 'view', 'titleField', 'slugField', 'notes']);
     if (doc.thumbnailField) {
-      doc.thumbnailField = [doc.thumbnailField];
-    }
-    if (doc.sortFields) {
-      doc.gridColumns = doc.sortFields;
-      delete doc.sortFields;
+      doc.thumbnailFields = [doc.thumbnailField];
+      delete doc.thumbnailField;
     }
     doc.settings = {
       singular: doc.singular || false,
@@ -89,11 +95,23 @@ args.forEach(async (dbName) => {
 
   const updatedSchemas = schemas.map((schema) => {
     if (schema.fields) {
-      schema.fields = schema.fields.map(field => fieldsBySlug[field.slug]);
+      schema.fields = schema.fields.map((field) => {
+        field = fieldsBySlug[field.slug];
+
+        if (schema.sortFields) {
+          field.settings.gridColumn = schema.sortFields.indexOf(field.slug) !== -1;
+        }
+
+        return field;
+      });
     }
+
+    delete schema.sortFields;
+
     if (schema.actions) {
       schema.actions = schema.actions.map(action => actionsBySlug[action.slug]);
     }
+
     return schema;
   });
 
