@@ -2,6 +2,10 @@ var fs = require('fs');
 
 var ddoc = {
   _id: '_design/entity',
+  lib: {
+    lodash: fs.readFileSync('./node_modules/lodash/lodash.min.js').toString('utf8'),
+    fuse: fs.readFileSync('./node_modules/fuse.js/dist/fuse.min.js').toString('utf8'),
+  },
   views: {
     lib: {
       lodash: fs.readFileSync('./node_modules/lodash/lodash.min.js').toString('utf8'),
@@ -17,6 +21,10 @@ var ddoc = {
     },
     byFile: {
       map: require('./views/byFile'),
+    },
+    byField: {
+      map: require('./views/byField'),
+      reduce: '_sum',
     },
     byTaxonomyTerm: {
       map: require('./views/byTaxonomyTerm'),
@@ -34,6 +42,9 @@ var ddoc = {
         }
       },
     },
+  },
+  lists: {
+    search: require('./lists/search'),
   },
   indexes: {
     all: {

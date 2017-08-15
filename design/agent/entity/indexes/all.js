@@ -81,14 +81,9 @@ module.exports = function (doc) {
             slugs = [];
 
             fieldValue.forEach(function (obj) {
-              if (obj.type === 'entity' || obj.type === 'option') {
+              if (obj.type === 'entity') {
                 titles.push(obj.title);
                 slugs.push(obj.slug);
-              }
-
-              if (obj.type === 'keyValue') {
-                titles.push(obj.value);
-                slugs.push(obj.value);
               }
             });
 

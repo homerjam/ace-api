@@ -33,6 +33,7 @@
     "express": "^4.15.3",
     "express-useragent": "^1.0.7",
     "formidable": "^1.0.17",
+    "fuse.js": "^3.0.5",
     "googleapis": "^20.1.0",
     "hashids": "^1.1.1",
     "heapdump": "^0.3.9",
