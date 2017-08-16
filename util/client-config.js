@@ -18,15 +18,22 @@ const fieldDataTypeMap = {
 args.forEach(async (dbName) => {
   const db = Promise.promisifyAll(cloudant.use(dbName));
 
-  let [generalSettings, ecommerceSettings, fields, actions, schemas, users, taxonomies] = await Promise.all([
+  let [generalSettings, fields, actions, schemas, users, taxonomies] = await Promise.all([
     db.getAsync('settings'),
-    db.getAsync('ecommerce.settings'),
     (await db.viewAsync('admin', 'fieldByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
     (await db.viewAsync('admin', 'actionByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
     (await db.viewAsync('admin', 'schemaByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
     (await db.viewAsync('admin', 'userByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
     (await db.viewAsync('admin', 'taxonomyByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
   ]);
+
+  let ecommerceSettings;
+
+  try {
+    ecommerceSettings = await db.getAsync('ecommerce.settings');
+  } catch (error) {
+    //
+  }
 
   fields = fields.map((doc) => {
     doc = _.omit(doc, ['_id', '_rev', 'trashed']);
@@ -106,6 +113,10 @@ args.forEach(async (dbName) => {
       schema.fields = schema.fields.map((field) => {
         field = fieldsBySlug[field.slug];
 
+        if (!field.settings) {
+          field.settings = {};
+        }
+
         if (schema.sortFields) {
           field.settings.gridColumn = schema.sortFields.indexOf(field.slug) !== -1;
         }
@@ -135,13 +146,13 @@ args.forEach(async (dbName) => {
       ecommerce: (generalSettings.ecommerce && generalSettings.ecommerce.enabled),
     },
     module: {
-      ecommerce: _.omit(ecommerceSettings, ['_id', '_rev', 'modified', 'modifiedBy', 'stripe']),
+      ecommerce: ecommerceSettings ? _.omit(ecommerceSettings, ['_id', '_rev', 'modified', 'modifiedBy', 'stripe']) : null,
     },
     providerEnabled: generalSettings.providers,
     provider: {
-      instagram: generalSettings.instagram || false,
-      stripe: ecommerceSettings.stripe || false,
-      vimeo: generalSettings.vimeo || false,
+      instagram: generalSettings.instagram || null,
+      stripe: ecommerceSettings ? ecommerceSettings.stripe || null : null,
+      vimeo: generalSettings.vimeo || null,
     },
     schemas: updatedSchemas,
     users,
