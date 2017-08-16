@@ -13,17 +13,17 @@ var ddoc = {
     all: {
       index: function (doc) {
         if (doc.type === 'file') {
-          index('trashed', doc.entity ? false : true, {
+          index('trashed', !doc.entity, {
             store: true,
             index: 'not_analyzed',
           });
 
-          index('uploaded', doc.uploaded, {
+          index('uploadedAt', doc.uploadedAt, {
             store: true,
             index: 'not_analyzed',
           });
 
-          index('sort.uploaded', new Date(Date.parse(doc.uploaded || 0)).getTime(), {
+          index('sort.uploadedAt', new Date(Date.parse(doc.uploadedAt || 0)).getTime(), {
             store: false,
             index: 'not_analyzed',
           });

@@ -51,7 +51,7 @@ module.exports = function (doc) {
       index: 'not_analyzed',
     });
 
-    index('sort.modified', new Date(Date.parse(doc.modified || 0)).getTime(), {
+    index('sort.modifiedAt', new Date(Date.parse(doc.modifiedAt || 0)).getTime(), {
       store: false,
       index: 'not_analyzed',
     });
@@ -65,7 +65,7 @@ module.exports = function (doc) {
         var fieldValue = fields[fieldSlug].value;
         var fieldType = fields[fieldSlug].type;
 
-        var indexValue = null;
+        var indexValue = 'NULL';
         var indexSortValue = null;
         var indexSlugValue = null;
 
@@ -81,8 +81,10 @@ module.exports = function (doc) {
             slugs = [];
 
             fieldValue.forEach(function (obj) {
-              if (obj.type === 'entity') {
+              if (obj.title) {
                 titles.push(obj.title);
+              }
+              if (obj.slug) {
                 slugs.push(obj.slug);
               }
             });
@@ -90,29 +92,26 @@ module.exports = function (doc) {
             titles = titles.filter(unique);
             slugs = slugs.filter(unique);
 
-            indexValue = indexSortValue = titles.length ? titles.join(', ') : 'NULL';
-            indexSlugValue = slugs.length ? slugs.join(', ') : 'NULL';
+            if (titles.length) {
+              indexValue = titles.join(', ');
+              indexSortValue = indexValue;
+            }
+            if (slugs.length) {
+              indexSlugValue = slugs.join(', ');
+            }
           }
 
           if (fieldValueObjectType === '[object Object]') {
-            var fieldValueType = fieldValue.type;
 
-            if (fieldType === 'entity' || fieldValueType === 'option') {
-              indexValue = indexSortValue = fieldValue.title;
-              indexSlugValue = fieldValue.slug;
-            }
-
-            if (fieldType === 'richText') {
+            if (fieldValue.html) {
               indexValue = fieldValue.html ? fieldValue.html.replace(/(<([^>]+)>)/ig, '') : 'NULL';
             }
 
-            if (fieldType === 'taxonomy') {
+            if (fieldValue.terms && fieldValue.terms.length) {
               titles = [];
               slugs = [];
 
-              var terms = toString.call(fieldValue.terms) === '[object Array]' ? fieldValue.terms : [];
-
-              terms.forEach(function (term) {
+              fieldValue.terms.forEach(function (term) {
                 titles.push(term.title);
                 slugs.push(term.slug);
 
@@ -127,31 +126,45 @@ module.exports = function (doc) {
               titles = titles.filter(unique);
               slugs = slugs.filter(unique);
 
-              indexValue = indexSortValue = titles.length ? titles.join(', ') : 'NULL';
-              indexSlugValue = slugs.length ? slugs.join(', ') : 'NULL';
+              if (titles.length) {
+                indexValue = titles.join(', ');
+                indexSortValue = indexValue;
+              }
+              if (slugs.length) {
+                indexSlugValue = slugs.join(', ');
+              }
             }
 
             if (fieldType === 'file') {
+              indexValue = null;
+
               index('fields.' + fieldSlug + '.fileName', fieldValue.fileName || '', {
                 store: false,
                 index: 'analyzed',
               });
+
               index('fields.' + fieldSlug + '.original.fileName', fieldValue.original.fileName, {
                 store: false,
                 index: 'analyzed',
               });
             }
+
           }
 
-          if (fieldValueObjectType === '[object String]' || fieldValueObjectType === '[object Number]') {
+          if (fieldValueObjectType === '[object String]') {
+
             if (/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/.test(fieldValue)) {
               indexValue = fieldValue;
               indexSortValue = new Date(Date.parse(fieldValue)).getTime();
-
-            } else {
-              fieldValue = fieldValue === null || fieldValue === undefined ? 'NULL' : fieldValue;
-              indexValue = indexSortValue = fieldValue;
             }
+
+          }
+
+          if (fieldValueObjectType === '[object Number]') {
+
+            indexValue = fieldValue;
+            indexSortValue = indexValue;
+
           }
 
           if (indexValue) {

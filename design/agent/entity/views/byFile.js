@@ -2,12 +2,12 @@ module.exports = function (doc) {
   if (doc.type === 'entity') {
     var _ = require('views/lib/lodash');
 
-    _.forEach(doc.fields, function (field, fieldSlug) {
-      var fieldValue = field.value;
+    _.forEach(doc.fields, function (field) {
 
-      if (_.isObject(fieldValue) && fieldValue.type === 'file') {
-        emit(fieldValue.id, null);
+      if (field.type === 'file' && field.value && field.value.id) {
+        emit(field.value.id, null);
       }
+
     });
   }
 };

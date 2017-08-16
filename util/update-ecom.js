@@ -10,7 +10,7 @@ if (!args[0]) {
   throw Error('No db specified');
 }
 
-const docFilter = doc => doc.type && doc.type === 'entity';
+const docFilter = doc => doc.type && /order|customer/.test(doc.type);
 
 const docMutate = (doc) => {
   if (!doc.modifiedAt) {
@@ -22,15 +22,6 @@ const docMutate = (doc) => {
     doc.createdAt = doc.created;
     delete doc.created;
   }
-
-  doc.fields = _.mapValues(doc.fields, (field) => {
-    if (field.fieldType) {
-      field.type = field.fieldType;
-      delete field.fieldType;
-    }
-
-    return field;
-  });
 
   return doc;
 };

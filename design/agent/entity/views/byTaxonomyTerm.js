@@ -3,12 +3,9 @@ module.exports = function (doc) {
     var _ = require('views/lib/lodash');
 
     _.forEach(doc.fields, function(field) {
-      if (!_.isObject(field.value)) {
-        return;
-      }
 
-      if (field.value.type === 'taxonomy') {
-        _.forEach(field.value.terms || [], function (term) {
+      if (field.type === 'taxonomy' && field.value && field.value.terms && field.value.terms.length) {
+        _.forEach(field.value.terms, function (term) {
           if (term.id) {
             emit(term.id, doc._id);
           }
@@ -19,6 +16,7 @@ module.exports = function (doc) {
           });
         });
       }
+
     });
   }
 };

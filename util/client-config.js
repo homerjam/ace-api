@@ -8,6 +8,13 @@ const cloudant = new Cloudant({
   url: process.env.DB_URL,
 });
 
+const fieldDataTypeMap = {
+  checkbox: 'boolean',
+  date: 'string',
+  number: 'number',
+  text: 'string',
+};
+
 args.forEach(async (dbName) => {
   const db = Promise.promisifyAll(cloudant.use(dbName));
 
@@ -31,6 +38,7 @@ args.forEach(async (dbName) => {
     if (doc.settings && doc.settings.taxonomy) {
       doc.settings.taxonomy = doc.settings.taxonomy.slug;
     }
+    doc.dataType = fieldDataTypeMap[doc.type];
     return doc;
   });
 

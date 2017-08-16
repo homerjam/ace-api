@@ -3,6 +3,7 @@ module.exports = function (doc) {
     var _ = require('views/lib/lodash');
 
     _.forEach(doc.fields, function(field) {
+
       if (!_.isArray(field.value)) {
         return;
       }
@@ -18,6 +19,7 @@ module.exports = function (doc) {
           });
         }
       });
+
     });
   }
 };

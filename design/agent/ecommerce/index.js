@@ -74,12 +74,12 @@ var ddoc = {
             index: 'not_analyzed',
           });
 
-          index('sort.created', new Date(Date.parse(doc.created || 0)).getTime(), {
+          index('sort.createdAt', new Date(Date.parse(doc.createdAt || 0)).getTime(), {
             store: false,
             index: 'not_analyzed',
           });
 
-          index('sort.modified', new Date(Date.parse(doc.modified || 0)).getTime(), {
+          index('sort.modifiedAt', new Date(Date.parse(doc.modifiedAt || 0)).getTime(), {
             store: false,
             index: 'not_analyzed',
           });

@@ -10,27 +10,13 @@ if (!args[0]) {
   throw Error('No db specified');
 }
 
-const docFilter = doc => doc.type && doc.type === 'entity';
+const docFilter = doc => doc.type && doc.type === 'file';
 
 const docMutate = (doc) => {
-  if (!doc.modifiedAt) {
-    doc.modifiedAt = doc.modified;
-    delete doc.modified;
+  if (!doc.uploadedAt) {
+    doc.uploadedAt = doc.uploaded;
+    delete doc.uploaded;
   }
-
-  if (!doc.createdAt) {
-    doc.createdAt = doc.created;
-    delete doc.created;
-  }
-
-  doc.fields = _.mapValues(doc.fields, (field) => {
-    if (field.fieldType) {
-      field.type = field.fieldType;
-      delete field.fieldType;
-    }
-
-    return field;
-  });
 
   return doc;
 };
