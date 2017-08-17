@@ -41,5 +41,5 @@ args.forEach(async (dbName) => {
 
   const result = await batchUpdateDocs(db, docs);
 
-  console.log(`${dbName} --> ${docs.length} entities updated`);
+  console.log(`${dbName} --> ${docs.length} orders/customers updated`);
 });
