@@ -5,8 +5,8 @@ var request = require('request-promise');
 
 var args = process.argv.slice(2);
 
-if (args.length < 2) {
-  console.error('Usage: [url] db(s) folder[/doc]');
+if (args.length < 1) {
+  console.error('Usage: [url] db(s) [doc]');
   process.exit(1);
 }
 
@@ -45,70 +45,59 @@ function getDirs (srcpath) {
 
 var docMap = {};
 
-var dirs = getDirs(__dirname);
+var docs = getDirs(path.resolve(__dirname));
 
-dirs.forEach(function (dirName) {
-  var docs = getDirs(path.resolve(__dirname, dirName));
+docs.forEach(function (docName) {
+  if (DOC && DOC !== docName) {
+    return;
+  }
 
-  docs.forEach(function (docName) {
-    var folder = DOC.split('/')[0];
-    var doc = DOC.split('/')[1];
+  var dDoc = require(path.resolve(__dirname, docName));
 
-    if (folder !== dirName) {
-      return;
-    }
+  prepareDoc(dDoc);
 
-    if (doc && doc !== docName) {
-      return;
-    }
+  var dbs = DB_NAME.split(',');
 
-    var dDoc = require(path.resolve(__dirname, dirName, docName));
+  dbs.forEach(function(dbName) {
+    var uri = [DB_URL, dbName, '_design', docName].join('/');
 
-    prepareDoc(dDoc);
+    docMap[uri] = _.cloneDeep(dDoc);
 
-    var dbs = DB_NAME.split(',');
+    request({
+      method: 'GET',
+      uri: uri,
+      simple: false,
+      resolveWithFullResponse: true,
+    })
+      .then(function (response) {
+        var uri = response.request.uri.href;
+        var dDoc = docMap[uri];
 
-    dbs.forEach(function(dbName) {
-      var uri = [DB_URL, dbName, '_design', docName].join('/');
+        if (response.statusCode === 200) {
+          dDoc._rev = JSON.parse(response.body)._rev;
+        }
 
-      docMap[uri] = _.cloneDeep(dDoc);
+        dDoc = JSON.stringify(dDoc);
 
-      request({
-        method: 'GET',
-        uri: uri,
-        simple: false,
-        resolveWithFullResponse: true,
-      })
-        .then(function (response) {
-          var uri = response.request.uri.href;
-          var dDoc = docMap[uri];
-
-          if (response.statusCode === 200) {
-            dDoc._rev = JSON.parse(response.body)._rev;
-          }
-
-          dDoc = JSON.stringify(dDoc);
-
-          request({
-            method: 'PUT',
-            uri: response.request.uri.href,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: dDoc,
-            simple: true,
-            resolveWithFullResponse: true,
-          })
-            .then(function (response) {
-              console.log('%d %s', response.statusCode, response.request.uri.path);
-            }, function (error) {
-              console.error('%d %s', error.statusCode, error.response.request.uri.path);
-              process.exit(1);
-            });
-        }, function (error) {
-          console.error(error.error);
-          process.exit(1);
-        });
-    });
+        request({
+          method: 'PUT',
+          uri: response.request.uri.href,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: dDoc,
+          simple: true,
+          resolveWithFullResponse: true,
+        })
+          .then(function (response) {
+            console.log('%d %s', response.statusCode, response.request.uri.path);
+          }, function (error) {
+            console.error('%d %s', error.statusCode, error.response.request.uri.path);
+            process.exit(1);
+          });
+      }, function (error) {
+        console.error(error.error);
+        process.exit(1);
+      });
   });
 });

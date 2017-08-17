@@ -30,10 +30,8 @@ const config = {
   },
 
   dev: {
-    userId: process.env.DEV_USER_ID,
-    slug: process.env.DEV_SLUG,
-    role: process.env.DEV_ROLE,
-    email: process.env.DEV_EMAIL,
+    userId: process.env.DEV_USER_ID || 'dev',
+    role: process.env.DEV_ROLE || 'super',
     storeName: process.env.DEV_STORE_NAME,
     senderName: process.env.DEV_SENDER_NAME,
     senderAddress: process.env.DEV_SENDER_ADDRESS,

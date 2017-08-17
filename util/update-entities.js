@@ -29,6 +29,10 @@ const docMutate = (doc) => {
       delete field.fieldType;
     }
 
+    if (field.value && _.isObject(field.value.taxonomy)) {
+      field.value.taxonomy = field.value.taxonomy.slug;
+    }
+
     return field;
   });
 

@@ -142,13 +142,20 @@ args.forEach(async (dbName) => {
       metadata: generalSettings.metadata,
       gaView: generalSettings.ga && generalSettings.ga.view ? generalSettings.ga.view : null,
     },
+    assets: {
+      slug: dbName,
+    },
     moduleEnabled: {
       ecommerce: (generalSettings.ecommerce && generalSettings.ecommerce.enabled),
     },
     module: {
       ecommerce: ecommerceSettings ? _.omit(ecommerceSettings, ['_id', '_rev', 'modified', 'modifiedBy', 'stripe']) : null,
     },
-    providerEnabled: generalSettings.providers,
+    providerEnabled: {
+      instagram: !!generalSettings.instagram,
+      stripe: !!(ecommerceSettings && ecommerceSettings.stripe),
+      vimeo: !!generalSettings.vimeo,
+    },
     provider: {
       instagram: generalSettings.instagram || null,
       stripe: ecommerceSettings ? ecommerceSettings.stripe || null : null,
