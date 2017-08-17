@@ -24,7 +24,6 @@ const config = {
   },
 
   auth: {
-    dbName: process.env.AUTH_DB_NAME,
     superUserId: process.env.AUTH_SUPER_USER_ID,
     tokenSecret: process.env.AUTH_TOKEN_SECRET || 'change_this_secret',
   },
