@@ -1,6 +1,6 @@
 {
   "name": "ace-api",
-  "version": "0.4.9",
+  "version": "0.5.0",
   "description": "ACE API",
   "author": {
     "name": "Studio Thomas",
@@ -28,7 +28,7 @@
     "createsend-node": "^0.8.2",
     "deep-diff": "^0.3.8",
     "ejs": "^2.5.6",
-    "email-templates": "github:homerjam/node-email-templates#dist",
+    "email-templates": "^2.7.1",
     "embedly": "^2.1.0",
     "express": "^4.15.3",
     "express-useragent": "^1.0.7",
