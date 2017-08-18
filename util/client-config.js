@@ -4,8 +4,12 @@ const Promise = require('bluebird');
 
 const args = process.argv.slice(2);
 
+if (!args[1]) {
+  throw Error('No db specified');
+}
+
 const cloudant = new Cloudant({
-  url: process.env.DB_URL,
+  url: args[0],
 });
 
 const fieldDataTypeMap = {
@@ -15,7 +19,9 @@ const fieldDataTypeMap = {
   text: 'string',
 };
 
-args.forEach(async (dbName) => {
+const dbName = args[1];
+
+async function updateClientConfig(dbName) {
   const db = Promise.promisifyAll(cloudant.use(dbName));
 
   let [generalSettings, fields, actions, schemas, users, taxonomies] = await Promise.all([
@@ -191,4 +197,6 @@ args.forEach(async (dbName) => {
   if (result2.ok) {
     console.log(`${dbName} --> config updated`);
   }
-});
+}
+
+updateClientConfig(dbName);

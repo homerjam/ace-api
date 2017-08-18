@@ -6,13 +6,13 @@ var request = require('request-promise');
 var args = process.argv.slice(2);
 
 if (args.length < 1) {
-  console.error('Usage: [url] db(s) [doc]');
+  console.error('Usage: url db(s) [doc]');
   process.exit(1);
 }
 
-var DB_URL = args.length === 3 ? args[0] : process.env.DB_URL;
-var DB_NAME = args.length === 3 ? args[1] : args[0];
-var DOC_NAME = args.length === 3 ? args[2] : args[1];
+var DB_URL = args[0];
+var DB_NAME = args[1];
+var DOC_NAME = args[2];
 
 var COMMENT_PATTERN = new RegExp('(\\/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/)|(//.*)', 'g');
 

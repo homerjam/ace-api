@@ -6,7 +6,7 @@ const BATCH_UPDATE_CHUNK_SIZE = 100;
 
 const args = process.argv.slice(2);
 
-if (!args[0]) {
+if (!args[1]) {
   throw Error('No db specified');
 }
 
@@ -25,7 +25,7 @@ const batchUpdateDocs = (db, docs) => Promise.all(_.chunk(docs, BATCH_UPDATE_CHU
 
 args.forEach(async (dbName) => {
   const db = Promise.promisifyAll(Cloudant({
-    url: process.env.DB_URL,
+    url: args[0],
   }).db.use(dbName));
 
   let docs = (await db.listAsync({ include_docs: true })).rows.map(row => row.doc);

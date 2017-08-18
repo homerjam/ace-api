@@ -1,14 +1,15 @@
 var fs = require('fs');
+var path = require('path');
 
 var ddoc = {
   _id: '_design/entity',
   lib: {
-    lodash: fs.readFileSync('./node_modules/lodash/lodash.min.js').toString('utf8'),
-    fuse: fs.readFileSync('./node_modules/fuse.js/dist/fuse.min.js').toString('utf8'),
+    lodash: fs.readFileSync(path.resolve(__dirname, '../../node_modules/lodash/lodash.min.js')).toString('utf8'),
+    fuse: fs.readFileSync(path.resolve(__dirname, '../../node_modules/fuse.js/dist/fuse.min.js')).toString('utf8'),
   },
   views: {
     lib: {
-      lodash: fs.readFileSync('./node_modules/lodash/lodash.min.js').toString('utf8'),
+      lodash: fs.readFileSync(path.resolve(__dirname, '../../node_modules/lodash/lodash.min.js')).toString('utf8'),
     },
     byId: {
       map: require('./views/byId'),
