@@ -26,7 +26,7 @@ const docMutate = (doc) => {
   doc.fields = _.mapValues(doc.fields, (field) => {
     if (field.fieldType) {
       field.type = field.fieldType;
-      delete field.fieldType;
+      // delete field.fieldType; // TODO: remove fieldType
     }
 
     if (field.value && _.isObject(field.value.taxonomy)) {
