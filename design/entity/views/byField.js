@@ -10,7 +10,7 @@ module.exports = function (doc) {
 
       if (_.isArray(field.value)) {
         field.value.forEach(function(obj) {
-          if (obj.title) {
+          if (_.isString(obj.title)) {
             emit([fieldSlug, obj.title], 1);
           }
         });
