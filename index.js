@@ -22,7 +22,7 @@ Api.Shippo = require('./lib/shippo');
 Api.Stripe = require('./lib/stripe');
 Api.Taxonomy = require('./lib/taxonomy');
 Api.Tools = require('./lib/tools');
-Api.Transcode = require('./lib/transcode');
+// Api.Transcode = require('./lib/transcode');
 Api.User = require('./lib/user');
 Api.Zencode = require('./lib/zencode');
 
