@@ -31,10 +31,6 @@ const config = {
   dev: {
     userId: process.env.DEV_USER_ID || 'dev',
     role: process.env.DEV_ROLE || 'super',
-    storeName: process.env.DEV_STORE_NAME,
-    senderName: process.env.DEV_SENDER_NAME,
-    senderAddress: process.env.DEV_SENDER_ADDRESS,
-    stripeAccountId: process.env.DEV_STRIPE_ACCOUNT_ID,
   },
 
   logentriesToken: process.env.LOGENTRIES_TOKEN,
@@ -66,12 +62,6 @@ const config = {
     domain: process.env.MAILGUN_DOMAIN,
   },
 
-  createsend: {
-    apiKey: process.env.CREATESEND_API_KEY,
-    clientId: process.env.CREATESEND_CLIENT_ID,
-    listId: process.env.CREATESEND_LIST_ID,
-  },
-
   embedly: {
     apiKey: process.env.EMBEDLY_API_KEY,
   },
@@ -84,12 +74,12 @@ const config = {
       bucket: process.env.AWS_S3_BUCKET,
     },
 
-    tcode: {
-      region: process.env.AWS_TCODE_REGION,
-      pipelineId: process.env.AWS_TCODE_PIPELINE_ID,
-      bucketIn: process.env.AWS_TCODE_BUCKET_IN,
-      bucketOut: process.env.AWS_TCODE_BUCKET_OUT,
-    },
+    // tcode: {
+    //   region: process.env.AWS_TCODE_REGION,
+    //   pipelineId: process.env.AWS_TCODE_PIPELINE_ID,
+    //   bucketIn: process.env.AWS_TCODE_BUCKET_IN,
+    //   bucketOut: process.env.AWS_TCODE_BUCKET_OUT,
+    // },
   },
 
   shippo: {
@@ -102,8 +92,6 @@ const config = {
     clientId: process.env.STRIPE_CLIENT_ID,
     clientSecret: process.env.STRIPE_CLIENT_SECRET,
     apiKey: process.env.STRIPE_API_KEY,
-    currency: process.env.STRIPE_CURRENCY,
-    statementDescriptor: process.env.STRIPE_STATEMENT_DESCRIPTOR,
   },
 
   vimeo: {
