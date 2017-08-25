@@ -153,9 +153,12 @@ module.exports = function (doc) {
 
           if (fieldValueObjectType === '[object String]') {
 
+            indexValue = fieldValue;
+
             if (/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/.test(fieldValue)) {
-              indexValue = fieldValue;
               indexSortValue = new Date(Date.parse(fieldValue)).getTime();
+            } else {
+              indexSortValue = indexValue;
             }
 
           }
