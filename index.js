@@ -9,6 +9,7 @@ Api.Ecommerce = require('./lib/ecommerce');
 Api.Email = require('./lib/email');
 Api.Embedly = require('./lib/embedly');
 Api.Entity = require('./lib/entity');
+Api.Fields = require('./lib/fields');
 Api.File = require('./lib/file');
 Api.Flow = require('./lib/flow');
 Api.Helpers = require('./lib/helpers');
