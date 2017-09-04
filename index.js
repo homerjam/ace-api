@@ -19,6 +19,7 @@ Api.Pdf = require('./lib/pdf');
 Api.Roles = require('./lib/roles');
 Api.S3 = require('./lib/s3');
 Api.Schema = require('./lib/schema');
+Api.Settings = require('./lib/settings');
 Api.Shippo = require('./lib/shippo');
 Api.Stripe = require('./lib/stripe');
 Api.Taxonomy = require('./lib/taxonomy');
