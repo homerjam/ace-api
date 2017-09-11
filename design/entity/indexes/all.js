@@ -104,7 +104,7 @@ module.exports = function (doc) {
           if (fieldValueObjectType === '[object Object]') {
 
             if (fieldValue.html) {
-              indexValue = fieldValue.html ? fieldValue.html.replace(/(<([^>]+)>)/ig, '') : 'NULL';
+              indexValue = fieldValue.html.replace(/(<([^>]+)>)/ig, ' ');
             }
 
             if (fieldValue.terms && fieldValue.terms.length) {
