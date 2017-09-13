@@ -49,6 +49,7 @@ var defaultMJMLDefinition = {
     'mc:hideable': null,
     'mc:repeatable': null,
     'mc:variant': null,
+    'mc:edit': null,
     'background-color': null,
     'background-url': null,
     'background-repeat': 'repeat',
@@ -124,11 +125,17 @@ var postRender = function postRender($) {
   });
 
   $('[data-mc-repeatable]').each(function () {
-    $(this).attr('mc:repeatable', $(this).attr('data-mc-repeatable')).removeAttr('data-mc-repeatable');
+    $(this).attr('mc:repeatable', $(this).attr('data-mc-repeatable'));
+    // .removeAttr('data-mc-repeatable')
   });
 
   $('[data-mc-variant]').each(function () {
-    $(this).attr('mc:variant', $(this).attr('data-mc-variant')).removeAttr('data-mc-variant');
+    $(this).attr('mc:variant', $(this).attr('data-mc-variant'));
+    // .removeAttr('data-mc-variant')
+  });
+
+  $('[data-mc-edit]').each(function () {
+    $(this).attr('mc:edit', $(this).attr('data-mc-edit')).removeAttr('data-mc-edit');
   });
 
   return $;
@@ -210,6 +217,7 @@ var Section = (0, _mjmlCore.MJMLElement)(_class = function (_Component) {
           'data-mc-hideable': mjAttribute('mc:hideable'),
           'data-mc-repeatable': mjAttribute('mc:repeatable'),
           'data-mc-variant': mjAttribute('mc:variant'),
+          'data-mc-edit': mjAttribute('mc:edit'),
           style: (0, _merge2.default)({}, this.styles.tableFullwidth, this.styles.table) },
         _react2.default.createElement(
           'tbody',
@@ -243,6 +251,7 @@ var Section = (0, _mjmlCore.MJMLElement)(_class = function (_Component) {
           'data-mc-hideable': mjAttribute('mc:hideable'),
           'data-mc-repeatable': mjAttribute('mc:repeatable'),
           'data-mc-variant': mjAttribute('mc:variant'),
+          'data-mc-edit': mjAttribute('mc:edit'),
           style: this.styles.div },
         _react2.default.createElement(
           'table',

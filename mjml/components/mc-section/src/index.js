@@ -10,6 +10,7 @@ const defaultMJMLDefinition = {
     'mc:hideable': null,
     'mc:repeatable': null,
     'mc:variant': null,
+    'mc:edit': null,
     'background-color': null,
     'background-url': null,
     'background-repeat': 'repeat',
@@ -105,13 +106,19 @@ const postRender = $ => {
   $('[data-mc-repeatable]').each(function () {
     $(this)
       .attr('mc:repeatable', $(this).attr('data-mc-repeatable'))
-      .removeAttr('data-mc-repeatable')
+      // .removeAttr('data-mc-repeatable')
   })
 
   $('[data-mc-variant]').each(function () {
     $(this)
       .attr('mc:variant', $(this).attr('data-mc-variant'))
-      .removeAttr('data-mc-variant')
+      // .removeAttr('data-mc-variant')
+  })
+
+  $('[data-mc-edit]').each(function () {
+    $(this)
+      .attr('mc:edit', $(this).attr('data-mc-edit'))
+      .removeAttr('data-mc-edit')
   })
 
   return $
@@ -170,6 +177,7 @@ class Section extends Component {
         data-mc-hideable={mjAttribute('mc:hideable')}
         data-mc-repeatable={mjAttribute('mc:repeatable')}
         data-mc-variant={mjAttribute('mc:variant')}
+        data-mc-edit={mjAttribute('mc:edit')}
         style={merge({}, this.styles.tableFullwidth, this.styles.table)}>
         <tbody>
           <tr>
@@ -191,6 +199,7 @@ class Section extends Component {
         data-mc-hideable={mjAttribute('mc:hideable')}
         data-mc-repeatable={mjAttribute('mc:repeatable')}
         data-mc-variant={mjAttribute('mc:variant')}
+        data-mc-edit={mjAttribute('mc:edit')}
         style={this.styles.div}>
         <table
           cellPadding="0"
