@@ -17,6 +17,7 @@
     "no-underscore-dangle": 0,
     "global-require": 0,
     "no-plusplus": 1,
-    "class-methods-use-this": 1
+    "class-methods-use-this": 1,
+    "prefer-destructuring": 1
   }
 }
