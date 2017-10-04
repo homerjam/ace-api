@@ -21,6 +21,8 @@ const config = {
     url: process.env.DB_URL,
     host: process.env.DB_HOST,
     name: process.env.DB_NAME,
+    requestPlugin: process.env.DB_REQUEST_PLUGIN,
+    meterType: process.env.DB_METER_TYPE,
   },
 
   auth: {
