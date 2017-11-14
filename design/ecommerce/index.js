@@ -15,6 +15,13 @@ var ddoc = {
         }
       },
     },
+    orderByOrderId: {
+      map: function(doc) {
+        if (doc.type === 'order') {
+          emit(doc.orderId, null);
+        }
+      },
+    },
     discountById: {
       map: function(doc) {
         if (doc.type === 'discount') {
