@@ -1,5 +1,7 @@
 function Api() { }
 
+Api.defaultConfig = require('./config.default');
+
 Api.Analytics = require('./lib/analytics');
 Api.Assist = require('./lib/assist');
 Api.Auth = require('./lib/auth');
