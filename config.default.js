@@ -6,7 +6,7 @@ const config = {
 
   cache: {
     enabled: process.env.CACHE_ENABLED || false,
-    maxSize: process.env.CACHE_MAX_SIZE || 128 * 1000 * 1000, // ~128mb
+    maxSize: process.env.CACHE_MAX_SIZE || 256 * 1000 * 1000, // ~128mb
     maxAge: process.env.CACHE_MAX_AGE || 30 * 60 * 1000, // 30mins
   },
 
