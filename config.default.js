@@ -4,18 +4,8 @@ const config = {
   environment: process.env.ENVIRONMENT || 'development',
   debug: process.env.DEBUG || false,
 
-  cache: {
-    enabled: process.env.CACHE_ENABLED || false,
-    maxSize: process.env.CACHE_MAX_SIZE || 256 * 1000 * 1000, // ~128mb
-    maxAge: process.env.CACHE_MAX_AGE || 30 * 60 * 1000, // 30mins
-  },
-
-  apiPrefix: process.env.API_PREFIX || '',
-
   slug: process.env.SLUG,
   baseUrl: process.env.BASE_URL || '',
-
-  forceHttps: process.env.FORCE_HTTPS ? JSON.parse(process.env.FORCE_HTTPS) : false,
 
   db: {
     url: process.env.DB_URL,
@@ -34,8 +24,6 @@ const config = {
     userId: process.env.DEV_USER_ID || 'dev',
     role: process.env.DEV_ROLE || 'super',
   },
-
-  logentriesToken: process.env.LOGENTRIES_TOKEN,
 
   assist: {
     url: process.env.ASSIST_URL,
