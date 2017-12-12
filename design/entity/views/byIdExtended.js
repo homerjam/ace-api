@@ -1,17 +1,28 @@
+/* global emit */
+
 module.exports = function (doc) {
   if (doc.type === 'entity') {
-    var _ = require('views/lib/lodash');
+
+    function type(obj) {
+      return Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
+    }
+
+    function forEach(obj, fn) {
+      Object.keys(obj).forEach(function (key) {
+        fn(obj[key], key, obj);
+      });
+    }
 
     emit(doc._id, {
       type: 'entity',
     });
 
-    _.forEach(doc.fields, function (field, fieldSlug) {
+    forEach(doc.fields, function (field, fieldSlug) {
       var fieldValue = field.value;
 
-      if (_.isArray(fieldValue)) {
-        _.forEach(fieldValue, function (item, index) {
-          if (_.isObject(item) && item.type === 'entity' && item.id) {
+      if (type(fieldValue) === 'array') {
+        forEach(fieldValue, function (item, index) {
+          if (type(item) === 'object' && item.type === 'entity' && item.id) {
             emit(doc._id, {
               _id: item.id,
               type: 'field',
@@ -27,7 +38,7 @@ module.exports = function (doc) {
         });
       }
 
-      if (_.isObject(fieldValue)) {
+      if (type(fieldValue) === 'object') {
         if (fieldValue.type === 'file' && fieldValue.id) {
           emit(doc._id, {
             _id: fieldValue.id,

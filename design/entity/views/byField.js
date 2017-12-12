@@ -1,16 +1,26 @@
+/* global emit */
+
 module.exports = function (doc) {
   if (doc.type === 'entity') {
-    var _ = require('views/lib/lodash');
 
-    _.forEach(doc.fields, function (field, fieldSlug) {
+    function type(obj) {
+      return Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
+    }
 
-      if (_.isString(field.value)) {
+    function forEach(obj, fn) {
+      Object.keys(obj).forEach(function (key) {
+        fn(obj[key], key, obj);
+      });
+    }
+
+    forEach(doc.fields, function (field, fieldSlug) {
+      if (type(field.value) === 'string') {
         emit([fieldSlug, field.value], 1);
       }
 
-      if (_.isArray(field.value)) {
+      if (type(field.value) === 'array') {
         field.value.forEach(function(obj) {
-          if (_.isString(obj.title)) {
+          if (type(obj.title) === 'string') {
             emit([fieldSlug, obj.title], 1);
           }
         });

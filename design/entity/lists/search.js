@@ -1,5 +1,4 @@
 module.exports = function(head, req) {
-  // var _ = require('lib/lodash');
   var Fuse = require('lib/fuse');
 
   var row;

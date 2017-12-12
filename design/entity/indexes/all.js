@@ -81,6 +81,9 @@ module.exports = function (doc) {
             slugs = [];
 
             fieldValue.forEach(function (obj) {
+              if (!obj) {
+                return;
+              }
               if (obj.title) {
                 titles.push(obj.title);
               }

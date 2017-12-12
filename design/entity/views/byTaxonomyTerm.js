@@ -1,15 +1,22 @@
+/* global emit */
+
 module.exports = function (doc) {
   if (doc.type === 'entity') {
-    var _ = require('views/lib/lodash');
 
-    _.forEach(doc.fields, function(field) {
+    function forEach(obj, fn) {
+      Object.keys(obj).forEach(function (key) {
+        fn(obj[key], key, obj);
+      });
+    }
+
+    forEach(doc.fields, function(field) {
 
       if (field.type === 'taxonomy' && field.value && field.value.terms && field.value.terms.length) {
-        _.forEach(field.value.terms, function (term) {
+        forEach(field.value.terms, function (term) {
           if (term.id) {
             emit(term.id, doc._id);
           }
-          _.forEach(term.parents || [], function (parent) {
+          forEach(term.parents || [], function (parent) {
             if (parent.id) {
               emit(parent.id, doc._id);
             }

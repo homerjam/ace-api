@@ -8,9 +8,6 @@ var ddoc = {
     fuse: fs.readFileSync(path.resolve(__dirname, '../../node_modules/fuse.js/dist/fuse.min.js')).toString('utf8'),
   },
   views: {
-    lib: {
-      lodash: fs.readFileSync(path.resolve(__dirname, '../../node_modules/lodash/lodash.min.js')).toString('utf8'),
-    },
     byId: {
       map: require('./views/byId'),
     },
