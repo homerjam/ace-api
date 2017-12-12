@@ -14,7 +14,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "mc-section": "babel mjml/components/mc-section/src/index.js -o mjml/components/mc-section/lib/index.js",
     "mc-image": "babel mjml/components/mc-image/src/index.js -o mjml/components/mc-image/lib/index.js",
-    "design": "source .env; node design/index.js $DB_URL"
+    "design": "source .env; node design/index.js $DB_URL",
+    "listdbs": "source .env; curl -Ss $DB_URL/_all_dbs | jq -r '.[] | @uri' | grep '^[^_]' | xargs echo | sed 's/ /,/g' | pbcopy"
   },
   "dependencies": {
     "aws-sdk": "^2.163.0",
