@@ -114,15 +114,29 @@ module.exports = function (doc) {
               titles = [];
               slugs = [];
 
-              fieldValue.terms.forEach(function (term) {
-                titles.push(term.title);
-                slugs.push(term.slug);
+              fieldValue.terms.forEach(function (obj) {
+                if (!obj) {
+                  return;
+                }
+                if (obj.title) {
+                  titles.push(obj.title);
+                }
+                if (obj.slug) {
+                  slugs.push(obj.slug);
+                }
 
-                var parents = term.parents || [];
+                var parents = obj.parents || [];
 
-                parents.forEach(function (parent) {
-                  titles.push(parent.title);
-                  slugs.push(parent.slug);
+                parents.forEach(function (obj) {
+                  if (!obj) {
+                    return;
+                  }
+                  if (obj.title) {
+                    titles.push(obj.title);
+                  }
+                  if (obj.slug) {
+                    slugs.push(obj.slug);
+                  }
                 });
               });
 
