@@ -18,6 +18,7 @@
     "dbs-to-clipboard": "source .env; curl -Ss $DB_URL/_all_dbs | jq -r '.[] | @uri' | grep '^[^_]' | xargs echo | sed 's/ /,/g' | pbcopy"
   },
   "dependencies": {
+    "agentkeepalive": "^3.3.0",
     "aws-sdk": "^2.163.0",
     "axios": "^0.17.1",
     "bluebird": "^3.5.1",
