@@ -39,14 +39,15 @@ const docMutate = (doc) => {
   return doc;
 };
 
-const batchUpdateDocs = (db, docs) => Promise.all(_.chunk(docs, BATCH_UPDATE_CHUNK_SIZE).map(chunk => db.bulkAsync({ docs: chunk })));
+const batchUpdateDocs = (db, docs) => Promise.all(_.chunk(docs, BATCH_UPDATE_CHUNK_SIZE).map(chunk => db.bulk({ docs: chunk })));
 
 args.forEach(async (dbName) => {
-  const db = Promise.promisifyAll(Cloudant({
+  const db = new Cloudant({
     url: args[0],
-  }).db.use(dbName));
+    plugins: ['promises', 'retry429'],
+  }).db.use(dbName);
 
-  let docs = (await db.listAsync({ include_docs: true })).rows.map(row => row.doc);
+  let docs = (await db.list({ include_docs: true })).rows.map(row => row.doc);
 
   docs = docs.filter(docFilter);
 

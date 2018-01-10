@@ -18,6 +18,7 @@
     "dbs-to-clipboard": "source .env; curl -Ss $DB_URL/_all_dbs | jq -r '.[] | @uri' | grep '^[^_]' | xargs echo | sed 's/ /,/g' | pbcopy"
   },
   "dependencies": {
+    "@cloudant/cloudant": "github:cloudant/nodejs-cloudant#924eb316e910e4e580f4da573183c7f2ab3fad5e",
     "aws-sdk": "^2.179.0",
     "axios": "^0.17.1",
     "bluebird": "^3.5.1",

@@ -13,7 +13,7 @@ args.forEach(async (dbName) => {
     url: args[0],
   }).db.use(dbName));
 
-  const clientConfig = await db.getAsync('config');
+  const clientConfig = await db.get('config');
 
   const schema = new Schema({
     db: {

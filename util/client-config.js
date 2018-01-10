@@ -10,6 +10,7 @@ if (!args[1]) {
 
 const cloudant = new Cloudant({
   url: args[0],
+  plugins: ['promises', 'retry429'],
 });
 
 const fieldDataTypeMap = {
@@ -25,18 +26,18 @@ async function updateClientConfig(dbName) {
   const db = Promise.promisifyAll(cloudant.use(dbName));
 
   let [generalSettings, fields, actions, schemas, users, taxonomies] = await Promise.all([
-    db.getAsync('settings'),
-    (await db.viewAsync('admin', 'fieldByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
-    (await db.viewAsync('admin', 'actionByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
-    (await db.viewAsync('admin', 'schemaByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
-    (await db.viewAsync('admin', 'userByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
-    (await db.viewAsync('admin', 'taxonomyByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
+    db.get('settings'),
+    (await db.view('admin', 'fieldByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
+    (await db.view('admin', 'actionByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
+    (await db.view('admin', 'schemaByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
+    (await db.view('admin', 'userByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
+    (await db.view('admin', 'taxonomyByKey', { include_docs: true })).rows.map(row => row.doc).filter(doc => !doc.trashed),
   ]);
 
   let ecommerceSettings;
 
   try {
-    ecommerceSettings = await db.getAsync('ecommerce.settings');
+    ecommerceSettings = await db.get('ecommerce.settings');
   } catch (error) {
     //
   }
@@ -174,25 +175,25 @@ async function updateClientConfig(dbName) {
 
   // const result1 = await Promise.all(newTaxonomies.map(async (taxonomy) => {
   //   try {
-  //     const oldTaxonomy = await db.getAsync(taxonomy._id);
+  //     const oldTaxonomy = await db.get(taxonomy._id);
   //     taxonomy._rev = oldTaxonomy._rev;
   //   } catch (error) {
   //     //
   //   }
 
-  //   return db.insertAsync(taxonomy);
+  //   return db.insert(taxonomy);
   // }));
 
   // result1.forEach((result, i) => console.log(`${dbName} --> ${newTaxonomies[i].slug} taxonomy updated`));
 
   try {
-    const oldConfig = await db.getAsync('config');
+    const oldConfig = await db.get('config');
     config._rev = oldConfig._rev;
   } catch (error) {
     //
   }
 
-  const result2 = await db.insertAsync(config);
+  const result2 = await db.insert(config);
 
   if (result2.ok) {
     console.log(`${dbName} --> config updated`);
