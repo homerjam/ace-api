@@ -5,9 +5,9 @@ var request = require('request-promise');
 
 var args = process.argv.slice(2);
 
-if (args.length < 1) {
+if (args.length < 2) {
   console.error('Usage: url [doc] db1[,db2,db3...]');
-  process.exit(1);
+  process.exit(0);
 }
 
 var DB_URL = args[0];
