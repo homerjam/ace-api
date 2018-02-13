@@ -1,3 +1,5 @@
+process.on('unhandledRejection', rejection => console.error(rejection));
+
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Cloudant = require('cloudant');
@@ -23,19 +25,32 @@ const docMutate = (doc) => {
 
 const batchUpdateDocs = (db, docs) => Promise.all(_.chunk(docs, BATCH_UPDATE_CHUNK_SIZE).map(chunk => db.bulk({ docs: chunk })));
 
-args.forEach(async (dbName) => {
+const dbUrl = args[0];
+const dbNames = args.slice(1);
+
+dbNames.forEach((dbName) => {
   const db = new Cloudant({
-    url: args[0],
-    plugins: ['promises', 'retry429'],
+    url: dbUrl,
+    plugins: ['promises', 'retry'],
   }).db.use(dbName);
 
-  let docs = (await db.list({ include_docs: true })).rows.map(row => row.doc);
+  const response = db.list({ include_docs: true });
 
-  docs = docs.filter(docFilter);
+  let body = '';
 
-  docs = docs.map(docMutate);
+  response.on('data', (chunk) => {
+    body += chunk;
+  });
 
-  const result = await batchUpdateDocs(db, docs);
+  response.on('end', async () => {
+    let docs = JSON.parse(body).rows.map(row => row.doc);
 
-  console.log(`${dbName} --> ${docs.length} files updated`);
+    docs = docs.filter(docFilter);
+
+    docs = docs.map(docMutate);
+
+    await batchUpdateDocs(db, docs);
+
+    console.log(`${dbName} --> ${docs.length} files updated`);
+  });
 });

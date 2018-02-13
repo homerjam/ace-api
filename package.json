@@ -12,14 +12,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "mc-section": "babel mjml/components/mc-section/src/index.js -o mjml/components/mc-section/lib/index.js",
-    "mc-image": "babel mjml/components/mc-image/src/index.js -o mjml/components/mc-image/lib/index.js",
-    "design": "source .env; node design/index.js $DB_URL",
-    "shell": "source .env; COUCH_URL=$DB_URL couchshell",
-    "dbs-to-clipboard": "source .env; curl -Ss $DB_URL/_all_dbs | jq -r '.[] | @uri' | grep '^[^_]' | xargs echo | sed 's/ /,/g' | pbcopy"
+    "mc:section": "babel mjml/components/mc-section/src/index.js -o mjml/components/mc-section/lib/index.js",
+    "mc:image": "babel mjml/components/mc-image/src/index.js -o mjml/components/mc-image/lib/index.js",
+    "db:design": "source .env; node design/index.js $DB_URL",
+    "db:list": "source .env; curl -Ss $DB_URL/_all_dbs | jq -r '.[] | @uri' | grep '^[^_]' | xargs echo | sed 's/ /,/g' | pbcopy; echo 'Database list copied to clipboard'",
+    "db:shell": "source .env; COUCH_URL=$DB_URL couchshell",
+    "db:upgrade": "source .env; util/upgrade.sh $DB_URL"
   },
   "dependencies": {
-    "@cloudant/cloudant": "github:cloudant/nodejs-cloudant#924eb316e910e4e580f4da573183c7f2ab3fad5e",
+    "@cloudant/cloudant": "github:cloudant/nodejs-cloudant#de8cc80b7a2fc375bf5f91cf1db87fc7714a518c",
     "aws-sdk": "^2.179.0",
     "axios": "^0.17.1",
     "bluebird": "^3.5.1",
@@ -62,10 +63,13 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
+    "couchbackup": "^1.5.0",
     "dotenv": "^4.0.0",
     "eslint": "^4.15.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.8.0"
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.6.1"
   }
 }
