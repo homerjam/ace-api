@@ -19,6 +19,7 @@
     "no-plusplus": 1,
     "class-methods-use-this": 1,
     "prefer-destructuring": 1,
-    "no-else-return": 1
+    "no-else-return": 1,
+    "import/newline-after-import": 0
   }
 }
