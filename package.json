@@ -20,7 +20,7 @@
     "db:upgrade": "source .env; util/upgrade.sh $DB_URL"
   },
   "dependencies": {
-    "@cloudant/cloudant": "github:cloudant/nodejs-cloudant#de8cc80b7a2fc375bf5f91cf1db87fc7714a518c",
+    "@cloudant/cloudant": "^2.0.2",
     "aws-sdk": "^2.179.0",
     "axios": "^0.17.1",
     "bluebird": "^3.5.1",
