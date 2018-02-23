@@ -2,7 +2,6 @@ function Api() { }
 
 Api.defaultConfig = require('./config.default');
 
-Api.Analytics = (...args) => new (require('./lib/analytics'))(...args);
 Api.Assist = (...args) => new (require('./lib/assist'))(...args);
 Api.Auth = (...args) => new (require('./lib/auth'))(...args);
 Api.ClientConfig = (...args) => new (require('./lib/client-config'))(...args);

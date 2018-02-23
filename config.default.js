@@ -44,7 +44,8 @@ const config = {
   },
 
   google: {
-    apisJsonKey: process.env.GOOGLE_APIS_JSON_KEY,
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   },
 
   mailgun: {
