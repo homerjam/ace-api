@@ -23,6 +23,7 @@
     "@cloudant/cloudant": "^2.0.2",
     "aws-sdk": "^2.201.0",
     "axios": "^0.18.0",
+    "babel-preset-react": "^6.24.1",
     "bluebird": "^3.5.1",
     "cloudant": "^1.10.0",
     "colors": "^1.1.2",
