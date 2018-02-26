@@ -58,8 +58,8 @@ const config = {
   },
 
   aws: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    accessKeySecret: process.env.AWS_ACCESS_KEY_SECRET,
+    iamAccessKeyId: process.env.AWS_IAM_ACCESS_KEY_ID,
+    iamAccessKeySecret: process.env.AWS_IAM_ACCESS_KEY_SECRET,
 
     s3: {
       bucket: process.env.AWS_S3_BUCKET,
