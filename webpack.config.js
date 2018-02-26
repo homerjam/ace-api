@@ -22,7 +22,8 @@ module.exports = {
     ],
   },
   output: {
-    libraryTarget: 'commonjs',
+    library: 'AceApi',
+    libraryTarget: 'umd',
     path: path.join(__dirname, 'dist'),
     filename: 'ace-api.js',
   },
