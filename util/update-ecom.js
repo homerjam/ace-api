@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
-const Cloudant = require('cloudant');
+const Cloudant = require('@cloudant/cloudant');
 
 const BATCH_UPDATE_CHUNK_SIZE = 100;
 
@@ -31,7 +31,7 @@ const batchUpdateDocs = (db, docs) => Promise.all(_.chunk(docs, BATCH_UPDATE_CHU
 args.forEach(async (dbName) => {
   const db = new Cloudant({
     url: args[0],
-    plugins: ['promises', 'retry429'],
+    plugins: ['promises', 'retry'],
   }).db.use(dbName);
 
   let docs = (await db.list({ include_docs: true })).rows.map(row => row.doc);
@@ -40,7 +40,7 @@ args.forEach(async (dbName) => {
 
   docs = docs.map(docMutate);
 
-  const result = await batchUpdateDocs(db, docs);
+  await batchUpdateDocs(db, docs);
 
   console.log(`${dbName} --> ${docs.length} orders/customers updated`);
 });

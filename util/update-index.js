@@ -1,5 +1,5 @@
 const Promise = require('bluebird');
-const Cloudant = require('cloudant');
+const Cloudant = require('@cloudant/cloudant');
 const Schema = require('../lib/schema');
 
 const args = process.argv.slice(2);
@@ -22,7 +22,7 @@ args.forEach(async (dbName) => {
     },
   });
 
-  const result = await schema.updateEntityIndex(clientConfig.schemas);
+  await schema.updateEntityIndex(clientConfig.schemas);
 
   console.log(`${dbName} --> entity index updated`);
 });
