@@ -58,8 +58,8 @@ const docMutate = (doc) => {
           },
 
           metadata: {
-            width: _field.metadata.width || _field.metadata.zencoder.thumbnail.width,
-            height: _field.metadata.height || _field.metadata.zencoder.thumbnail.height,
+            width: _.get(_field, 'metadata.width') || _.get(_field, 'metadata.zencoder.thumbnail.width') || undefined,
+            height: _.get(_field, 'metadata.height') || _.get(_field, 'metadata.zencoder.thumbnail.height') || undefined,
             format: (_field.mimeType || _field.original.mimeType).split('/')[1],
           },
 
