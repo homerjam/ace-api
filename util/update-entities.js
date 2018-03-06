@@ -47,7 +47,11 @@ const docMutate = (doc) => {
   doc.fields = _.mapValues(doc.fields, (field) => {
 
     try {
-      if (field.value && field.value.type === 'file') {
+      if (field.value && field.value.status === 'incomplete') {
+        delete field.value;
+      }
+
+      if (field.value && field.value.type === 'file' && !field.value.file) {
         const _field = _.cloneDeep(field.value);
 
         field.value = {
