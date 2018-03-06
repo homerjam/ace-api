@@ -12,7 +12,7 @@
   "main": "dist/ace-api.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "release": "webpack --mode production && git add --all && git commit --all --message \"build\" && git remote | xargs -L1 git push --all && npm version patch && npm publish",
+    "release": "webpack --mode production && git add --all && git commit --all --message \"build\" && npm version patch && npm publish && git remote | xargs -L1 git push --all",
     "mc:section": "babel mjml/components/mc-section/src/index.js -o mjml/components/mc-section/lib/index.js",
     "mc:image": "babel mjml/components/mc-image/src/index.js -o mjml/components/mc-image/lib/index.js",
     "db:design": "source .env; node design/index.js $DB_URL",
