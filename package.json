@@ -12,10 +12,11 @@
   "main": "dist/ace-api.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "webpack --mode production && git add --all && git commit --all --message \"build\" && git remote | xargs -L1 git push --all && npm version path && npm publish",
     "mc:section": "babel mjml/components/mc-section/src/index.js -o mjml/components/mc-section/lib/index.js",
     "mc:image": "babel mjml/components/mc-image/src/index.js -o mjml/components/mc-image/lib/index.js",
     "db:design": "source .env; node design/index.js $DB_URL",
-    "db:backup": "bash -c 'source .env; couchbackup --url $DB_URL --db $1 | gzip > $1.json.gz' -- ",
+    "db:backup": "bash -c 'source .env; couchbackup --url $DB_URL --db $1 | gzip > tmp/$1.json.gz' -- ",
     "db:restore": "bash -c 'source .env; cat $1 | gunzip | couchrestore --url $DB_URL --db $2' -- ",
     "db:list": "source .env; curl -Ss $DB_URL/_all_dbs | jq -r '.[] | @uri' | grep '^[^_]' | xargs echo | sed 's/ /,/g' | pbcopy; echo 'Database list copied to clipboard'",
     "db:shell": "source .env; COUCH_URL=$DB_URL couchshell",
