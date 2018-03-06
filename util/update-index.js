@@ -1,4 +1,5 @@
-const Promise = require('bluebird');
+process.on('unhandledRejection', rejection => console.error(rejection));
+
 const Cloudant = require('@cloudant/cloudant');
 const Schema = require('../lib/schema');
 
@@ -8,10 +9,14 @@ if (!args[1]) {
   throw Error('No db specified');
 }
 
-args.forEach(async (dbName) => {
-  const db = Promise.promisifyAll(Cloudant({
-    url: args[0],
-  }).db.use(dbName));
+const dbUrl = args[0];
+const dbNames = args.slice(1);
+
+dbNames.forEach(async (dbName) => {
+  const db = new Cloudant({
+    url: dbUrl,
+    plugins: ['promises', 'retry'],
+  }).db.use(dbName);
 
   const clientConfig = await db.get('config');
 

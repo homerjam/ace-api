@@ -1,8 +1,8 @@
+process.on('unhandledRejection', result => console.error(result));
+
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Cloudant = require('@cloudant/cloudant');
-
-process.on('unhandledRejection', result => console.error(result));
 
 const BATCH_UPDATE_CHUNK_SIZE = 100;
 
@@ -56,7 +56,7 @@ const docMutate = (doc) => {
 
         field.value = {
           original: {
-            fileName: _field.fileName || _field.original.fileName,
+            fileName: _field.original && _field.original.fileName ? _field.original.fileName : _field.fileName,
             fileSize: _field.fileSize || _field.original.fileSize,
             mimeType: _field.mimeType || _field.original.mimeType,
           },

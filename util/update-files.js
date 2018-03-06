@@ -15,12 +15,11 @@ if (!args[1]) {
 const docFilter = doc => doc.type && doc.type === 'file';
 
 const docMutate = (doc) => {
-  if (!doc.uploadedAt) {
-    doc.uploadedAt = doc.uploaded;
-    delete doc.uploaded;
-  }
-
-  return doc;
+  return {
+    _id: doc._id,
+    _rev: doc._rev,
+    _deleted: true,
+  };
 };
 
 const batchUpdateDocs = (db, docs) => Promise.all(_.chunk(docs, BATCH_UPDATE_CHUNK_SIZE).map(chunk => db.bulk({ docs: chunk })));
@@ -28,29 +27,24 @@ const batchUpdateDocs = (db, docs) => Promise.all(_.chunk(docs, BATCH_UPDATE_CHU
 const dbUrl = args[0];
 const dbNames = args.slice(1);
 
-dbNames.forEach((dbName) => {
+dbNames.forEach(async (dbName) => {
   const db = new Cloudant({
     url: dbUrl,
     plugins: ['promises', 'retry'],
   }).db.use(dbName);
 
-  const response = db.list({ include_docs: true });
+  let docs = (await db.list({ include_docs: true })).rows.map(row => row.doc);
 
-  let body = '';
+  console.log(`${dbName} --> ${docs.length} docs fetched`);
 
-  response.on('data', (chunk) => {
-    body += chunk;
-  });
+  docs = docs.filter(docFilter);
 
-  response.on('end', async () => {
-    let docs = JSON.parse(body).rows.map(row => row.doc);
+  console.log(`${dbName} --> ${docs.length} files found`);
 
-    docs = docs.filter(docFilter);
+  docs = docs.map(docMutate);
 
-    docs = docs.map(docMutate);
+  await batchUpdateDocs(db, docs);
 
-    await batchUpdateDocs(db, docs);
-
-    console.log(`${dbName} --> ${docs.length} files updated`);
-  });
+  console.log(`${dbName} --> ${docs.length} files updated`);
 });
+
