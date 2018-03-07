@@ -30,6 +30,10 @@ const updateThumbnail = (doc) => {
       .replace('_thumb_0000.jpg', 'thumb.jpg');
   }
 
+  if (doc.thumbnail && doc.thumbnail.thumbnailUrl && /vimeocdn/.test(doc.thumbnail.thumbnailUrl)) {
+    doc.thumbnail.thumbnailType = 'oembed';
+  }
+
   if (doc.thumbnail && doc.thumbnail.fileName) {
     doc.thumbnail.name = doc.thumbnail.fileName.split('.')[0];
     doc.thumbnail.ext = `.${doc.thumbnail.fileName.split('.')[1]}`;
@@ -95,7 +99,7 @@ const docMutate = (doc) => {
       console.error('ERROR --> ');
       console.error(field);
       console.error(error);
-      field.value = undefined;
+      delete field.value;
     }
 
     if (_.isArray(field.value)) {
