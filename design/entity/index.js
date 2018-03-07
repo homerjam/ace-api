@@ -17,9 +17,6 @@ var ddoc = {
     byChildren: {
       map: require('./views/byChildren'),
     },
-    byFile: {
-      map: require('./views/byFile'),
-    },
     byField: {
       map: require('./views/byField'),
       reduce: '_sum',

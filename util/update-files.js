@@ -4,7 +4,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const Cloudant = require('@cloudant/cloudant');
 
-const BATCH_UPDATE_CHUNK_SIZE = 100;
+const BATCH_UPDATE_CHUNK_SIZE = 1000;
 
 const args = process.argv.slice(2);
 

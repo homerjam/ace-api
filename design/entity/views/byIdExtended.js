@@ -14,6 +14,7 @@ module.exports = function (doc) {
     }
 
     emit(doc._id, {
+      _id: doc._id,
       type: 'entity',
     });
 
@@ -23,29 +24,19 @@ module.exports = function (doc) {
       if (type(fieldValue) === 'array') {
         forEach(fieldValue, function (item, index) {
           if (type(item) === 'object' && item.type === 'entity' && item.id) {
-            emit(doc._id, {
-              _id: item.id,
-              type: 'field',
-              slug: fieldSlug,
-              index: index,
-            });
+            // emit(doc._id, {
+            //   _id: item.id,
+            //   type: 'field',
+            //   slug: fieldSlug,
+            //   index: index,
+            // });
 
             emit(item.id, {
-              _id: doc.id,
+              _id: doc._id,
               type: 'parent',
             });
           }
         });
-      }
-
-      if (type(fieldValue) === 'object') {
-        if (fieldValue.type === 'file' && fieldValue.id) {
-          emit(doc._id, {
-            _id: fieldValue.id,
-            type: 'field',
-            slug: fieldSlug,
-          });
-        }
       }
 
     });
