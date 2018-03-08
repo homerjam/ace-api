@@ -75,7 +75,7 @@ const docMutate = (doc) => {
           dzi: _field.dzi || undefined,
         };
 
-        if (_field.location === 's3') {
+        if (_field.location === 's3' && _field.metadata && _field.metadata.s3) {
           field.value.file = {
             name: _field.metadata.s3.base,
             ext: _field.metadata.s3.ext,
@@ -91,7 +91,7 @@ const docMutate = (doc) => {
           };
         }
 
-        if (_field.metadata.zencoder) {
+        if (_field.metadata && _field.metadata.zencoder && _field.metadata.zencoder.outputs) {
           field.value.metadata.duration = _.sample(_field.metadata.zencoder.outputs).duration;
         }
       }
