@@ -2,7 +2,7 @@ module.exports = function (doc) {
   if (doc.type === 'entity') {
 
     index('schema', doc.schema, {
-      store: false,
+      store: true,
       index: 'analyzed',
     });
 
@@ -12,12 +12,12 @@ module.exports = function (doc) {
     });
 
     index('trashed', doc.trashed || false, {
-      store: false,
+      store: true,
       index: 'not_analyzed',
     });
 
     index('title', doc.title, {
-      store: false,
+      store: true,
       index: 'analyzed',
     });
 
@@ -27,7 +27,7 @@ module.exports = function (doc) {
     });
 
     index('slug', doc.slug, {
-      store: false,
+      store: true,
       index: 'analyzed',
     });
 
@@ -37,12 +37,12 @@ module.exports = function (doc) {
     });
 
     index('published', doc.published || false, {
-      store: false,
+      store: true,
       index: 'not_analyzed',
     });
 
     index('publishedAt', doc.published ? doc.publishedAt : false, {
-      store: false,
+      store: true,
       index: 'not_analyzed',
     });
 
@@ -60,21 +60,40 @@ module.exports = function (doc) {
       return self.indexOf(v) === i;
     }
 
+    function decodeHTMLEntities (text) {
+      var entities = [
+        ['amp', '&'],
+        ['apos', '\''],
+        ['#x27', '\''],
+        ['#x2F', '/'],
+        ['#39', '\''],
+        ['#47', '/'],
+        ['lt', '<'],
+        ['gt', '>'],
+        ['nbsp', ' '],
+        ['quot', '"'],
+      ];
+      for (var i = 0, max = entities.length; i < max; ++i) {
+        text = text.replace(new RegExp('&' + entities[i][0] + ';', 'g'), entities[i][1]);
+      }
+      return text;
+    }
+
     function indexFields (fields) {
       for (var fieldSlug in fields) {
         var fieldValue = fields[fieldSlug].value;
-        var fieldType = fields[fieldSlug].type;
+        // var fieldType = fields[fieldSlug].type;
 
         var indexValue = 'NULL';
-        var indexSortValue = null;
-        var indexSlugValue = null;
+        var indexSortValue;
+        var indexSlugValue;
 
         var titles;
         var slugs;
 
         var fieldValueObjectType = toString.call(fieldValue);
 
-        if (fieldValue) {
+        if (typeof fieldValue !== 'undefined') {
 
           if (fieldValueObjectType === '[object Array]') {
             titles = [];
@@ -107,7 +126,12 @@ module.exports = function (doc) {
           if (fieldValueObjectType === '[object Object]') {
 
             if (fieldValue.html) {
-              indexValue = fieldValue.html.replace(/(<([^>]+)>)/ig, ' ');
+              indexValue = fieldValue.html
+                .replace(/(<([^>]+)>)/ig, ' ')
+                .replace(/\s\s/g, ' ')
+                .replace(/\r|\n/, '')
+                .trim();
+              indexValue = decodeHTMLEntities(indexValue);
             }
 
             if (fieldValue.terms && fieldValue.terms.length) {
@@ -152,16 +176,15 @@ module.exports = function (doc) {
               }
             }
 
-            if (fieldType === 'file') {
-              indexValue = null;
+            if (fieldValue.file) {
+              indexValue = fieldValue.original.fileName;
 
-              index('fields.' + fieldSlug + '.fileName', fieldValue.fileName || '', {
-                store: false,
+              index('fields.' + fieldSlug + '.file.name', fieldValue.file.name || '', {
+                store: true,
                 index: 'analyzed',
               });
-
-              index('fields.' + fieldSlug + '.original.fileName', fieldValue.original.fileName, {
-                store: false,
+              index('fields.' + fieldSlug + '.file.ext', fieldValue.file.ext || '', {
+                store: true,
                 index: 'analyzed',
               });
             }
@@ -187,21 +210,28 @@ module.exports = function (doc) {
 
           }
 
-          if (indexValue) {
+          if (fieldValueObjectType === '[object Boolean]') {
+
+            indexValue = fieldValue;
+            indexSortValue = indexValue;
+
+          }
+
+          if (typeof indexValue !== 'undefined' && indexValue !== null) {
             index('fields.' + fieldSlug, indexValue, {
-              store: false,
+              store: true,
               index: 'analyzed',
             });
           }
 
-          if (indexSortValue) {
+          if (typeof indexSortValue !== 'undefined') {
             index('sort.fields.' + fieldSlug, indexSortValue, {
               store: false,
               index: 'not_analyzed',
             });
           }
 
-          if (indexSlugValue) {
+          if (typeof indexSlugValue !== 'undefined') {
             index('fields.' + fieldSlug + '.slug', indexSlugValue, {
               store: false,
               index: 'analyzed',
