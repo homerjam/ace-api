@@ -233,7 +233,7 @@ module.exports = function (doc) {
 
           if (typeof indexSlugValue !== 'undefined') {
             index('fields.' + fieldSlug + '.slug', indexSlugValue, {
-              store: false,
+              store: true,
               index: 'analyzed',
             });
           }
