@@ -3,304 +3,292 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = undefined;
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _extends2 = require('babel-runtime/helpers/extends');
 
-var _class;
+var _extends3 = _interopRequireDefault(_extends2);
+
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
+
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = require('babel-runtime/helpers/inherits');
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _class, _temp2;
 
 var _mjmlCore = require('mjml-core');
 
-var _cloneDeep = require('lodash/cloneDeep');
+var _fp = require('lodash/fp');
 
-var _cloneDeep2 = _interopRequireDefault(_cloneDeep);
+var _widthParser2 = require('mjml-core/lib/helpers/widthParser');
 
-var _merge = require('lodash/merge');
-
-var _merge2 = _interopRequireDefault(_merge);
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _mjmlColumn = require('mjml-column');
-
-var _mjmlColumn2 = _interopRequireDefault(_mjmlColumn);
-
-var _mjmlGroup = require('mjml-group');
-
-var _mjmlGroup2 = _interopRequireDefault(_mjmlGroup);
-
-var _mjmlRaw = require('mjml-raw');
-
-var _mjmlRaw2 = _interopRequireDefault(_mjmlRaw);
+var _widthParser3 = _interopRequireDefault(_widthParser2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var makeBackgroundString = (0, _fp.flow)((0, _fp.filter)(_fp.identity), (0, _fp.join)(' '));
+var McSection = (_temp2 = _class = function (_BodyComponent) {
+  (0, _inherits3.default)(McSection, _BodyComponent);
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var tagName = 'mc-section';
-var parentTag = ['mj-container'];
-var defaultMJMLDefinition = {
-  attributes: {
-    'mc:hideable': null,
-    'mc:repeatable': null,
-    'mc:variant': null,
-    'mc:edit': null,
-    'background-color': null,
-    'background-url': null,
-    'background-repeat': 'repeat',
-    'background-size': 'auto',
-    'border': null,
-    'border-bottom': null,
-    'border-left': null,
-    'border-radius': null,
-    'border-right': null,
-    'border-top': null,
-    'direction': 'ltr',
-    'full-width': null,
-    'padding': '20px 0',
-    'padding-top': null,
-    'padding-bottom': null,
-    'padding-left': null,
-    'padding-right': null,
-    'text-align': 'center',
-    'vertical-align': 'top'
-  }
-};
-var baseStyles = {
-  div: {
-    margin: '0 auto'
-  },
-  table: {
-    fontSize: '0px',
-    width: '100%'
-  },
-  td: {
-    textAlign: 'center',
-    verticalAlign: 'top'
-  }
-};
-var postRender = function postRender($) {
-  $('.mc-section-outlook-background').each(function () {
-    var url = $(this).data('url');
-    var width = $(this).data('width');
-
-    $(this).removeAttr('class').removeAttr('data-url').removeAttr('data-width');
-
-    if (!url) {
-      return;
-    }
-
-    $(this).before(_mjmlCore.helpers.startConditionalTag + '\n      <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:' + width + 'px;">\n        <v:fill origin="0.5, 0" position="0.5,0" type="tile" src="' + url + '" />\n        <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">\n      ' + _mjmlCore.helpers.endConditionalTag);
-
-    $(this).after(_mjmlCore.helpers.startConditionalTag + '\n        </v:textbox>\n      </v:rect>\n      ' + _mjmlCore.helpers.endConditionalTag);
-  });
-
-  $('.mc-section-outlook-open').each(function () {
-    var $columnDiv = $(this).next();
-
-    $(this).replaceWith(_mjmlCore.helpers.startConditionalTag + '\n      <table border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:' + $columnDiv.data('vertical-align') + ';width:' + parseInt($(this).data('width')) + 'px;">\n      ' + _mjmlCore.helpers.endConditionalTag);
-
-    $columnDiv.removeAttr('data-vertical-align');
-  });
-
-  $('.mc-section-outlook-line').each(function () {
-    var $columnDiv = $(this).next();
-
-    $(this).replaceWith(_mjmlCore.helpers.startConditionalTag + '\n      </td><td style="vertical-align:' + $columnDiv.data('vertical-align') + ';width:' + parseInt($(this).data('width')) + 'px;">\n      ' + _mjmlCore.helpers.endConditionalTag);
-
-    $columnDiv.removeAttr('data-vertical-align');
-  });
-
-  $('.mc-section-outlook-close').each(function () {
-    $(this).replaceWith(_mjmlCore.helpers.startConditionalTag + '\n      </td></tr></table>\n      ' + _mjmlCore.helpers.endConditionalTag);
-  });
-
-  $('[data-mc-hideable]').each(function () {
-    $(this).attr('mc:hideable', '').removeAttr('data-mc-hideable');
-  });
-
-  $('[data-mc-repeatable]').each(function () {
-    $(this).attr('mc:repeatable', $(this).attr('data-mc-repeatable'));
-    // .removeAttr('data-mc-repeatable')
-  });
-
-  $('[data-mc-variant]').each(function () {
-    $(this).attr('mc:variant', $(this).attr('data-mc-variant'));
-    // .removeAttr('data-mc-variant')
-  });
-
-  $('[data-mc-edit]').each(function () {
-    $(this).attr('mc:edit', $(this).attr('data-mc-edit')).removeAttr('data-mc-edit');
-  });
-
-  return $;
-};
-
-var Section = (0, _mjmlCore.MJMLElement)(_class = function (_Component) {
-  _inherits(Section, _Component);
-
-  function Section() {
+  function McSection() {
     var _ref;
 
     var _temp, _this, _ret;
 
-    _classCallCheck(this, Section);
+    (0, _classCallCheck3.default)(this, McSection);
 
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Section.__proto__ || Object.getPrototypeOf(Section)).call.apply(_ref, [this].concat(args))), _this), _this.styles = _this.getStyles(), _temp), _possibleConstructorReturn(_this, _ret);
+    return _ret = (_temp = (_this = (0, _possibleConstructorReturn3.default)(this, (_ref = McSection.__proto__ || (0, _getPrototypeOf2.default)(McSection)).call.apply(_ref, [this].concat(args))), _this), _this.getBackground = function () {
+      return makeBackgroundString([_this.getAttribute('background-color')].concat((0, _toConsumableArray3.default)(_this.hasBackground() ? ['url(' + _this.getAttribute('background-url') + ')', 'top center / ' + _this.getAttribute('background-size'), _this.getAttribute('background-repeat')] : [])));
+    }, _temp), (0, _possibleConstructorReturn3.default)(_this, _ret);
   }
 
-  _createClass(Section, [{
-    key: 'isFullWidth',
-    value: function isFullWidth() {
-      var mjAttribute = this.props.mjAttribute;
+  (0, _createClass3.default)(McSection, [{
+    key: 'getChildContext',
+    value: function getChildContext() {
+      var containerWidth = this.context.containerWidth;
 
 
-      return mjAttribute('full-width') == 'full-width';
+      var paddingSize = this.getShorthandAttrValue('padding', 'left') + this.getShorthandAttrValue('padding', 'right');
+
+      var _widthParser = (0, _widthParser3.default)(containerWidth, {
+        parseFloatToInt: false
+      }),
+          parsedWidth = _widthParser.parsedWidth;
+
+      return (0, _extends3.default)({}, this.context, {
+        containerWidth: parsedWidth - paddingSize + 'px'
+      });
     }
   }, {
     key: 'getStyles',
     value: function getStyles() {
-      var _props = this.props,
-          mjAttribute = _props.mjAttribute,
-          parentWidth = _props.parentWidth,
-          defaultUnit = _props.defaultUnit;
+      var containerWidth = this.context.containerWidth;
 
 
-      var background = mjAttribute('background-url') ? {
-        background: ((mjAttribute('background-color') || '') + ' url(' + mjAttribute('background-url') + ') top center / ' + (mjAttribute('background-size') || '') + ' ' + (mjAttribute('background-repeat') || '')).trim()
-      } : {
-        background: mjAttribute('background-color')
+      var fullWidth = this.isFullWidth();
+
+      var background = this.getAttribute('background-url') ? { background: this.getBackground() } : {
+        background: this.getAttribute('background-color'),
+        'background-color': this.getAttribute('background-color')
       };
 
-      return (0, _merge2.default)({}, baseStyles, {
+      return {
+        tableFullwidth: (0, _extends3.default)({}, fullWidth ? background : {}, {
+          width: '100%',
+          'border-radius': this.getAttribute('border-radius')
+        }),
+        table: (0, _extends3.default)({}, fullWidth ? {} : background, {
+          width: '100%',
+          'border-radius': this.getAttribute('border-radius')
+        }),
         td: {
-          fontSize: '0px',
-          padding: defaultUnit(mjAttribute('padding'), 'px'),
-          paddingBottom: defaultUnit(mjAttribute('padding-bottom'), 'px'),
-          paddingLeft: defaultUnit(mjAttribute('padding-left'), 'px'),
-          paddingRight: defaultUnit(mjAttribute('padding-right'), 'px'),
-          paddingTop: defaultUnit(mjAttribute('padding-top'), 'px'),
-          textAlign: mjAttribute('text-align'),
-          verticalAlign: mjAttribute('vertical-align')
+          border: this.getAttribute('border'),
+          'border-bottom': this.getAttribute('border-bottom'),
+          'border-left': this.getAttribute('border-left'),
+          'border-right': this.getAttribute('border-right'),
+          'border-top': this.getAttribute('border-top'),
+          direction: this.getAttribute('direction'),
+          'font-size': '0px',
+          padding: this.getAttribute('padding'),
+          'padding-bottom': this.getAttribute('padding-bottom'),
+          'padding-left': this.getAttribute('padding-left'),
+          'padding-right': this.getAttribute('padding-right'),
+          'padding-top': this.getAttribute('padding-top'),
+          'text-align': this.getAttribute('text-align'),
+          'vertical-align': this.getAttribute('vertical-align')
         },
-        div: {
-          maxWidth: defaultUnit(parentWidth)
+        div: (0, _extends3.default)({}, fullWidth ? {} : background, {
+          Margin: '0px auto',
+          'border-radius': this.getAttribute('border-radius'),
+          'max-width': containerWidth
+        }),
+        innerDiv: {
+          'line-height': '0',
+          'font-size': '0'
         }
-      }, {
-        div: this.isFullWidth() ? {} : (0, _cloneDeep2.default)(background),
-        table: this.isFullWidth() ? {} : (0, _cloneDeep2.default)(background),
-        tableFullwidth: this.isFullWidth() ? (0, _cloneDeep2.default)(background) : {}
-      });
+      };
     }
   }, {
-    key: 'renderFullWidthSection',
-    value: function renderFullWidthSection() {
-      var mjAttribute = this.props.mjAttribute;
+    key: 'hasBackground',
+    value: function hasBackground() {
+      return this.getAttribute('background-url') != null;
+    }
+  }, {
+    key: 'isFullWidth',
+    value: function isFullWidth() {
+      return this.getAttribute('full-width') === 'full-width';
+    }
+  }, {
+    key: 'renderBefore',
+    value: function renderBefore() {
+      var containerWidth = this.context.containerWidth;
 
 
-      return _react2.default.createElement(
-        'table',
-        {
-          cellPadding: '0',
-          cellSpacing: '0',
-          'data-legacy-background': mjAttribute('background-url'),
-          'data-legacy-border': '0',
-          'data-mc-hideable': mjAttribute('mc:hideable'),
-          'data-mc-repeatable': mjAttribute('mc:repeatable'),
-          'data-mc-variant': mjAttribute('mc:variant'),
-          'data-mc-edit': mjAttribute('mc:edit'),
-          style: (0, _merge2.default)({}, this.styles.tableFullwidth, this.styles.table) },
-        _react2.default.createElement(
-          'tbody',
-          null,
-          _react2.default.createElement(
-            'tr',
-            null,
-            _react2.default.createElement(
-              'td',
-              null,
-              this.renderSection()
-            )
-          )
-        )
-      );
+      return '\n      <!--[if mso | IE]>\n      <table\n        ' + this.htmlAttributes({
+        align: 'center',
+        border: '0',
+        cellpadding: '0',
+        cellspacing: '0',
+        class: this.getAttribute('css-class') ? this.getAttribute('css-class').split(' ').map(function (c) {
+          return c + '-outlook';
+        }).join(' ') : null,
+        style: { width: '' + containerWidth },
+        width: parseInt(containerWidth, 10)
+      }) + '\n      >\n        <tr>\n          <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">\n      <![endif]-->\n    ';
+    }
+  }, {
+    key: 'renderAfter',
+    value: function renderAfter() {
+      // eslint-disable-line class-methods-use-this
+      return '\n      <!--[if mso | IE]>\n          </td>\n        </tr>\n      </table>\n      <![endif]-->\n    ';
+    }
+  }, {
+    key: 'renderWrappedChildren',
+    value: function renderWrappedChildren() {
+      var children = this.props.children;
+
+
+      return '\n      <!--[if mso | IE]>\n        <tr>\n      <![endif]-->\n      ' + this.renderChildren(children, {
+        renderer: function renderer(component) {
+          return component.constructor.isRawElement() ? component.render() : '\n          <!--[if mso | IE]>\n            <td\n              ' + component.htmlAttributes({
+            align: component.getAttribute('align'),
+            class: component.getAttribute('css-class') ? component.getAttribute('css-class').split(' ').map(function (c) {
+              return c + '-outlook';
+            }).join(' ') : null,
+            style: 'tdOutlook'
+          }) + '\n            >\n          <![endif]-->\n            ' + component.render() + '\n          <!--[if mso | IE]>\n            </td>\n          <![endif]-->\n    ';
+        }
+      }) + '\n\n      <!--[if mso | IE]>\n        </tr>\n      <![endif]-->\n    ';
+    }
+  }, {
+    key: 'renderWithBackground',
+    value: function renderWithBackground(content) {
+      var fullWidth = this.isFullWidth();
+
+      var containerWidth = this.context.containerWidth;
+
+
+      return '\n      <!--[if mso | IE]>\n        <v:rect ' + this.htmlAttributes({
+        style: fullWidth ? { 'mso-width-percent': '1000' } : { width: containerWidth },
+        'xmlns:v': 'urn:schemas-microsoft-com:vml',
+        fill: 'true',
+        stroke: 'false'
+      }) + '>\n        <v:fill ' + this.htmlAttributes({
+        origin: '0.5, 0',
+        position: '0.5, 0',
+        src: this.getAttribute('background-url'),
+        color: this.getAttribute('background-color'),
+        type: 'tile'
+      }) + ' />\n        <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">\n      <![endif]-->\n          ' + content + '\n        <!--[if mso | IE]>\n        </v:textbox>\n      </v:rect>\n    <![endif]-->\n    ';
     }
   }, {
     key: 'renderSection',
     value: function renderSection() {
-      var _props2 = this.props,
-          renderWrappedOutlookChildren = _props2.renderWrappedOutlookChildren,
-          mjAttribute = _props2.mjAttribute,
-          children = _props2.children,
-          parentWidth = _props2.parentWidth;
+      var hasBackground = this.hasBackground();
 
-      var fullWidth = this.isFullWidth();
+      return '\n      <div ' + this.htmlAttributes({
+        class: this.isFullWidth() ? null : this.getAttribute('css-class'),
+        style: 'div',
+        'mc:hideable': this.getAttribute('mc:hideable'),
+        'mc:repeatable': this.getAttribute('mc:repeatable'),
+        'mc:variant': this.getAttribute('mc:variant')
+      }) + '>\n        ' + (hasBackground ? '<div ' + this.htmlAttributes({ style: 'innerDiv' }) + '>' : '') + '\n        <table\n          ' + this.htmlAttributes({
+        align: 'center',
+        background: this.isFullWidth() ? null : this.getAttribute('background-url'),
+        border: '0',
+        cellpadding: '0',
+        cellspacing: '0',
+        role: 'presentation',
+        style: 'table'
+      }) + '\n        >\n          <tbody>\n            <tr>\n              <td\n                ' + this.htmlAttributes({
+        style: 'td'
+      }) + '\n              >\n                <!--[if mso | IE]>\n                  <table role="presentation" border="0" cellpadding="0" cellspacing="0">\n                <![endif]-->\n                  ' + this.renderWrappedChildren() + '\n                <!--[if mso | IE]>\n                  </table>\n                <![endif]-->\n              </td>\n            </tr>\n          </tbody>\n        </table>\n        ' + (hasBackground ? '</div>' : '') + '\n      </div>\n    ';
+    }
+  }, {
+    key: 'renderFullWidth',
+    value: function renderFullWidth() {
+      var content = this.hasBackground() ? this.renderWithBackground('\n        ' + this.renderBefore() + '\n        ' + this.renderSection() + '\n        ' + this.renderAfter() + '\n      ') : '\n        ' + this.renderBefore() + '\n        ' + this.renderSection() + '\n        ' + this.renderAfter() + '\n      ';
 
-      return _react2.default.createElement(
-        'div',
-        {
-          'data-mc-hideable': mjAttribute('mc:hideable'),
-          'data-mc-repeatable': mjAttribute('mc:repeatable'),
-          'data-mc-variant': mjAttribute('mc:variant'),
-          'data-mc-edit': mjAttribute('mc:edit'),
-          style: this.styles.div },
-        _react2.default.createElement(
-          'table',
-          {
-            cellPadding: '0',
-            cellSpacing: '0',
-            className: 'mc-section-outlook-background',
-            'data-legacy-align': 'center',
-            'data-legacy-background': fullWidth ? undefined : mjAttribute('background-url'),
-            'data-legacy-border': '0',
-            'data-url': mjAttribute('background-url') || '',
-            'data-width': parentWidth,
-            style: this.styles.table },
-          _react2.default.createElement(
-            'tbody',
-            null,
-            _react2.default.createElement(
-              'tr',
-              null,
-              _react2.default.createElement(
-                'td',
-                { style: this.styles.td },
-                renderWrappedOutlookChildren(children)
-              )
-            )
-          )
-        )
-      );
+      return '\n      <table\n        ' + this.htmlAttributes({
+        align: 'center',
+        class: this.getAttribute('css-class'),
+        background: this.getAttribute('background-url'),
+        border: '0',
+        cellpadding: '0',
+        cellspacing: '0',
+        role: 'presentation',
+        style: 'tableFullwidth'
+      }) + '\n      >\n        <tbody>\n          <tr>\n            <td>\n              ' + content + '\n            </td>\n          </tr>\n        </tbody>\n      </table>\n    ';
+    }
+  }, {
+    key: 'renderSimple',
+    value: function renderSimple() {
+      var section = this.renderSection();
+
+      return '\n      ' + this.renderBefore() + '\n      ' + (this.hasBackground() ? this.renderWithBackground(section) : section) + '\n      ' + this.renderAfter() + '\n    ';
     }
   }, {
     key: 'render',
     value: function render() {
-      return this.isFullWidth() ? this.renderFullWidthSection() : this.renderSection();
+      return this.isFullWidth() ? this.renderFullWidth() : this.renderSimple();
     }
   }]);
-
-  return Section;
-}(_react.Component)) || _class;
-
-Section.tagName = tagName;
-Section.parentTag = parentTag;
-Section.defaultMJMLDefinition = defaultMJMLDefinition;
-Section.baseStyles = baseStyles;
-Section.postRender = postRender;
-
-_mjmlColumn2.default.parentTag.push(tagName);
-
-_mjmlGroup2.default.parentTag.push(tagName);
-
-_mjmlRaw2.default.parentTag.push(tagName);
-
-exports.default = Section;
+  return McSection;
+}(_mjmlCore.BodyComponent), _class.allowedAttributes = {
+  'mc:hideable': 'boolean',
+  'mc:repeatable': 'string',
+  'mc:variant': 'string',
+  'background-color': 'color',
+  'background-url': 'string',
+  'background-repeat': 'enum(repeat/no-repeat)',
+  'background-size': 'string',
+  border: 'string',
+  'border-bottom': 'string',
+  'border-left': 'string',
+  'border-radius': 'string',
+  'border-right': 'string',
+  'border-top': 'string',
+  direction: 'enum(ltr,rtl)',
+  'full-width': 'enum(full-width)',
+  padding: 'unit(px,%){1,4}',
+  'padding-top': 'unit(px,%)',
+  'padding-bottom': 'unit(px,%)',
+  'padding-left': 'unit(px,%)',
+  'padding-right': 'unit(px,%)',
+  'text-align': 'enum(left,center,right)',
+  'text-padding': 'unit(px,%){1,4}',
+  'vertical-align': 'enum(bottom,middle,top)'
+}, _class.defaultAttributes = {
+  'background-repeat': 'repeat',
+  'background-size': 'auto',
+  direction: 'ltr',
+  padding: '20px 0',
+  'text-align': 'center',
+  'text-padding': '4px 4px 4px 0',
+  'vertical-align': 'top'
+}, _temp2);
+exports.default = McSection;
+module.exports = exports['default'];

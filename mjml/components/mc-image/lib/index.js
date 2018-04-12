@@ -3,156 +3,117 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.default = undefined;
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
 
-var _class;
+var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
 
-var _mjmlCore = require('mjml-core');
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
-var _merge = require('lodash/merge');
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _merge2 = _interopRequireDefault(_merge);
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = require('babel-runtime/helpers/inherits');
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _class, _temp;
 
 var _min = require('lodash/min');
 
 var _min2 = _interopRequireDefault(_min);
 
-var _react = require('react');
+var _mjmlCore = require('mjml-core');
 
-var _react2 = _interopRequireDefault(_react);
+var _widthParser2 = require('mjml-core/lib/helpers/widthParser');
+
+var _widthParser3 = _interopRequireDefault(_widthParser2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var McImage = (_temp = _class = function (_BodyComponent) {
+  (0, _inherits3.default)(McImage, _BodyComponent);
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var tagName = 'mc-image';
-var parentTag = ['mj-column', 'mj-hero-content'];
-var defaultMJMLDefinition = {
-  attributes: {
-    'mc:edit': null,
-    'align': 'center',
-    'alt': '',
-    'border': 'none',
-    'border-radius': null,
-    'container-background-color': null,
-    'height': 'auto',
-    'href': '',
-    'padding-bottom': null,
-    'padding-left': null,
-    'padding-right': null,
-    'padding-top': null,
-    'padding': '10px 25px',
-    'src': '',
-    'target': '_blank',
-    'title': '',
-    'vertical-align': null,
-    'width': null
-  }
-};
-var endingTag = true;
-var baseStyles = {
-  table: {
-    borderCollapse: 'collapse',
-    borderSpacing: '0'
-  },
-  img: {
-    border: 'none',
-    borderRadius: '',
-    display: 'block',
-    outline: 'none',
-    textDecoration: 'none',
-    width: '100%'
-  }
-};
-var postRender = function postRender($) {
-  $('[data-mc-edit]').each(function () {
-    $(this).attr('mc:edit', $(this).attr('data-mc-edit')).removeAttr('data-mc-edit');
-  });
-
-  return $;
-};
-
-var Image = (0, _mjmlCore.MJMLElement)(_class = function (_Component) {
-  _inherits(Image, _Component);
-
-  function Image() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, Image);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Image.__proto__ || Object.getPrototypeOf(Image)).call.apply(_ref, [this].concat(args))), _this), _this.styles = _this.getStyles(), _temp), _possibleConstructorReturn(_this, _ret);
+  function McImage() {
+    (0, _classCallCheck3.default)(this, McImage);
+    return (0, _possibleConstructorReturn3.default)(this, (McImage.__proto__ || (0, _getPrototypeOf2.default)(McImage)).apply(this, arguments));
   }
 
-  _createClass(Image, [{
-    key: 'getContentWidth',
-    value: function getContentWidth() {
-      var _props = this.props,
-          mjAttribute = _props.mjAttribute,
-          getPadding = _props.getPadding;
-
-      var parentWidth = mjAttribute('parentWidth');
-
-      var width = (0, _min2.default)([parseInt(mjAttribute('width')), parseInt(parentWidth)]);
-
-      var paddingRight = getPadding('right');
-      var paddingLeft = getPadding('left');
-      var widthOverflow = paddingLeft + paddingRight + width - parseInt(parentWidth);
-
-      return widthOverflow > 0 ? width - widthOverflow : width;
-    }
-  }, {
+  (0, _createClass3.default)(McImage, [{
     key: 'getStyles',
     value: function getStyles() {
-      var _props2 = this.props,
-          mjAttribute = _props2.mjAttribute,
-          defaultUnit = _props2.defaultUnit;
+      var width = this.getContentWidth();
+      var fullWidth = this.getAttribute('full-width') === 'full-width';
 
+      var _widthParser = (0, _widthParser3.default)(width),
+          parsedWidth = _widthParser.parsedWidth,
+          unit = _widthParser.unit;
 
-      return (0, _merge2.default)({}, baseStyles, {
-        td: {
-          width: this.getContentWidth()
-        },
+      return {
         img: {
-          border: mjAttribute('border'),
-          height: mjAttribute('height'),
-          borderRadius: defaultUnit(mjAttribute('border-radius'), "px")
+          border: this.getAttribute('border'),
+          'border-radius': this.getAttribute('border-radius'),
+          display: 'block',
+          outline: 'none',
+          'text-decoration': 'none',
+          'min-width': fullWidth ? '100%' : null,
+          width: fullWidth ? '' + parsedWidth + unit : '100%',
+          'max-width': fullWidth ? '100%' : null
+        },
+        td: {
+          width: fullWidth ? null : '' + parsedWidth + unit
+        },
+        table: {
+          'min-width': fullWidth ? '100%' : null,
+          'max-width': fullWidth ? '100%' : null,
+          width: fullWidth ? '' + parsedWidth + unit : null,
+          'border-collapse': 'collapse',
+          'border-spacing': '0px'
         }
-      });
+      };
+    }
+  }, {
+    key: 'getContentWidth',
+    value: function getContentWidth() {
+      var containerWidth = this.context.containerWidth;
+
+
+      var width = this.getAttribute('width') ? (0, _min2.default)([parseInt(this.getAttribute('width'), 10), parseInt(containerWidth, 10)]) : parseInt(containerWidth, 10);
+
+      var paddingRight = this.getShorthandAttrValue('padding', 'right');
+      var paddingLeft = this.getShorthandAttrValue('padding', 'left');
+
+      var widthOverflow = paddingLeft + paddingRight + parseFloat(width) - parseInt(containerWidth, 10);
+
+      return widthOverflow > 0 ? parseFloat(width - widthOverflow) : parseFloat(width);
     }
   }, {
     key: 'renderImage',
     value: function renderImage() {
-      var mjAttribute = this.props.mjAttribute;
+      var img = '\n      <img\n        ' + this.htmlAttributes({
+        alt: this.getAttribute('alt'),
+        height: this.getAttribute('height'),
+        src: this.getAttribute('src'),
+        srcset: this.getAttribute('srcset'),
+        style: 'img',
+        title: this.getAttribute('title'),
+        width: this.getContentWidth(),
+        'mc:edit': this.getAttribute('mc:edit')
+      }) + '\n      />\n    ';
 
-
-      var img = _react2.default.createElement('img', {
-        'data-mc-edit': mjAttribute('mc:edit'),
-        alt: mjAttribute('alt'),
-        title: mjAttribute('title'),
-        height: mjAttribute('height'),
-        src: mjAttribute('src'),
-        style: this.styles.img,
-        width: this.getContentWidth() });
-
-      if (mjAttribute('href') != '') {
-        return _react2.default.createElement(
-          'a',
-          {
-            href: mjAttribute('href'),
-            target: mjAttribute('target') },
-          img
-        );
+      if (this.getAttribute('href')) {
+        return '\n        <a\n          ' + this.htmlAttributes({
+          href: this.getAttribute('href'),
+          target: this.getAttribute('target')
+        }) + '\n        >\n          ' + img + '\n        </a>\n      ';
       }
 
       return img;
@@ -160,43 +121,45 @@ var Image = (0, _mjmlCore.MJMLElement)(_class = function (_Component) {
   }, {
     key: 'render',
     value: function render() {
-      var mjAttribute = this.props.mjAttribute;
-
-
-      return _react2.default.createElement(
-        'table',
-        {
-          className: 'mc-image',
-          cellPadding: '0',
-          cellSpacing: '0',
-          'data-legacy-align': mjAttribute('align'),
-          'data-legacy-border': '0',
-          style: this.styles.table },
-        _react2.default.createElement(
-          'tbody',
-          null,
-          _react2.default.createElement(
-            'tr',
-            null,
-            _react2.default.createElement(
-              'td',
-              { style: this.styles.td },
-              this.renderImage()
-            )
-          )
-        )
-      );
+      return '\n      <table\n        ' + this.htmlAttributes({
+        align: this.getAttribute('align'),
+        border: '0',
+        cellpadding: '0',
+        cellspacing: '0',
+        role: 'presentation',
+        style: 'table'
+      }) + '\n      >\n        <tbody>\n          <tr>\n            <td ' + this.htmlAttributes({ style: 'td' }) + '>\n              ' + this.renderImage() + '\n            </td>\n          </tr>\n        </tbody>\n      </table>\n    ';
     }
   }]);
-
-  return Image;
-}(_react.Component)) || _class;
-
-Image.tagName = tagName;
-Image.parentTag = parentTag;
-Image.defaultMJMLDefinition = defaultMJMLDefinition;
-Image.endingTag = endingTag;
-Image.baseStyles = baseStyles;
-Image.postRender = postRender;
-
-exports.default = Image;
+  return McImage;
+}(_mjmlCore.BodyComponent), _class.tagOmission = true, _class.allowedAttributes = {
+  'mc:edit': 'string',
+  'alt': 'string',
+  'href': 'string',
+  'src': 'string',
+  'srcset': 'string',
+  'title': 'string',
+  align: 'enum(left,center,right)',
+  border: 'string',
+  'border-bottom': 'string',
+  'border-left': 'string',
+  'border-right': 'string',
+  'border-top': 'string',
+  'border-radius': 'unit(px,%)',
+  'container-background-color': 'string',
+  padding: 'unit(px,%){1,4}',
+  'padding-bottom': 'unit(px,%)',
+  'padding-left': 'unit(px,%)',
+  'padding-right': 'unit(px,%)',
+  'padding-top': 'unit(px,%)',
+  height: 'unit(px,%)',
+  width: 'unit(px,%)'
+}, _class.defaultAttributes = {
+  align: 'center',
+  border: '0',
+  height: 'auto',
+  padding: '10px 25px',
+  target: '_blank'
+}, _temp);
+exports.default = McImage;
+module.exports = exports['default'];
