@@ -27,6 +27,7 @@
     "aws-sdk": "^2.224.1",
     "axios": "^0.18.0",
     "babel-preset-react": "^6.24.1",
+    "babel-runtime": "^6.26.0",
     "bluebird": "^3.5.1",
     "colors": "^1.2.1",
     "createsend-node": "^0.8.2",
