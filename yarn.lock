@@ -5295,6 +5295,12 @@ mjml-image@^4.0.3:
     lodash "^4.17.2"
     mjml-core "^4.0.1"
 
+mjml-mailchimp@0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/mjml-mailchimp/-/mjml-mailchimp-0.0.2.tgz#c78edae782fd0b302f6beeceb98aedd0ad169b25"
+  dependencies:
+    babel-runtime "^6.26.0"
+
 mjml-migrate@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/mjml-migrate/-/mjml-migrate-4.0.1.tgz#d830bee7a0ed0e4fbc9a27d78a779d50eb6ddfaa"
