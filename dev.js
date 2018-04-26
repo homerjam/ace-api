@@ -1,5 +1,5 @@
 console.time('startup');
 
-require('./server/serve')();
+require('./server/server')();
 
 console.timeEnd('startup');

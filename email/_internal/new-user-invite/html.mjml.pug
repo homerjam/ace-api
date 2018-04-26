@@ -1,0 +1,18 @@
+mjml
+
+  mj-head
+
+    mj-attributes
+      mj-all(font-family="sans-serif")
+      mc-section(padding="50px 20px")
+
+  mj-body
+
+    mj-container(width="720px")
+      mc-section
+        mj-column
+          mj-text
+            h2 Hello #{toName}!
+            p You've been invited to join #{config.client.name}'s #{config.cms.title} account.
+            p
+              a(href=config.cms.url + "/" + config.slug + "/signup" target="_blank") Click here to sign up

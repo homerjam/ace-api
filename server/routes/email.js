@@ -10,17 +10,17 @@ module.exports = ({
 
   /**
    * @swagger
-   * /email/template:
+   * /email/preview:
    *  get:
    *    tags:
    *      - email
-   *    summary: Render email template
-   * #   description: Render email template
+   *    summary: Preview email template
+   * #   description: Preview email template
    *    produces:
    *      - text/html
    *    parameters:
    *      - name: slug
-   *        description: Slug (parent folder name of the template)
+   *        description: Slug (optionally override slug in development mode)
    *        in: query
    *        required: false
    *        type: string
@@ -29,13 +29,18 @@ module.exports = ({
    *        in: query
    *        required: true
    *        type: string
-   *      - name: entityId
-   *        description: Entity `id` from which to render the template
+   *      - name: payload
+   *        description: JSON payload from which to render the template
    *        in: query
    *        required: false
    *        type: string
-   *      - name: preview
-   *        description: Preview mode (disable inlining of styles etc)
+   *      - name: entityId
+   *        description: Entity `_id` from which to render the template
+   *        in: query
+   *        required: false
+   *        type: string
+   *      - name: inlineStyles
+   *        description: Inline CSS (default: true)
    *        in: query
    *        required: false
    *        type: boolean
@@ -44,33 +49,33 @@ module.exports = ({
    *        description: Template
    */
   router.all(
-    '/email/template.:ext?',
+    '/email/preview.:ext?',
     asyncMiddleware(async (req, res) => {
       const input = Object.keys(req.body).length ? req.body : req.query || {};
 
-      const options = {
+      const templateOptions = {
         data: input.data ? JSON.parse(input.data) : false,
-        preview: input.preview ? JSON.parse(input.preview) : false,
+        inlineStyles: input.inlineStyles ? JSON.parse(input.inlineStyles) : true,
         inky: input.inky ? JSON.parse(input.inky) : false,
         mjml: input.mjml ? JSON.parse(input.mjml) : false,
         skipValidation: input.skipValidation ? JSON.parse(input.skipValidation) : false,
       };
 
-      const slug = req.session.slug || input.slug;
+      const slug = input.slug || req.session.slug;
 
-      if (!slug) {
-        throw new Error('missing slug param');
-      }
+      // if (!slug) {
+      //   throw new Error('Missing `slug` parameter');
+      // }
 
       async function renderTemplate(data = {}) {
-        if (options.data) {
+        if (templateOptions.data) {
           handleResponse(req, res, data);
           return;
         }
 
         const email = Email(await getConfig(slug));
 
-        const template = await email.getTemplate(`${slug}/${input.templateSlug}`, data, options);
+        const template = await email.getTemplate(input.templateSlug, data, templateOptions);
 
         try {
           handleResponse(req, res, template.html);
@@ -94,6 +99,42 @@ module.exports = ({
       }
 
       renderTemplate();
+    })
+  );
+
+  router.all(
+    '/email/send.:ext?',
+    asyncMiddleware(async (req, res) => {
+      const input = Object.keys(req.body).length ? req.body : req.query || {};
+
+      const templateOptions = {
+        inlineStyles: input.inlineStyles ? JSON.parse(input.inlineStyles) : true,
+        inky: input.inky ? JSON.parse(input.inky) : false,
+        mjml: input.mjml ? JSON.parse(input.mjml) : false,
+        skipValidation: input.skipValidation ? JSON.parse(input.skipValidation) : true,
+      };
+
+      const emailOptions = {
+        fromName: input.fromName || '',
+        fromEmail: input.fromEmail,
+        toName: input.toName || '',
+        toEmail: input.toEmail,
+        from: `${input.fromName || ''} <${input.fromEmail}>`,
+        to: input.toEmail,
+        subject: input.subject,
+      };
+
+      const slug = input.slug || req.session.slug;
+
+      const email = Email(await getConfig(slug));
+
+      try {
+        const result = await email.sendEmail(emailOptions, input.templateSlug, input.payload, templateOptions);
+
+        handleResponse(req, res, result);
+      } catch (error) {
+        handleError(req, res, error);
+      }
     })
   );
 

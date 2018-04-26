@@ -37,9 +37,9 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
     }
     const allowedRoutes = [
       '/token',
-      '/email/template',
+      '/email',
     ];
-    return allowedRoutes.indexOf(req.path) > -1;
+    return _.find(allowedRoutes, route => new RegExp(`^${route}`).test(req.path));
   };
 
   // Default auth middleware

@@ -25,6 +25,11 @@ const config = {
     role: process.env.DEV_ROLE || 'super',
   },
 
+  cms: {
+    title: process.env.CMS_TITLE,
+    url: process.env.CMS_URL,
+  },
+
   assist: {
     url: process.env.ASSIST_URL,
     username: process.env.ASSIST_USERNAME,
