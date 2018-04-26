@@ -75,9 +75,9 @@ module.exports = ({
 
         const email = Email(await getConfig(slug));
 
-        const template = await email.getTemplate(input.templateSlug, data, templateOptions);
-
         try {
+          const template = await email.getTemplate(input.templateSlug, data, templateOptions);
+
           handleResponse(req, res, template.html);
         } catch (error) {
           handleError(req, res, error);
