@@ -66,11 +66,11 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
 
   // Permissions middleware
 
-  const permissionMiddleware = (permission, req, res, next) => {
+  const permissionMiddleware = (permissions, req, res, next) => {
     if (!req.session.role) {
       res.status(401);
       res.send({
-        permission,
+        permissions,
         message: 'Error: role not defined in session.',
       });
       return;
@@ -83,10 +83,22 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
 
     const roles = Api.Roles();
 
-    if (!roles.role(req.session.role) || roles.role(req.session.role).permissions[permission] !== true) {
+    if (_.isString(permissions)) {
+      permissions = permissions.split(',');
+    }
+
+    let authorised = false;
+
+    permissions.forEach((permission) => {
+      if (roles.role(req.session.role).permissions[permission.trim()]) {
+        authorised = true;
+      }
+    });
+
+    if (!roles.role(req.session.role) || !authorised) {
       res.status(401);
       res.send({
-        permission,
+        permissions,
         message: 'Sorry, you\'re not authorised to do this.',
       });
       return;
