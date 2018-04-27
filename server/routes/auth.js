@@ -10,7 +10,7 @@ module.exports = ({
 }) => {
 
   router.get(
-    '/auth/:provider/config.:ext?',
+    '/auth/:provider/config',
     authMiddleware,
     permissionMiddleware.bind(null, 'settings'),
     asyncMiddleware(async (req, res) => {
@@ -28,7 +28,7 @@ module.exports = ({
   );
 
   router.get(
-    '/auth/:provider.:ext?',
+    '/auth/:provider',
     authMiddleware,
     permissionMiddleware.bind(null, 'settings'),
     (req, res) => {
@@ -38,14 +38,16 @@ module.exports = ({
   );
 
   router.post(
-    '/auth/:provider.:ext?',
+    '/auth/:provider',
     authMiddleware,
     permissionMiddleware.bind(null, 'settings'),
     asyncMiddleware(async (req, res) => {
       const auth = Auth(await getConfig(req.session.slug));
 
+      const providerAuth = await auth.authProvider(req.params.provider, req.body);
+
       try {
-        handleResponse(req, res, await auth.authenticateWithProvider(req.params.provider, req.body));
+        handleResponse(req, res, await auth.updateProviderClientConfig(req.params.provider, providerAuth));
       } catch (error) {
         handleError(req, res, error);
       }
@@ -53,14 +55,50 @@ module.exports = ({
   );
 
   router.put(
-    '/auth/:provider.:ext?',
+    '/auth/:provider',
     authMiddleware,
     permissionMiddleware.bind(null, 'settings'),
     asyncMiddleware(async (req, res) => {
       const auth = Auth(await getConfig(req.session.slug));
 
+      const providerAuth = await auth.authProvider(req.params.provider, req.body, true);
+
       try {
-        handleResponse(req, res, await auth.authenticateWithProvider(req.params.provider, req.body, true));
+        handleResponse(req, res, await auth.updateProviderClientConfig(req.params.provider, providerAuth));
+      } catch (error) {
+        handleError(req, res, error);
+      }
+    })
+  );
+
+  router.post(
+    '/auth/:provider/:userId',
+    authMiddleware,
+    permissionMiddleware.bind(null, 'userSettings'),
+    asyncMiddleware(async (req, res) => {
+      const auth = Auth(await getConfig(req.session.slug));
+
+      const providerAuth = await auth.authProvider(req.params.provider, req.body);
+
+      try {
+        handleResponse(req, res, await auth.updateProviderClientConfig(req.params.provider, providerAuth, req.params.userId));
+      } catch (error) {
+        handleError(req, res, error);
+      }
+    })
+  );
+
+  router.put(
+    '/auth/:provider/:userId',
+    authMiddleware,
+    permissionMiddleware.bind(null, 'userSettings'),
+    asyncMiddleware(async (req, res) => {
+      const auth = Auth(await getConfig(req.session.slug));
+
+      const providerAuth = await auth.authProvider(req.params.provider, req.body, true);
+
+      try {
+        handleResponse(req, res, await auth.updateProviderClientConfig(req.params.provider, providerAuth, req.params.userId));
       } catch (error) {
         handleError(req, res, error);
       }
