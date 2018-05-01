@@ -36,6 +36,14 @@ const config = {
     password: process.env.ASSIST_PASSWORD,
   },
 
+  pdf: {
+    templates: {},
+  },
+
+  email: {
+    templatesPath: path.resolve(__dirname, 'email'),
+  },
+
   instagram: {
     clientId: process.env.INSTAGRAM_CLIENT_ID,
     clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
@@ -69,19 +77,17 @@ const config = {
     s3: {
       bucket: process.env.AWS_S3_BUCKET,
     },
-
-    // tcode: {
-    //   region: process.env.AWS_TCODE_REGION,
-    //   pipelineId: process.env.AWS_TCODE_PIPELINE_ID,
-    //   bucketIn: process.env.AWS_TCODE_BUCKET_IN,
-    //   bucketOut: process.env.AWS_TCODE_BUCKET_OUT,
-    // },
   },
 
   shippo: {
     token: process.env.SHIPPO_TOKEN,
     fromZip: process.env.SHIPPO_FROM_ZIP,
     fromCountry: process.env.SHIPPO_FROM_COUNTRY,
+  },
+
+  spotify: {
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
   },
 
   stripe: {
@@ -101,14 +107,6 @@ const config = {
       bucket: process.env.ZENCODER_S3_BUCKET,
       credentials: process.env.ZENCODER_S3_CREDENTIALS,
     },
-  },
-
-  pdf: {
-    templates: {},
-  },
-
-  email: {
-    templatesPath: path.resolve(__dirname, 'email'),
   },
 };
 
