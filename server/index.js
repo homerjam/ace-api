@@ -397,7 +397,7 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
     next();
   };
 
-  if (config.environment === 'production' && config.forceHttps === true) {
+  if (config.environment === 'production' && config.api.forceHttps === true) {
     if (app.enable) {
       app.enable('trust proxy');
     }

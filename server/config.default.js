@@ -3,11 +3,10 @@ const config = {
 
   api: {
     prefix: process.env.API_PREFIX || '',
+    forceHttps: process.env.API_FORCE_HTTPS ? JSON.parse(process.env.API_FORCE_HTTPS) : false,
     blacklistToken: (process.env.API_BLACKLIST_TOKEN || '').split(','),
     blacklistReferrer: (process.env.API_BLACKLIST_REFERRER || '').split(','),
   },
-
-  forceHttps: process.env.FORCE_HTTPS ? JSON.parse(process.env.FORCE_HTTPS) : false,
 
   session: {
     secret: process.env.SESSION_SECRET || 'change_me',

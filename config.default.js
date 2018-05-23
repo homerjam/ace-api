@@ -37,7 +37,7 @@ const config = {
   },
 
   pdf: {
-    templates: {},
+    templatesPath: path.resolve(__dirname, 'pdf'),
   },
 
   email: {
