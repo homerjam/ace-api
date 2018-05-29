@@ -13,6 +13,25 @@ module.exports = ({
   /**
    * @swagger
    * definitions:
+   *  TaxonomyTerm:
+   *    type: object
+   *    properties:
+   *      id:
+   *        type: string
+   *      title:
+   *        type: string
+   *      slug:
+   *        type: string
+   *      terms:
+   *        type: array
+   *        items:
+   *          type: object
+   *          $ref: '#/definitions/TaxonomyTerm'
+   */
+
+  /**
+   * @swagger
+   * definitions:
    *  Taxonomy:
    *    type: object
    *    properties:
@@ -24,15 +43,7 @@ module.exports = ({
    *        type: array
    *        items:
    *          type: object
-   *          properties:
-   *            id:
-   *              type: string
-   *            title:
-   *              type: string
-   *            slug:
-   *              type: string
-   *            terms:
-   *              type: array
+   *          $ref: '#/definitions/TaxonomyTerm'
    */
 
   router.post(

@@ -40,10 +40,11 @@ module.exports = ({
    *        required: false
    *        type: string
    *      - name: inlineStyles
-   *        description: Inline CSS (default: true)
+   *        description: Inline CSS
    *        in: query
    *        required: false
    *        type: boolean
+   *        default: true
    *    responses:
    *      200:
    *        description: Template
