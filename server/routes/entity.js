@@ -155,9 +155,11 @@ module.exports = ({
     asyncMiddleware(async (req, res) => {
       const input = Object.keys(req.body).length ? req.body : req.query;
 
+      // eslint-disable-next-line
       const include_docs = input.include_docs !== undefined
         ? JSON.parse(input.include_docs) : false;
 
+      // eslint-disable-next-line
       const include_fields = input.include_fields !== undefined
         ? typeof input.include_fields === 'object' ? input.include_fields : JSON.parse(input.include_fields)
         : [];
@@ -168,6 +170,13 @@ module.exports = ({
       let parents = input.parents !== undefined
         ? typeof input.parents === 'object' ? input.parents : JSON.parse(input.parents)
         : false;
+
+      if (children === true) {
+        children = 1;
+      }
+      if (parents === true) {
+        parents = 1;
+      }
 
       const trashed = input.trashed !== undefined
         ? JSON.parse(input.trashed) : false;
@@ -180,6 +189,7 @@ module.exports = ({
       const bookmark = input.bookmark !== undefined
         ? input.bookmark : null;
 
+      // eslint-disable-next-line
       const group_field = input.group_field !== undefined
         ? input.group_field : null;
 
@@ -187,13 +197,6 @@ module.exports = ({
         ? input.index : null;
 
       const q = input.query || input.q;
-
-      if (children === true) {
-        children = 1;
-      }
-      if (parents === true) {
-        parents = 1;
-      }
 
       let query = [];
 
@@ -273,16 +276,14 @@ module.exports = ({
     '/entities/find.:ext?',
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
-      let children = (req.query.children || req.body.children) !== undefined
-        ? JSON.parse((req.query.children || req.body.children)) : false;
-      let parents = (req.query.parents || req.body.parents) !== undefined
-        ? JSON.parse(req.query.parents || req.body.parents) : false;
-      const trashed = (req.query.trashed || req.body.trashed) !== undefined
-        ? JSON.parse(req.query.trashed || req.body.trashed) : false;
-      const query = req.query.query || req.body.query
-        ? JSON.parse(req.query.query || req.body.query) : { selector: {} };
+      const input = Object.keys(req.body).length ? req.body : req.query;
 
-      query.use_index = ['entityIndex', 'entity'];
+      let children = input.children !== undefined
+        ? typeof input.children === 'object' ? input.children : JSON.parse(input.children)
+        : false;
+      let parents = input.parents !== undefined
+        ? typeof input.parents === 'object' ? input.parents : JSON.parse(input.parents)
+        : false;
 
       if (children === true) {
         children = 1;
@@ -290,6 +291,14 @@ module.exports = ({
       if (parents === true) {
         parents = 1;
       }
+
+      const trashed = input.trashed !== undefined
+        ? JSON.parse(input.trashed) : false;
+
+      const query = input.query
+        ? JSON.parse(input.query) : { selector: {} };
+
+      query.use_index = ['entityIndex', 'entity'];
 
       if (!query.selector.$and) {
         query.selector = {
@@ -395,10 +404,14 @@ module.exports = ({
     '/entities.:ext?',
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
-      let children = (req.query.children || req.body.children) !== undefined
-        ? JSON.parse(req.query.children || req.body.children) : false;
-      let parents = (req.query.parents || req.body.parents) !== undefined
-        ? JSON.parse(req.query.parents || req.body.parents) : false;
+      const input = Object.keys(req.body).length ? req.body : req.query;
+
+      let children = input.children !== undefined
+        ? typeof input.children === 'object' ? input.children : JSON.parse(input.children)
+        : false;
+      let parents = input.parents !== undefined
+        ? typeof input.parents === 'object' ? input.parents : JSON.parse(input.parents)
+        : false;
 
       if (children === true) {
         children = 1;
@@ -407,7 +420,7 @@ module.exports = ({
         parents = 1;
       }
 
-      let ids = req.query.ids || req.query.id || req.body.ids || req.body.id;
+      let ids = input.ids || input.id;
 
       if (ids) {
         ids = isArray(ids) ? ids : [ids];
