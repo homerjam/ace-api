@@ -232,19 +232,21 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
   // Response helpers
 
   const handleError = (req, res, error) => {
-    if (_.isObject(error)) {
-      error = JSON.parse(CircularJSON.stringify(error));
+    if (Object.prototype.toString.call(error) === '[object Object]') {
+      error = CircularJSON.parse(CircularJSON.stringify(error));
     }
 
-    const statusCode = error.statusCode || error.code || 500;
-    const errorMessage = error.stack || error.error || error.message || error.body || error.data || error;
+    error = error.response || error;
 
-    console.error(errorMessage);
+    console.error(error);
 
-    res.status(typeof statusCode === 'string' ? 500 : statusCode);
+    const code = error.statusCode || error.status || error.code || 500;
+    const message = error.stack || error.error || error.message || error.body || error.data || error.statusText;
+
+    res.status(typeof code === 'string' ? 500 : code);
     res.send({
-      code: statusCode,
-      message: errorMessage,
+      code,
+      message,
     });
   };
 
@@ -463,6 +465,7 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
   require('./routes/entity')(context, config);
   require('./routes/metadata')(context, config);
   require('./routes/pdf')(context, config);
+  require('./routes/provider')(context, config);
   require('./routes/schema')(context, config);
   require('./routes/settings')(context, config);
   require('./routes/shippo')(context, config);
