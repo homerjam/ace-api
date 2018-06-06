@@ -16,14 +16,14 @@ module.exports = ({
     asyncMiddleware(async (req, res) => {
       const config = await getConfig();
 
-      if (!config[req.params.provider]) {
+      if (!config.provider[req.params.provider]) {
         res.status(404);
         res.send({});
         return;
       }
 
       res.status(200);
-      res.send({ clientId: config[req.params.provider].clientId });
+      res.send({ clientId: config.provider[req.params.provider].clientId });
     })
   );
 

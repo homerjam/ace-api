@@ -36,31 +36,6 @@ const config = {
     password: process.env.ASSIST_PASSWORD,
   },
 
-  pdf: {
-    templatesPath: path.resolve(__dirname, 'pdf'),
-  },
-
-  email: {
-    templatesPath: path.resolve(__dirname, 'email'),
-  },
-
-  instagram: {
-    clientId: process.env.INSTAGRAM_CLIENT_ID,
-    clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
-  },
-
-  twitter: {
-    consumerKey: process.env.TWITTER_CONSUMER_KEY,
-    consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-    accessTokenKey: process.env.TWITTER_ACCESS_TOKEN_KEY,
-    accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-  },
-
-  google: {
-    clientId: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  },
-
   mailgun: {
     apiKey: process.env.MAILGUN_API_KEY,
     domain: process.env.MAILGUN_DOMAIN,
@@ -70,42 +45,46 @@ const config = {
     apiKey: process.env.EMBEDLY_API_KEY,
   },
 
-  aws: {
-    iamAccessKeyId: process.env.AWS_IAM_ACCESS_KEY_ID,
-    iamAccessKeySecret: process.env.AWS_IAM_ACCESS_KEY_SECRET,
+  pdf: {
+    templatesPath: path.resolve(__dirname, 'pdf'),
+  },
 
-    s3: {
-      bucket: process.env.AWS_S3_BUCKET,
+  email: {
+    templatesPath: path.resolve(__dirname, 'email'),
+  },
+
+  provider: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     },
-  },
 
-  shippo: {
-    token: process.env.SHIPPO_TOKEN,
-    fromZip: process.env.SHIPPO_FROM_ZIP,
-    fromCountry: process.env.SHIPPO_FROM_COUNTRY,
-  },
+    instagram: {
+      clientId: process.env.INSTAGRAM_CLIENT_ID,
+      clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
+    },
 
-  spotify: {
-    clientId: process.env.SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  },
+    spotify: {
+      clientId: process.env.SPOTIFY_CLIENT_ID,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+    },
 
-  stripe: {
-    clientId: process.env.STRIPE_CLIENT_ID,
-    clientSecret: process.env.STRIPE_CLIENT_SECRET,
-    apiKey: process.env.STRIPE_API_KEY,
-  },
+    stripe: {
+      clientId: process.env.STRIPE_CLIENT_ID,
+      clientSecret: process.env.STRIPE_CLIENT_SECRET,
+      apiKey: process.env.STRIPE_API_KEY,
+    },
 
-  vimeo: {
-    clientId: process.env.VIMEO_CLIENT_ID,
-    clientSecret: process.env.VIMEO_CLIENT_SECRET,
-  },
+    twitter: {
+      consumerKey: process.env.TWITTER_CONSUMER_KEY,
+      consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+      accessTokenKey: process.env.TWITTER_ACCESS_TOKEN_KEY,
+      accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+    },
 
-  zencoder: {
-    apiKey: process.env.ZENCODER_API_KEY,
-    s3: {
-      bucket: process.env.ZENCODER_S3_BUCKET,
-      credentials: process.env.ZENCODER_S3_CREDENTIALS,
+    vimeo: {
+      clientId: process.env.VIMEO_CLIENT_ID,
+      clientSecret: process.env.VIMEO_CLIENT_SECRET,
     },
   },
 };

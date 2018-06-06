@@ -24,10 +24,10 @@ module.exports = ({
       const Twitter = require('twitter');
 
       const twitter = Promise.promisifyAll(new Twitter({
-        consumer_key: config.twitter.consumerKey,
-        consumer_secret: config.twitter.consumerSecret,
-        access_token_key: config.twitter.accessTokenKey,
-        access_token_secret: config.twitter.accessTokenSecret,
+        consumer_key: config.provider.twitter.consumerKey,
+        consumer_secret: config.provider.twitter.consumerSecret,
+        access_token_key: config.provider.twitter.accessTokenKey,
+        access_token_secret: config.provider.twitter.accessTokenSecret,
       }));
 
       try {
@@ -62,7 +62,7 @@ module.exports = ({
       req.query.access_token = instagramAccessTokenMap[req.session.slug];
 
       const instagram = Instagram({
-        client_id: config.instagram.clientId,
+        client_id: config.provider.instagram.clientId,
       });
 
       try {
