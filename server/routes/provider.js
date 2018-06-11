@@ -33,6 +33,9 @@ module.exports = ({
     let providerConfig;
 
     if (userId) {
+      if (!clientConfig.userSettings[userId]) {
+        throw Error(`User settings not found: ${userId}`);
+      }
       providerConfig = clientConfig.userSettings[userId].provider[provider];
     } else {
       providerConfig = clientConfig.provider[provider];
