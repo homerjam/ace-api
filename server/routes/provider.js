@@ -53,7 +53,8 @@ module.exports = ({
       }
     }
 
-    const params = _.merge({}, req.query);
+    let params = _.merge({}, req.query);
+    params = _.omitBy(params, (value, key) => /^(__)/.test(key));
 
     if (!/bearer/i.test(providerConfig.token_type)) {
       params.access_token = providerConfig.access_token;
