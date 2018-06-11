@@ -30,17 +30,15 @@ module.exports = ({
         return;
       }
 
-      const items = [];
+      const pattern = cache.store.name === 'redis' ? '*' : undefined;
 
-      cache.forEach((value, key) => {
-        if (key.indexOf(req.session.slug) === 0) {
-          items.push(key);
-        }
+      cache.keys(pattern).then((keys) => {
+        const items = keys.filter(key => key.indexOf(req.session.slug) === 0);
+
+        items.forEach(key => cache.del(key));
+
+        handleResponse(req, res, `${items.length} items removed from cache`);
       });
-
-      items.forEach(key => cache.del(key));
-
-      handleResponse(req, res, `${items.length} items removed from cache`);
     })
   );
 

@@ -160,6 +160,9 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
       cache = cacheManager.caching(_.merge({ store: redisStore }, redisOptions));
 
       const redisClient = cache.store.getClient();
+      redisClient.on('ready', () => {
+        console.log('redis: ready');
+      });
       redisClient.on('error', (error) => {
         console.error('redis: error:', error);
       });
@@ -182,12 +185,11 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
 
   const hash = (req) => {
     const obj = {
-      slug: req.session.slug,
       path: req.path,
       query: req.query,
       body: req.body,
     };
-    return XXH.h64(JSON.stringify(obj), HASH_SEED).toString(16);
+    return `${req.session.slug}:${XXH.h64(JSON.stringify(obj), HASH_SEED).toString(16)}`;
   };
 
   const cacheMiddleware = asyncMiddleware(async (req, res, next) => {
@@ -269,7 +271,9 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
         response = (await zlib.gzipAsync(Buffer.from(response))).toString('base64');
       }
 
-      cache.set(key, response);
+      const ttl = req.query.__cache ? parseInt(req.query.__cache, 10) : config.cache.ttl;
+
+      cache.set(key, response, { ttl });
     }
   };
 
