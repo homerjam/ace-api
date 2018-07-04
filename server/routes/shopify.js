@@ -1,7 +1,6 @@
 module.exports = ({
   Shopify,
   router,
-  authMiddleware,
   cacheMiddleware,
   asyncMiddleware,
   getConfig,
@@ -36,7 +35,6 @@ module.exports = ({
    */
   router.get(
     '/shopify/catalog.:ext?',
-    authMiddleware,
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
       const shopify = Shopify(await getConfig(req.session.slug));
