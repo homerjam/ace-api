@@ -473,6 +473,7 @@ function AceApiServer (app, customConfig = {}, customAuthMiddleware = null) {
   require('./routes/schema')(context, config);
   require('./routes/settings')(context, config);
   require('./routes/shippo')(context, config);
+  require('./routes/shopify')(context, config);
   require('./routes/social')(context, config);
   require('./routes/stripe')(context, config);
   require('./routes/taxonomy')(context, config);

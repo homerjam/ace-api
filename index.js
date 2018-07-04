@@ -19,6 +19,7 @@ Api.Roles = (...args) => new (require('./lib/roles'))(...args);
 Api.Schema = (...args) => new (require('./lib/schema'))(...args);
 Api.Settings = (...args) => new (require('./lib/settings'))(...args);
 Api.Shippo = (...args) => new (require('./lib/shippo'))(...args);
+Api.Shopify = (...args) => new (require('./lib/shopify'))(...args);
 Api.Stripe = (...args) => new (require('./lib/stripe'))(...args);
 Api.Taxonomy = (...args) => new (require('./lib/taxonomy'))(...args);
 Api.Tools = (...args) => new (require('./lib/tools'))(...args);
