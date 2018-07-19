@@ -55,7 +55,16 @@ function deleteOldDesignDocs (newDesignDocs, dbName) {
     resolveWithFullResponse: true,
   })
     .then(function (response) {
-      var oldDocs = JSON.parse(response.body).rows.map(function(row) {
+      var result = JSON.parse(response.body);
+
+      if (result.error) {
+        if (result.error === 'not_found') {
+          console.error(dbName, 'database not found');
+        }
+        process.exit(0);
+      }
+
+      var oldDocs = result.rows.map(function(row) {
         return row.doc;
       });
 
