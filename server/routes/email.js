@@ -51,7 +51,7 @@ module.exports = ({
    */
   router.all(
     '/email/preview.:ext?',
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const input = Object.keys(req.body).length ? req.body : req.query || {};
 
       const templateOptions = {
@@ -93,7 +93,7 @@ module.exports = ({
       if (input.entityId) {
         const entity = Entity(await getConfig(slug));
 
-        const entities = (await entity.entityList([input.entityId], 2)).map(row => row.doc);
+        const entities = (await entity.entityList([input.entityId], { children: 2 })).map(row => row.doc);
 
         renderTemplate(entity.flattenValues(entities)[0]);
         return;
@@ -105,7 +105,7 @@ module.exports = ({
 
   router.all(
     '/email/send.:ext?',
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const input = Object.keys(req.body).length ? req.body : req.query || {};
 
       const templateOptions = {
@@ -141,7 +141,7 @@ module.exports = ({
 
   router.post(
     '/email/subscribe.:ext?',
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const email = Email(await getConfig(req.session.slug));
 
       try {

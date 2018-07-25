@@ -11,7 +11,7 @@ module.exports = ({
   router.get(
     '/embedly/oembed.:ext?',
     authMiddleware,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const embedly = Embedly(await getConfig());
 
       try {

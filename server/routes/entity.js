@@ -59,7 +59,7 @@ module.exports = ({
    */
   router.get(
     '/entities/index.:ext?',
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       try {
         handleResponse(req, res, await Db(await getConfig(req.session.slug)).indexAsync());
       } catch (error) {
@@ -152,7 +152,7 @@ module.exports = ({
   router.all(
     '/entities/search?.:ext?',
     cacheMiddleware,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const input = Object.keys(req.body).length ? req.body : req.query;
 
       // eslint-disable-next-line
@@ -215,16 +215,23 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await entity.entitySearch({
-          query,
-          include_docs,
-          include_fields,
-          sort,
-          limit,
-          bookmark,
-          group_field,
-          index,
-        }, children, parents, req.session.role), true);
+        handleResponse(req, res, await entity.entitySearch(
+          {
+            query,
+            include_docs,
+            include_fields,
+            sort,
+            limit,
+            bookmark,
+            group_field,
+            index,
+          },
+          {
+            children,
+            parents,
+            role: req.session.role,
+          }
+        ), true);
       } catch (error) {
         handleError(req, res, error);
       }
@@ -275,7 +282,7 @@ module.exports = ({
   router.all(
     '/entities/find.:ext?',
     cacheMiddleware,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const input = Object.keys(req.body).length ? req.body : req.query;
 
       let children = input.children !== undefined
@@ -336,7 +343,7 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await entity.entityFind(query, children, parents, req.session.role), true);
+        handleResponse(req, res, await entity.entityFind(query, { children, parents, role: req.session.role }), true);
       } catch (error) {
         handleError(req, res, error);
       }
@@ -346,7 +353,7 @@ module.exports = ({
   router.get(
     '/entities/field.:ext?',
     cacheMiddleware,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
@@ -403,8 +410,10 @@ module.exports = ({
   router.all(
     '/entities.:ext?',
     cacheMiddleware,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const input = Object.keys(req.body).length ? req.body : req.query;
+
+      const select = input.select !== undefined ? input.select : false;
 
       let children = input.children !== undefined
         ? typeof input.children === 'object' ? input.children : JSON.parse(input.children)
@@ -429,7 +438,12 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await entity.entityList(ids, children, parents, req.session.role), true);
+        handleResponse(req, res, await entity.entityList(ids, {
+          select,
+          children,
+          parents,
+          role: req.session.role,
+        }), true);
       } catch (error) {
         handleError(req, res, error);
       }
@@ -440,7 +454,7 @@ module.exports = ({
     '/entity/revisions.:ext?',
     authMiddleware,
     permissionMiddleware.bind(null, 'entityRead'),
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
@@ -455,7 +469,7 @@ module.exports = ({
     '/entity.:ext?',
     authMiddleware,
     permissionMiddleware.bind(null, 'entityCreate'),
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
@@ -470,7 +484,7 @@ module.exports = ({
     '/entity.:ext?',
     authMiddleware,
     permissionMiddleware.bind(null, 'entityRead'),
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
@@ -485,7 +499,7 @@ module.exports = ({
     '/entity.:ext?',
     authMiddleware,
     permissionMiddleware.bind(null, 'entityUpdate'),
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
@@ -500,7 +514,7 @@ module.exports = ({
     '/entity.:ext?',
     authMiddleware,
     permissionMiddleware.bind(null, 'entityDelete'),
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
@@ -515,7 +529,7 @@ module.exports = ({
     '/entity/trashed.:ext?',
     authMiddleware,
     permissionMiddleware.bind(null, 'entityDelete'),
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async(req, res) => {
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
