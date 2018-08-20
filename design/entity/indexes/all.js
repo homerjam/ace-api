@@ -1,6 +1,11 @@
 module.exports = function (doc) {
   if (doc.type === 'entity') {
 
+    index('id', doc._id, {
+      store: true,
+      index: 'not_analyzed',
+    });
+
     index('schema', doc.schema, {
       store: true,
       index: 'analyzed',
