@@ -114,6 +114,7 @@
     "gulp-livereload": "^3.8.1",
     "opn": "^5.3.0",
     "serve-static": "^1.13.2",
+    "stagger": "^1.0.0",
     "swagger-jsdoc": "^1.9.7",
     "swagger-ui-dist": "^3.17.0",
     "webpack": "^4.11.1",

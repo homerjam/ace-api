@@ -3,6 +3,7 @@ process.on('unhandledRejection', rejection => console.error(rejection));
 var _ = require('lodash');
 var fs = require('fs');
 var path = require('path');
+var Stagger = require('stagger');
 var request = require('request-promise');
 
 var args = process.argv.slice(2);
@@ -48,89 +49,94 @@ function getDirs (srcpath) {
 }
 
 function deleteOldDesignDocs (newDesignDocs, dbName) {
-  request({
-    method: 'GET',
-    uri: [DB_URL, dbName, '_all_docs?startkey="_design"&endkey="_design0"&include_docs=true'].join('/'),
-    simple: false,
-    resolveWithFullResponse: true,
-  })
-    .then(function (response) {
-      var result = JSON.parse(response.body);
+  return function (cb) {
+    request({
+      method: 'GET',
+      uri: [DB_URL, dbName, '_all_docs?startkey="_design"&endkey="_design0"&include_docs=true'].join('/'),
+      simple: false,
+      resolveWithFullResponse: true,
+    })
+      .then(
+        function (response) {
+          var result = JSON.parse(response.body);
 
-      if (result.error) {
-        if (result.error === 'not_found') {
-          console.error(dbName, 'database not found');
-        }
-        process.exit(0);
-      }
+          if (result.error) {
+            console.error(dbName, result.error);
+            process.exit(0);
+          }
 
-      var oldDocs = result.rows.map(function(row) {
-        return row.doc;
-      });
+          var oldDocs = result.rows.map(function(row) {
+            return row.doc;
+          });
 
-      oldDocs = oldDocs.filter(function (oldDoc) {
-        return newDesignDocs.indexOf(oldDoc._id.replace('_design/', '')) === -1;
-      });
+          oldDocs = oldDocs.filter(function (oldDoc) {
+            return newDesignDocs.indexOf(oldDoc._id.replace('_design/', '')) === -1;
+          });
 
-      if (!oldDocs.length) {
-        return;
-      }
+          if (!oldDocs.length) {
+            cb();
+            return;
+          }
 
-      oldDocs = oldDocs.map(oldDoc => ({
-        _id: oldDoc._id,
-        _rev: oldDoc._rev,
-        _deleted: true,
-      }));
+          oldDocs = oldDocs.map(oldDoc => ({
+            _id: oldDoc._id,
+            _rev: oldDoc._rev,
+            _deleted: true,
+          }));
 
-      request({
-        method: 'POST',
-        uri: [DB_URL, dbName, '_bulk_docs'].join('/'),
-        headers: {
-          'Content-Type': 'application/json',
+          request({
+            method: 'POST',
+            uri: [DB_URL, dbName, '_bulk_docs'].join('/'),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              docs: oldDocs,
+            }),
+            simple: false,
+            resolveWithFullResponse: true,
+          })
+            .then(
+              function (response) {
+                console.log(dbName, 'deleted', oldDocs.map(function (oldDoc) { return oldDoc._id; }).join(', '));
+
+                cb();
+              },
+              function (error) {
+                console.error(error.error);
+                process.exit(1);
+              }
+            );
         },
-        body: JSON.stringify({
-          docs: oldDocs,
-        }),
-        simple: false,
-        resolveWithFullResponse: true,
-      })
-        .then(function (response) {
-          console.log(dbName, 'deleted', oldDocs.map(function (oldDoc) { return oldDoc._id; }).join(', '));
-        });
-    });
+        function (error) {
+          console.error(error.error);
+          process.exit(1);
+        }
+      );
+  };
 }
 
-function init() {
-  var newDesignDocs = getDirs(path.resolve(__dirname));
+function createNewDesignDocs(dbName, designDocName, designDoc) {
+  return function (cb) {
+    var uri = [DB_URL, dbName, '_design', designDocName].join('/');
 
-  var dbs = DB_NAME.split(',');
+    docMap[uri] = _.cloneDeep(designDoc);
 
-  dbs.forEach(function(dbName) {
-    deleteOldDesignDocs(newDesignDocs, dbName);
-  });
+    request({
+      method: 'GET',
+      uri: uri,
+      simple: false,
+      resolveWithFullResponse: true,
+    })
+      .then(
+        function (response) {
+          var result = JSON.parse(response.body);
 
-  newDesignDocs.forEach(function (designDocName) {
-    if (DOC_NAME && DOC_NAME !== designDocName) {
-      return;
-    }
+          if (result.error) {
+            console.error(dbName, result.error);
+            process.exit(0);
+          }
 
-    var designDoc = require(path.resolve(__dirname, designDocName));
-
-    prepareDesignDoc(designDoc);
-
-    dbs.forEach(function(dbName) {
-
-      var uri = [DB_URL, dbName, '_design', designDocName].join('/');
-
-      docMap[uri] = _.cloneDeep(designDoc);
-
-      request({
-        method: 'GET',
-        uri: uri,
-        simple: false,
-        resolveWithFullResponse: true,
-      })
-        .then(function (response) {
           var uri = response.request.uri.href;
           var dDoc = docMap[uri];
 
@@ -148,18 +154,75 @@ function init() {
             simple: true,
             resolveWithFullResponse: true,
           })
-            .then(function (response) {
-              console.log('%d %s', response.statusCode, response.request.uri.path);
-            }, function (error) {
-              console.error('%d %s', error.statusCode, error.response.request.uri.path);
-              process.exit(1);
-            });
-        }, function (error) {
+            .then(
+              function (response) {
+                var result = JSON.parse(response.body);
+
+                if (result.error) {
+                  console.error(dbName, result.error);
+                  process.exit(0);
+                }
+
+                console.log('%d %s', response.statusCode, response.request.uri.path);
+
+                cb();
+              },
+              function (error) {
+                console.error('%d %s', error.statusCode, error.response.request.uri.path);
+                process.exit(1);
+              }
+            );
+        },
+        function (error) {
           console.error(error.error);
           process.exit(1);
-        });
-    });
+        }
+      );
+  };
+}
+
+function init() {
+  var newDesignDocs = getDirs(path.resolve(__dirname));
+
+  var dbs = DB_NAME.split(',');
+
+  var part1 = new Stagger({
+    requestsPerSecond: 2,
   });
+
+  dbs.forEach(function(dbName) {
+    part1.push(deleteOldDesignDocs(newDesignDocs, dbName));
+  });
+
+  part1.on('finish', function () {
+
+    var part2 = new Stagger({
+      requestsPerSecond: 2,
+    });
+
+    newDesignDocs.forEach(function (designDocName) {
+      if (DOC_NAME && DOC_NAME !== designDocName) {
+        return;
+      }
+
+      var designDoc = require(path.resolve(__dirname, designDocName));
+
+      prepareDesignDoc(designDoc);
+
+      dbs.forEach(function(dbName) {
+        part2.push(createNewDesignDocs(dbName, designDocName, designDoc));
+      });
+    });
+
+    part2.on('finish', function () {
+      console.log('finished');
+    });
+
+    part2.start();
+
+  });
+
+  part1.start();
 }
 
 init();
