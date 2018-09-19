@@ -19,7 +19,7 @@ module.exports = ({
     vimeo: 'https://api.vimeo.com',
   };
 
-  const providerApiHandler = asyncMiddleware(async (req, res) => {
+  const providerApiHandler = asyncMiddleware(async(req, res) => {
     const method = req.method;
     const provider = req.params[0];
     const userId = req.params[2] ? req.params[1] : null;
