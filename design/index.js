@@ -132,7 +132,7 @@ function createNewDesignDocs(dbName, designDocName, designDoc) {
         function (response) {
           var result = JSON.parse(response.body);
 
-          if (result.error) {
+          if (result.error && result.error !== 'not_found') {
             console.error(dbName, result.error);
             process.exit(0);
           }
