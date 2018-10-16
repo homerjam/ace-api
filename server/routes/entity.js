@@ -164,6 +164,8 @@ module.exports = ({
         ? typeof input.include_fields === 'object' ? input.include_fields : JSON.parse(input.include_fields)
         : [];
 
+      const select = input.select !== undefined ? input.select : false;
+
       let children = input.children !== undefined
         ? typeof input.children === 'object' ? input.children : JSON.parse(input.children)
         : false;
@@ -227,6 +229,7 @@ module.exports = ({
             index,
           },
           {
+            select,
             children,
             parents,
             role: req.session.role,
