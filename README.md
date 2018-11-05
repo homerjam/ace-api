@@ -6,7 +6,7 @@ Content API with included RESTish server.
 
 Documentation is currently a work in progress.
 
-http://petstore.swagger.io/?url=https://rawgit.com/StudioThomas/ace-api/master/docs/api.json#/
+http://petstore.swagger.io/?url=https://raw.githubusercontent.com/StudioThomas/ace-api/master/docs/api.json#/
 
 ### Installation
 
