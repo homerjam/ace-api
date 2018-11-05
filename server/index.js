@@ -243,7 +243,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
     console.error(error);
 
     const code = error.statusCode || error.status || error.code || 500;
-    const message = error.stack || error.error || error.message || error.body || error.data || error.statusText;
+    const message = error.stack || error.error || error.message || error.body || error.data || error.statusText || error;
 
     res.status(typeof code === 'string' ? 500 : code);
     res.send({
@@ -394,8 +394,8 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
   const forceHttps = (req, res, next) => {
     if (
-      (req.headers['x-forwarded-proto'] && req.headers['x-forwarded-proto'] !== 'https') &&
-      (req.headers['cf-visitor'] && JSON.parse(req.headers['cf-visitor']).scheme !== 'https') // Fix for Cloudflare/Heroku flexible SSL
+      (req.headers['x-forwarded-proto'] && req.headers['x-forwarded-proto'] !== 'https')
+      && (req.headers['cf-visitor'] && JSON.parse(req.headers['cf-visitor']).scheme !== 'https') // Fix for Cloudflare/Heroku flexible SSL
     ) {
       res.redirect(301, `https://${req.headers.host}${req.path}`);
       return;
