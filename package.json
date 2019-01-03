@@ -16,8 +16,6 @@
     "dev:inspect": "nodemon --inspect --exec 'node -r dotenv/config' --watch lib --watch server dev.js",
     "build": "webpack --mode production",
     "release": "npm run build && git add --all && git commit --all --message \"build\" && npm version patch && npm publish && git remote | xargs -L1 git push --all",
-    "mc:section": "babel -w mjml/components/mc-section/src/index.js -o mjml/components/mc-section/lib/index.js",
-    "mc:image": "babel -w mjml/components/mc-image/src/index.js -o mjml/components/mc-image/lib/index.js",
     "db:design": "source .env; node design/index.js $DB_URL",
     "db:backup": "bash -c 'source .env; couchbackup --url $DB_URL --db $1 | gzip > tmp/$1.json.gz' -- ",
     "db:restore": "bash -c 'source .env; cat $1 | gunzip | couchrestore --url $DB_URL --db $2' -- ",
