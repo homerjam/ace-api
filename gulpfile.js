@@ -7,27 +7,34 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const swagger = require('./docs/swagger');
 const docsConfig = require('./docs/config');
 
-gulp.task('reload', () => {
+gulp.task('reload', (done) => {
   livereload.reload();
+
+  done();
 });
 
-gulp.task('docs:compile', () => {
+gulp.task('docs:compile', (done) => {
   const swaggerSpec = swaggerJSDoc(docsConfig);
 
   fs.writeFileSync('./docs/api.json', JSON.stringify(swaggerSpec));
+
+  done();
 });
 
-gulp.task('docs:watch', () => {
+gulp.task('docs:watch', (done) => {
   livereload.listen();
 
-  gulp.watch(docsConfig.apis, ['docs:compile', 'reload']);
+  gulp.watch(docsConfig.apis, gulp.series('docs:compile', 'reload'));
+
+  done();
 });
 
-gulp.task('docs:ui', () => {
+gulp.task('docs:ui', (done) => {
   swagger((config) => {
     opn(`http://localhost:${config.port}?url=/docs/api.json`);
   });
+
+  done();
 });
 
-gulp.task('docs', ['docs:compile', 'docs:watch', 'docs:ui']);
-
+gulp.task('docs', gulp.parallel('docs:compile', 'docs:watch', 'docs:ui'));

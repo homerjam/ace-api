@@ -6,7 +6,11 @@
     "no-param-reassign": 0,
     "vars-on-top": 0,
     "padded-blocks": 0,
-    "space-before-function-paren": [2, "never"],
+    "space-before-function-paren": ["error", {
+      "anonymous": "always",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
     "func-names": 0,
     "no-nested-ternary": 0,
     "no-unneeded-ternary": 1,
