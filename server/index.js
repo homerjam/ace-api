@@ -129,7 +129,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
   const cloneConfig = config => _.mergeWith({}, JSON.parse(JSON.stringify(config)), omitUndefined(_.cloneDeep(config)));
 
-  const getConfig = async(slug) => {
+  const getConfig = async (slug) => {
     const configClone = cloneConfig(config);
 
     configClone.slug = slug;
@@ -192,7 +192,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
     return `${req.session.slug}:${XXH.h64(JSON.stringify(obj), HASH_SEED).toString(16)}`;
   };
 
-  const cacheMiddleware = asyncMiddleware(async(req, res, next) => {
+  const cacheMiddleware = asyncMiddleware(async (req, res, next) => {
     const useCachedResponse = (
       config.cache.enabled
       && req.session.role === 'guest' // TODO: Replace 'guest' with constant
@@ -252,7 +252,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
     });
   };
 
-  const handleResponse = async(req, res, response, cacheResponse = false) => {
+  const handleResponse = async (req, res, response, cacheResponse = false) => {
     if (response === undefined || response === null) {
       response = '';
       res.status(204);
