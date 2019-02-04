@@ -6,14 +6,14 @@ Content API with included RESTish server.
 
 Documentation is currently a work in progress.
 
-http://petstore.swagger.io/?url=https://raw.githubusercontent.com/StudioThomas/ace-api/master/docs/api.json#/
+http://petstore.swagger.io/?url=https://raw.githubusercontent.com/homerjam/ace-api/master/docs/api.json#/
 
 ### Installation
 
 Push design docs to your couchdb instance using `DB_URL` stored in `.env` file:
 
 ```
-$ npm run design [DOC_NAME] [DB_NAME[,DB_NAME,DB_NAME]]
+$ npm run db:design [DOC_NAME] [DB_NAME[,DB_NAME,DB_NAME]]
 ```
 
 ### Environment Variables
