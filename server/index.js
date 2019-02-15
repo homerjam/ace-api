@@ -32,14 +32,25 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
   // Skip authorisation
 
   const skipAuth = (req) => {
-    if (config.environment !== 'development') {
-      return false;
-    }
-    const allowedRoutes = [
+    const prodAllowedRoutes = [
+      '/auth/user',
+      '/config/info',
+    ];
+
+    const devAllowedRoutes = [
       '/token',
       '/email',
     ];
-    return _.find(allowedRoutes, route => new RegExp(`^${route}`).test(req.path));
+
+    if (_.find(prodAllowedRoutes, route => new RegExp(`^${route}`).test(req.path))) {
+      return true;
+    }
+
+    if (config.environment === 'development' && _.find(devAllowedRoutes, route => new RegExp(`^${route}`).test(req.path))) {
+      return true;
+    }
+
+    return false;
   };
 
   // Default auth middleware
@@ -71,7 +82,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
       res.status(401);
       res.send({
         permissions,
-        message: 'Error: role not defined in session.',
+        message: 'Error: undefined role',
       });
       return;
     }
@@ -99,7 +110,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
       res.status(401);
       res.send({
         permissions,
-        message: 'Sorry, you\'re not authorised to do this.',
+        message: 'Error: not authorised',
       });
       return;
     }

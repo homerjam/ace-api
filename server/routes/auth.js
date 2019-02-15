@@ -1,3 +1,5 @@
+const pick = require('lodash/pick');
+
 module.exports = ({
   Auth,
   router,
@@ -10,7 +12,25 @@ module.exports = ({
 }) => {
 
   router.get(
-    '/auth/:provider/config',
+    '/auth/user.:ext?',
+    asyncMiddleware(async (req, res) => {
+      const auth = Auth(await getConfig(req.query.slug));
+
+      const user = pick((await auth.authUser(req.query.slug, req.query.userId)), [
+        'active',
+        'role',
+      ]);
+
+      try {
+        handleResponse(req, res, user);
+      } catch (error) {
+        handleError(req, res, error);
+      }
+    })
+  );
+
+  router.get(
+    '/auth/provider/:provider/config',
     authMiddleware,
     permissionMiddleware.bind(null, ['settings', 'userSettings']),
     asyncMiddleware(async (req, res) => {
@@ -28,7 +48,7 @@ module.exports = ({
   );
 
   router.get(
-    '/auth/:provider',
+    '/auth/provider/:provider',
     authMiddleware,
     permissionMiddleware.bind(null, 'settings'),
     (req, res) => {
@@ -38,7 +58,7 @@ module.exports = ({
   );
 
   router.post(
-    '/auth/:provider',
+    '/auth/provider/:provider',
     authMiddleware,
     permissionMiddleware.bind(null, 'settings'),
     asyncMiddleware(async (req, res) => {
@@ -53,7 +73,7 @@ module.exports = ({
   );
 
   router.put(
-    '/auth/:provider/refresh',
+    '/auth/provider/:provider/refresh',
     authMiddleware,
     asyncMiddleware(async (req, res) => {
       const auth = Auth(await getConfig(req.session.slug));
@@ -67,7 +87,7 @@ module.exports = ({
   );
 
   router.post(
-    '/auth/:provider/:userId',
+    '/auth/provider/:provider/:userId',
     authMiddleware,
     permissionMiddleware.bind(null, 'userSettings'),
     asyncMiddleware(async (req, res) => {
@@ -82,7 +102,7 @@ module.exports = ({
   );
 
   router.put(
-    '/auth/:provider/:userId/refresh',
+    '/auth/provider/:provider/:userId/refresh',
     authMiddleware,
     asyncMiddleware(async (req, res) => {
       const auth = Auth(await getConfig(req.session.slug));

@@ -1,3 +1,5 @@
+const pick = require('lodash/pick');
+
 module.exports = ({
   ClientConfig,
   router,
@@ -8,6 +10,28 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
+
+  router.get(
+    '/config/info.:ext?',
+    asyncMiddleware(async (req, res) => {
+      const clientConfig = ClientConfig(await getConfig(req.query.slug || req.session.slug));
+
+      const clientInfo = pick((await clientConfig.get()), [
+        'client.name',
+      ]);
+
+      if (Object.keys(clientInfo).length === 0) {
+        handleError(req, res, new Error('Account ID not found'));
+        return;
+      }
+
+      try {
+        handleResponse(req, res, clientInfo);
+      } catch (error) {
+        handleError(req, res, error);
+      }
+    })
+  );
 
   router.get(
     '/config.:ext?',
