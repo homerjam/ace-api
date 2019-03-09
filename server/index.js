@@ -7,7 +7,6 @@ const redisStore = require('cache-manager-redis-store');
 const Promise = require('bluebird');
 const URL = require('url-parse');
 const zlib = Promise.promisifyAll(require('zlib'));
-const Logger = require('le_node');
 const CircularJSON = require('circular-json-es6');
 const sizeof = require('object-sizeof');
 const deepFreeze = require('deep-freeze');
@@ -447,12 +446,6 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
   Object.keys(Api).forEach((key) => {
     context[key] = Api[key];
   });
-
-  if (config.logentriesToken) {
-    context.log = new Logger({
-      token: config.logentriesToken,
-    });
-  }
 
   const afterResponse = (req, res) => {
     res.removeListener('finish', afterResponse);

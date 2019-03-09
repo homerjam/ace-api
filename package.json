@@ -65,7 +65,6 @@
     "jsontoxml": "^1.0.1",
     "jsonwebtoken": "^8.2.2",
     "juice": "^5.0.1",
-    "le_node": "^1.8.0",
     "lodash": "^4.17.10",
     "method-override": "^3.0.0",
     "mjml": "^4.2.0",
