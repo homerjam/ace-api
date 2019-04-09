@@ -3,6 +3,7 @@ module.exports = function(head, req) {
 
   var row;
   var rows = [];
+  // eslint-disable-next-line
   while (row = getRow()) {
     rows.push(row);
   }

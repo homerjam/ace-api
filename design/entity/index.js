@@ -5,7 +5,7 @@ var ddoc = {
   _id: '_design/entity',
   lib: {
     lodash: fs.readFileSync(path.resolve(__dirname, '../../node_modules/lodash/lodash.min.js')).toString('utf8'),
-    fuse: fs.readFileSync(path.resolve(__dirname, '../../node_modules/fuse.js/dist/fuse.min.js')).toString('utf8'),
+    fuse: fs.readFileSync(path.resolve(__dirname, '../../node_modules/fuse.js/dist/fuse.js')).toString('utf8'),
   },
   views: {
     byId: {

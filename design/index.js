@@ -97,7 +97,7 @@ function deleteOldDesignDocs (newDesignDocs, dbName) {
             resolveWithFullResponse: true,
           })
             .then(
-              function (response) {
+              function () {
                 console.log(dbName, 'deleted', oldDocs.map(function (oldDoc) { return oldDoc._id; }).join(', '));
 
                 cb();
@@ -205,6 +205,7 @@ function init() {
         return;
       }
 
+      // eslint-disable-next-line
       var designDoc = require(path.resolve(__dirname, designDocName));
 
       prepareDesignDoc(designDoc);
