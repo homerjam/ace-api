@@ -1,4 +1,4 @@
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 6000;
 const HOST = process.env.HOST || 'localhost';
 
 const _ = require('lodash');
@@ -16,7 +16,7 @@ const AceApiServer = require('./index');
 
 const defaultConfig = require('./config.default');
 
-function Serve (customConfig = {}, listen = true) {
+function Serve(customConfig = {}, listen = true) {
   const config = _.merge({}, defaultConfig, customConfig);
 
   const app = express();
@@ -51,13 +51,17 @@ function Serve (customConfig = {}, listen = true) {
   app.use(helmet());
   app.use(logger('tiny'));
   app.use(cookieParser());
-  app.use(bodyParser.json({
-    limit: '50mb',
-  }));
-  app.use(bodyParser.urlencoded({
-    extended: true,
-    limit: '50mb',
-  }));
+  app.use(
+    bodyParser.json({
+      limit: '50mb',
+    })
+  );
+  app.use(
+    bodyParser.urlencoded({
+      extended: true,
+      limit: '50mb',
+    })
+  );
   app.use(methodOverride());
   app.use(session(sessionOptions));
 
