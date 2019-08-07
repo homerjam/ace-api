@@ -1,7 +1,7 @@
 const fs = require('fs');
 const gulp = require('gulp');
 const livereload = require('gulp-livereload');
-const opn = require('opn');
+const open = require('open');
 const swaggerJSDoc = require('swagger-jsdoc');
 
 const swagger = require('./docs/swagger');
@@ -31,7 +31,7 @@ gulp.task('docs:watch', (done) => {
 
 gulp.task('docs:ui', (done) => {
   swagger((config) => {
-    opn(`http://localhost:${config.port}?url=/docs/api.json`);
+    open(`http://localhost:${config.port}?url=/docs/api.json`);
   });
 
   done();
