@@ -1,4 +1,4 @@
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 5001;
 const HOST = process.env.HOST || 'localhost';
 
 const _ = require('lodash');
