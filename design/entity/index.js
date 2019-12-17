@@ -1,3 +1,4 @@
+/* eslint no-unused-vars: 1 */
 /* global emit */
 
 var fs = require('fs');
@@ -59,6 +60,15 @@ var ddoc = {
   fulltext: {
     all: {
       index: require('./indexes/all'),
+    },
+  },
+  filters: {
+    changes: function(doc, req) {
+      if (doc.type === 'entity' && !doc._deleted) {
+        return true;
+      }
+
+      return false;
     },
   },
 };

@@ -495,7 +495,6 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
   require('./routes/cache')(context, config);
   require('./routes/config')(context, config);
   require('./routes/debug')(context, config);
-  require('./routes/ecommerce')(context, config);
   require('./routes/email')(context, config);
   require('./routes/embedly')(context, config);
   require('./routes/entity')(context, config);
@@ -504,10 +503,8 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
   require('./routes/provider')(context, config);
   require('./routes/schema')(context, config);
   require('./routes/settings')(context, config);
-  require('./routes/shippo')(context, config);
   require('./routes/shopify')(context, config);
   require('./routes/social')(context, config);
-  require('./routes/stripe')(context, config);
   require('./routes/taxonomy')(context, config);
   require('./routes/token')(context, config);
   require('./routes/tools')(context, config);

@@ -69,12 +69,6 @@ const config = {
       clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
     },
 
-    stripe: {
-      clientId: process.env.STRIPE_CLIENT_ID,
-      clientSecret: process.env.STRIPE_CLIENT_SECRET,
-      apiKey: process.env.STRIPE_API_KEY,
-    },
-
     twitter: {
       consumerKey: process.env.TWITTER_CONSUMER_KEY,
       consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
