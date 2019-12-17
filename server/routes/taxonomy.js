@@ -9,7 +9,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   /**
    * @swagger
    * definitions:
@@ -90,7 +89,12 @@ module.exports = ({
       const taxonomy = Taxonomy(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await taxonomy.read(req.query.slug || req.query.taxonomySlug), true);
+        handleResponse(
+          req,
+          res,
+          await taxonomy.read(req.query.slug || req.query.taxonomySlug),
+          true
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -120,7 +124,16 @@ module.exports = ({
       const taxonomy = Taxonomy(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await taxonomy.delete(req.body.taxonomySlug || req.body.taxonomySlugs || req.query.taxonomySlug || req.query.taxonomySlugs));
+        handleResponse(
+          req,
+          res,
+          await taxonomy.delete(
+            req.body.taxonomySlug ||
+              req.body.taxonomySlugs ||
+              req.query.taxonomySlug ||
+              req.query.taxonomySlugs
+          )
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -135,7 +148,14 @@ module.exports = ({
       const taxonomy = Taxonomy(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await taxonomy.createTerm(req.body.slug || req.body.taxonomySlug, req.body.term));
+        handleResponse(
+          req,
+          res,
+          await taxonomy.createTerm(
+            req.body.slug || req.body.taxonomySlug,
+            req.body.term
+          )
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -150,7 +170,11 @@ module.exports = ({
       const taxonomy = Taxonomy(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await taxonomy.updateTerm(req.query.term || req.body.term));
+        handleResponse(
+          req,
+          res,
+          await taxonomy.updateTerm(req.query.term || req.body.term)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -165,11 +189,14 @@ module.exports = ({
       const taxonomy = Taxonomy(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await taxonomy.deleteTerm(req.query.term || req.body.term));
+        handleResponse(
+          req,
+          res,
+          await taxonomy.deleteTerm(req.query.term || req.body.term)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
     })
   );
-
 };

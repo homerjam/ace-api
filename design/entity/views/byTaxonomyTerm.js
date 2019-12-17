@@ -9,8 +9,12 @@ module.exports = function(doc) {
     }
 
     forEach(doc.fields, function(field) {
-      if (field.type === 'taxonomy' && field.value && field.value.terms &&
-          field.value.terms.length) {
+      if (
+        field.type === 'taxonomy' &&
+        field.value &&
+        field.value.terms &&
+        field.value.terms.length
+      ) {
         forEach(field.value.terms, function(term) {
           if (term.id) {
             emit(term.id, doc._id);

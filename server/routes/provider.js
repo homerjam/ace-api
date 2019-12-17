@@ -11,7 +11,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   const providerApiBaseUrl = {
     google: 'https://www.googleapis.com',
     instagram: 'https://api.instagram.com',
@@ -23,7 +22,10 @@ module.exports = ({
     const method = req.method;
     const provider = req.params[0];
     const userId = req.params[2] ? req.params[1] : null;
-    const endpoint = (req.params[2] || req.params[1]).split('/').filter(param => param !== '').join('/');
+    const endpoint = (req.params[2] || req.params[1])
+      .split('/')
+      .filter(param => param !== '')
+      .join('/');
 
     const config = await getConfig(req.session.slug);
 
@@ -41,7 +43,10 @@ module.exports = ({
       providerConfig = clientConfig.provider[provider];
     }
 
-    if (Math.floor(new Date().getTime() / 1000) - (providerConfig.begins || 0) > providerConfig.expires_in) {
+    if (
+      Math.floor(new Date().getTime() / 1000) - (providerConfig.begins || 0) >
+      providerConfig.expires_in
+    ) {
       const auth = Auth(await getConfig(req.session.slug));
 
       if (userId) {
@@ -80,13 +85,12 @@ module.exports = ({
   router.all(
     /\/provider\/([^/]+)\/([^/]+)\/api\/?(.+)?/,
     cacheMiddleware,
-    providerApiHandler,
+    providerApiHandler
   );
 
   router.all(
     /\/provider\/([^/]+)\/api\/?(.+)?/,
     cacheMiddleware,
-    providerApiHandler,
+    providerApiHandler
   );
-
 };

@@ -10,7 +10,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   router.get(
     '/ecommerce/order/message/:message.:ext?',
     authMiddleware,
@@ -39,7 +38,11 @@ module.exports = ({
       const ecommerce = Ecommerce(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await ecommerce.getType(req.params.type, req.query));
+        handleResponse(
+          req,
+          res,
+          await ecommerce.getType(req.params.type, req.query)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -59,7 +62,11 @@ module.exports = ({
       const ecommerce = Ecommerce(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await ecommerce.setType(req.params.type, req.body.item));
+        handleResponse(
+          req,
+          res,
+          await ecommerce.setType(req.params.type, req.body.item)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -92,7 +99,11 @@ module.exports = ({
       const ecommerce = Ecommerce(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await ecommerce.verifyDiscount(req.params.code));
+        handleResponse(
+          req,
+          res,
+          await ecommerce.verifyDiscount(req.params.code)
+        );
       } catch (error) {
         handleError(req, res, error);
       }

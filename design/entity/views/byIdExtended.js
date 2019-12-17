@@ -1,9 +1,13 @@
+/* eslint no-unused-vars: 1 */
 /* global emit */
 
 module.exports = function(doc) {
   if (doc.type === 'entity') {
     function type(obj) {
-      return Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
+      return Object.prototype.toString
+        .call(obj)
+        .slice(8, -1)
+        .toLowerCase();
     }
 
     function forEach(obj, fn) {
@@ -25,7 +29,7 @@ module.exports = function(doc) {
             //   type: 'field',
             //   slug: fieldSlug,
             //   index: index,
-            // })
+            // });
 
             emit(item.id, { _id: doc._id, type: 'parent' });
           }

@@ -14,7 +14,7 @@ if (!args[1]) {
 
 const docFilter = doc => doc.type && doc.type === 'file';
 
-const docMutate = (doc) => {
+const docMutate = doc => {
   return {
     _id: doc._id,
     _rev: doc._rev,
@@ -22,12 +22,17 @@ const docMutate = (doc) => {
   };
 };
 
-const batchUpdateDocs = (db, docs) => Promise.all(_.chunk(docs, BATCH_UPDATE_CHUNK_SIZE).map(chunk => db.bulk({ docs: chunk })));
+const batchUpdateDocs = (db, docs) =>
+  Promise.all(
+    _.chunk(docs, BATCH_UPDATE_CHUNK_SIZE).map(chunk =>
+      db.bulk({ docs: chunk })
+    )
+  );
 
 const dbUrl = args[0];
 const dbNames = args.slice(1);
 
-dbNames.forEach(async (dbName) => {
+dbNames.forEach(async dbName => {
   const db = new Cloudant({
     url: dbUrl,
     plugins: ['promises', 'retry'],
@@ -47,4 +52,3 @@ dbNames.forEach(async (dbName) => {
 
   console.log(`${dbName} --> ${docs.length} files updated`);
 });
-

@@ -7,7 +7,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   /**
    * @swagger
    * /email/preview:
@@ -56,10 +55,14 @@ module.exports = ({
 
       const templateOptions = {
         data: input.data ? JSON.parse(input.data) : false,
-        inlineStyles: input.inlineStyles ? JSON.parse(input.inlineStyles) : true,
+        inlineStyles: input.inlineStyles
+          ? JSON.parse(input.inlineStyles)
+          : true,
         inky: input.inky ? JSON.parse(input.inky) : false,
         mjml: input.mjml ? JSON.parse(input.mjml) : false,
-        skipValidation: input.skipValidation ? JSON.parse(input.skipValidation) : false,
+        skipValidation: input.skipValidation
+          ? JSON.parse(input.skipValidation)
+          : false,
       };
 
       const slug = input.slug || req.session.slug;
@@ -77,7 +80,11 @@ module.exports = ({
         const email = Email(await getConfig(slug));
 
         try {
-          const template = await email.getTemplate(input.templateSlug, data, templateOptions);
+          const template = await email.getTemplate(
+            input.templateSlug,
+            data,
+            templateOptions
+          );
 
           handleResponse(req, res, template.html);
         } catch (error) {
@@ -93,7 +100,9 @@ module.exports = ({
       if (input.entityId) {
         const entity = Entity(await getConfig(slug));
 
-        const entities = (await entity.entityList([input.entityId], { children: 2 })).map(row => row.doc);
+        const entities = (
+          await entity.entityList([input.entityId], { children: 2 })
+        ).map(row => row.doc);
 
         renderTemplate(entity.flattenValues(entities)[0]);
         return;
@@ -109,10 +118,14 @@ module.exports = ({
       const input = Object.keys(req.body).length ? req.body : req.query || {};
 
       const templateOptions = {
-        inlineStyles: input.inlineStyles ? JSON.parse(input.inlineStyles) : true,
+        inlineStyles: input.inlineStyles
+          ? JSON.parse(input.inlineStyles)
+          : true,
         inky: input.inky ? JSON.parse(input.inky) : false,
         mjml: input.mjml ? JSON.parse(input.mjml) : false,
-        skipValidation: input.skipValidation ? JSON.parse(input.skipValidation) : true,
+        skipValidation: input.skipValidation
+          ? JSON.parse(input.skipValidation)
+          : true,
       };
 
       const emailOptions = {
@@ -130,7 +143,12 @@ module.exports = ({
       const email = Email(await getConfig(slug));
 
       try {
-        const result = await email.sendEmail(emailOptions, input.templateSlug, input.payload, templateOptions);
+        const result = await email.sendEmail(
+          emailOptions,
+          input.templateSlug,
+          input.payload,
+          templateOptions
+        );
 
         handleResponse(req, res, result);
       } catch (error) {
@@ -145,10 +163,14 @@ module.exports = ({
       const email = Email(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await email.subscribe({
-          email: req.body.email || req.query.email,
-          name: req.body.name || req.query.name || '',
-        }));
+        handleResponse(
+          req,
+          res,
+          await email.subscribe({
+            email: req.body.email || req.query.email,
+            name: req.body.name || req.query.name || '',
+          })
+        );
       } catch (error) {
         handleError(req, res, error);
       }

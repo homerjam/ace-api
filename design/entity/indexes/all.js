@@ -1,6 +1,7 @@
-module.exports = function (doc) {
-  if (doc.type === 'entity') {
+/* global index  */
 
+module.exports = function(doc) {
+  if (doc.type === 'entity') {
     index('id', doc._id, {
       store: true,
       index: 'not_analyzed',
@@ -51,27 +52,37 @@ module.exports = function (doc) {
       index: 'not_analyzed',
     });
 
-    index('sort.publishedAt', doc.publishedAt && (doc.published || false) ? new Date(Date.parse(doc.publishedAt)).getTime() : 0, {
-      store: false,
-      index: 'not_analyzed',
-    });
+    index(
+      'sort.publishedAt',
+      doc.publishedAt && (doc.published || false)
+        ? new Date(Date.parse(doc.publishedAt)).getTime()
+        : 0,
+      {
+        store: false,
+        index: 'not_analyzed',
+      }
+    );
 
-    index('sort.modifiedAt', new Date(Date.parse(doc.modifiedAt || 0)).getTime(), {
-      store: false,
-      index: 'not_analyzed',
-    });
+    index(
+      'sort.modifiedAt',
+      new Date(Date.parse(doc.modifiedAt || 0)).getTime(),
+      {
+        store: false,
+        index: 'not_analyzed',
+      }
+    );
 
-    function unique (v, i, self) {
+    function unique(v, i, self) {
       return self.indexOf(v) === i;
     }
 
-    function decodeHTMLEntities (text) {
+    function decodeHTMLEntities(text) {
       var entities = [
         ['amp', '&'],
-        ['apos', '\''],
-        ['#x27', '\''],
+        ['apos', "'"],
+        ['#x27', "'"],
         ['#x2F', '/'],
-        ['#39', '\''],
+        ['#39', "'"],
         ['#47', '/'],
         ['lt', '<'],
         ['gt', '>'],
@@ -79,12 +90,15 @@ module.exports = function (doc) {
         ['quot', '"'],
       ];
       for (var i = 0, max = entities.length; i < max; ++i) {
-        text = text.replace(new RegExp('&' + entities[i][0] + ';', 'g'), entities[i][1]);
+        text = text.replace(
+          new RegExp('&' + entities[i][0] + ';', 'g'),
+          entities[i][1]
+        );
       }
       return text;
     }
 
-    function indexFields (fields) {
+    function indexFields(fields) {
       for (var fieldSlug in fields) {
         var fieldValue = fields[fieldSlug].value;
         // var fieldType = fields[fieldSlug].type;
@@ -99,12 +113,11 @@ module.exports = function (doc) {
         var fieldValueObjectType = toString.call(fieldValue);
 
         if (typeof fieldValue !== 'undefined') {
-
           if (fieldValueObjectType === '[object Array]') {
             titles = [];
             slugs = [];
 
-            fieldValue.forEach(function (obj) {
+            fieldValue.forEach(function(obj) {
               if (!obj) {
                 return;
               }
@@ -129,10 +142,9 @@ module.exports = function (doc) {
           }
 
           if (fieldValueObjectType === '[object Object]') {
-
             if (fieldValue.html) {
               indexValue = fieldValue.html
-                .replace(/(<([^>]+)>)/ig, ' ')
+                .replace(/(<([^>]+)>)/gi, ' ')
                 .replace(/\s\s/g, ' ')
                 .replace(/\r|\n/, '')
                 .trim();
@@ -143,7 +155,7 @@ module.exports = function (doc) {
               titles = [];
               slugs = [];
 
-              fieldValue.terms.forEach(function (obj) {
+              fieldValue.terms.forEach(function(obj) {
                 if (!obj) {
                   return;
                 }
@@ -156,7 +168,7 @@ module.exports = function (doc) {
 
                 var parents = obj.parents || [];
 
-                parents.forEach(function (obj) {
+                parents.forEach(function(obj) {
                   if (!obj) {
                     return;
                   }
@@ -184,42 +196,47 @@ module.exports = function (doc) {
             if (fieldValue.file) {
               indexValue = fieldValue.original.fileName;
 
-              index('fields.' + fieldSlug + '.file.name', fieldValue.file.name || '', {
-                store: true,
-                index: 'analyzed',
-              });
-              index('fields.' + fieldSlug + '.file.ext', fieldValue.file.ext || '', {
-                store: true,
-                index: 'analyzed',
-              });
+              index(
+                'fields.' + fieldSlug + '.file.name',
+                fieldValue.file.name || '',
+                {
+                  store: true,
+                  index: 'analyzed',
+                }
+              );
+              index(
+                'fields.' + fieldSlug + '.file.ext',
+                fieldValue.file.ext || '',
+                {
+                  store: true,
+                  index: 'analyzed',
+                }
+              );
             }
-
           }
 
           if (fieldValueObjectType === '[object String]') {
-
             indexValue = fieldValue;
 
-            if (/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/.test(fieldValue)) {
+            if (
+              /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/.test(
+                fieldValue
+              )
+            ) {
               indexSortValue = new Date(Date.parse(fieldValue)).getTime();
             } else {
               indexSortValue = indexValue;
             }
-
           }
 
           if (fieldValueObjectType === '[object Number]') {
-
             indexValue = fieldValue;
             indexSortValue = indexValue;
-
           }
 
           if (fieldValueObjectType === '[object Boolean]') {
-
             indexValue = fieldValue;
             indexSortValue = indexValue;
-
           }
 
           if (typeof indexValue !== 'undefined' && indexValue !== null) {
@@ -242,7 +259,6 @@ module.exports = function (doc) {
               index: 'analyzed',
             });
           }
-
         }
       }
     }

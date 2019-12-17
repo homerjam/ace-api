@@ -6,7 +6,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   router.all(
     '/shippo/quote.:ext?',
     asyncMiddleware(async (req, res) => {
@@ -22,5 +21,4 @@ module.exports = ({
       }
     })
   );
-
 };

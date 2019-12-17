@@ -10,7 +10,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   router.all(
     '/stripe/checkout.:ext?',
     asyncMiddleware(async (req, res) => {
@@ -76,7 +75,10 @@ module.exports = ({
         order,
       };
 
-      const template = await email.getTemplate(`${req.session.slug}/${req.query.template}`, data);
+      const template = await email.getTemplate(
+        `${req.session.slug}/${req.query.template}`,
+        data
+      );
 
       try {
         handleResponse(req, res, template.html);
@@ -85,5 +87,4 @@ module.exports = ({
       }
     })
   );
-
 };

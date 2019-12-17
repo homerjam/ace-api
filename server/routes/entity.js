@@ -12,7 +12,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   /**
    * @swagger
    * definitions:
@@ -61,7 +60,11 @@ module.exports = ({
     '/entities/index.:ext?',
     asyncMiddleware(async (req, res) => {
       try {
-        handleResponse(req, res, await Db(await getConfig(req.session.slug)).indexAsync());
+        handleResponse(
+          req,
+          res,
+          await Db(await getConfig(req.session.slug)).indexAsync()
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -156,22 +159,33 @@ module.exports = ({
       const input = Object.keys(req.body).length ? req.body : req.query;
 
       // eslint-disable-next-line
-      const include_docs = input.include_docs !== undefined
-        ? JSON.parse(input.include_docs) : false;
+      const include_docs =
+        input.include_docs !== undefined
+          ? JSON.parse(input.include_docs)
+          : false;
 
       // eslint-disable-next-line
-      const include_fields = input.include_fields !== undefined
-        ? typeof input.include_fields === 'object' ? input.include_fields : JSON.parse(input.include_fields)
-        : [];
+      const include_fields =
+        input.include_fields !== undefined
+          ? typeof input.include_fields === 'object'
+            ? input.include_fields
+            : JSON.parse(input.include_fields)
+          : [];
 
       const select = input.select !== undefined ? input.select : false;
 
-      let children = input.children !== undefined
-        ? typeof input.children === 'object' ? input.children : JSON.parse(input.children)
-        : false;
-      let parents = input.parents !== undefined
-        ? typeof input.parents === 'object' ? input.parents : JSON.parse(input.parents)
-        : false;
+      let children =
+        input.children !== undefined
+          ? typeof input.children === 'object'
+            ? input.children
+            : JSON.parse(input.children)
+          : false;
+      let parents =
+        input.parents !== undefined
+          ? typeof input.parents === 'object'
+            ? input.parents
+            : JSON.parse(input.parents)
+          : false;
 
       if (children === true) {
         children = 1;
@@ -180,23 +194,20 @@ module.exports = ({
         parents = 1;
       }
 
-      const trashed = input.trashed !== undefined
-        ? JSON.parse(input.trashed) : false;
+      const trashed =
+        input.trashed !== undefined ? JSON.parse(input.trashed) : false;
 
-      const sort = input.sort !== undefined
-        ? input.sort : null;
-      const limit = input.limit !== undefined
-        ? parseInt(input.limit, 10) : null;
+      const sort = input.sort !== undefined ? input.sort : null;
+      const limit =
+        input.limit !== undefined ? parseInt(input.limit, 10) : null;
 
-      const bookmark = input.bookmark !== undefined
-        ? input.bookmark : null;
+      const bookmark = input.bookmark !== undefined ? input.bookmark : null;
 
       // eslint-disable-next-line
-      const group_field = input.group_field !== undefined
-        ? input.group_field : null;
+      const group_field =
+        input.group_field !== undefined ? input.group_field : null;
 
-      const index = input.index !== undefined
-        ? input.index : null;
+      const index = input.index !== undefined ? input.index : null;
 
       const q = input.query || input.q;
 
@@ -217,24 +228,29 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await entity.entitySearch(
-          {
-            query,
-            include_docs,
-            include_fields,
-            sort,
-            limit,
-            bookmark,
-            group_field,
-            index,
-          },
-          {
-            select,
-            children,
-            parents,
-            role: req.session.role,
-          }
-        ), true);
+        handleResponse(
+          req,
+          res,
+          await entity.entitySearch(
+            {
+              query,
+              include_docs,
+              include_fields,
+              sort,
+              limit,
+              bookmark,
+              group_field,
+              index,
+            },
+            {
+              select,
+              children,
+              parents,
+              role: req.session.role,
+            }
+          ),
+          true
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -288,12 +304,18 @@ module.exports = ({
     asyncMiddleware(async (req, res) => {
       const input = Object.keys(req.body).length ? req.body : req.query;
 
-      let children = input.children !== undefined
-        ? typeof input.children === 'object' ? input.children : JSON.parse(input.children)
-        : false;
-      let parents = input.parents !== undefined
-        ? typeof input.parents === 'object' ? input.parents : JSON.parse(input.parents)
-        : false;
+      let children =
+        input.children !== undefined
+          ? typeof input.children === 'object'
+            ? input.children
+            : JSON.parse(input.children)
+          : false;
+      let parents =
+        input.parents !== undefined
+          ? typeof input.parents === 'object'
+            ? input.parents
+            : JSON.parse(input.parents)
+          : false;
 
       if (children === true) {
         children = 1;
@@ -302,19 +324,16 @@ module.exports = ({
         parents = 1;
       }
 
-      const trashed = input.trashed !== undefined
-        ? JSON.parse(input.trashed) : false;
+      const trashed =
+        input.trashed !== undefined ? JSON.parse(input.trashed) : false;
 
-      const query = input.query
-        ? JSON.parse(input.query) : { selector: {} };
+      const query = input.query ? JSON.parse(input.query) : { selector: {} };
 
       query.use_index = ['entityIndex', 'entity'];
 
       if (!query.selector.$and) {
         query.selector = {
-          $and: [
-            query.selector,
-          ],
+          $and: [query.selector],
         };
       }
 
@@ -346,7 +365,16 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await entity.entityFind(query, { children, parents, role: req.session.role }), true);
+        handleResponse(
+          req,
+          res,
+          await entity.entityFind(query, {
+            children,
+            parents,
+            role: req.session.role,
+          }),
+          true
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -360,7 +388,15 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await entity.fieldValues(req.query.slug || req.query.fieldSlug, req.query.searchTerm), true);
+        handleResponse(
+          req,
+          res,
+          await entity.fieldValues(
+            req.query.slug || req.query.fieldSlug,
+            req.query.searchTerm
+          ),
+          true
+        );
       } catch (error) {
         handleError(res, error);
       }
@@ -418,12 +454,18 @@ module.exports = ({
 
       const select = input.select !== undefined ? input.select : false;
 
-      let children = input.children !== undefined
-        ? typeof input.children === 'object' ? input.children : JSON.parse(input.children)
-        : false;
-      let parents = input.parents !== undefined
-        ? typeof input.parents === 'object' ? input.parents : JSON.parse(input.parents)
-        : false;
+      let children =
+        input.children !== undefined
+          ? typeof input.children === 'object'
+            ? input.children
+            : JSON.parse(input.children)
+          : false;
+      let parents =
+        input.parents !== undefined
+          ? typeof input.parents === 'object'
+            ? input.parents
+            : JSON.parse(input.parents)
+          : false;
 
       if (children === true) {
         children = 1;
@@ -441,12 +483,17 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await entity.entityList(ids, {
-          select,
-          children,
-          parents,
-          role: req.session.role,
-        }), true);
+        handleResponse(
+          req,
+          res,
+          await entity.entityList(ids, {
+            select,
+            children,
+            parents,
+            role: req.session.role,
+          }),
+          true
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -506,7 +553,14 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await entity.entityUpdate(req.body.entity || req.body.entities, req.body.restore || false));
+        handleResponse(
+          req,
+          res,
+          await entity.entityUpdate(
+            req.body.entity || req.body.entities,
+            req.body.restore || false
+          )
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -521,7 +575,14 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await entity.entityDelete(req.body.entity || req.body.entities, req.body.forever || false));
+        handleResponse(
+          req,
+          res,
+          await entity.entityDelete(
+            req.body.entity || req.body.entities,
+            req.body.forever || false
+          )
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -542,5 +603,4 @@ module.exports = ({
       }
     })
   );
-
 };

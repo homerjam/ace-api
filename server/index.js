@@ -14,38 +14,38 @@ const XXH = require('xxhashjs');
 
 const Api = require('../index');
 
-const HASH_SEED = 0xABCD;
+const HASH_SEED = 0xabcd;
 
 const defaultConfig = require('./config.default');
 
 function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
-  const config = deepFreeze(_.merge({}, Api.defaultConfig, defaultConfig, customConfig));
+  const config = deepFreeze(
+    _.merge({}, Api.defaultConfig, defaultConfig, customConfig)
+  );
 
   // Async middleware
 
   const asyncMiddleware = fn => (req, res, next) => {
-    Promise.resolve(fn(req, res, next))
-      .catch(next);
+    Promise.resolve(fn(req, res, next)).catch(next);
   };
 
   // Skip authorisation
 
-  const skipAuth = (req) => {
-    const prodAllowedRoutes = [
-      '/auth/user',
-      '/config/info',
-    ];
+  const skipAuth = req => {
+    const prodAllowedRoutes = ['/auth/user', '/config/info'];
 
-    const devAllowedRoutes = [
-      '/token',
-      '/email',
-    ];
+    const devAllowedRoutes = ['/token', '/email'];
 
-    if (_.find(prodAllowedRoutes, route => new RegExp(`^${route}`).test(req.path))) {
+    if (
+      _.find(prodAllowedRoutes, route => new RegExp(`^${route}`).test(req.path))
+    ) {
       return true;
     }
 
-    if (config.environment === 'development' && _.find(devAllowedRoutes, route => new RegExp(`^${route}`).test(req.path))) {
+    if (
+      config.environment === 'development' &&
+      _.find(devAllowedRoutes, route => new RegExp(`^${route}`).test(req.path))
+    ) {
       return true;
     }
 
@@ -99,7 +99,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
     let authorised = false;
 
-    permissions.forEach((permission) => {
+    permissions.forEach(permission => {
       if (roles.role(req.session.role).permissions[permission.trim()]) {
         authorised = true;
       }
@@ -119,7 +119,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
   // Clone and extend config per request/session
 
-  const omitUndefined = (obj) => {
+  const omitUndefined = obj => {
     _.forIn(obj, (value, key, obj) => {
       if (_.isPlainObject(value)) {
         value = omitUndefined(value);
@@ -137,9 +137,14 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
     return obj;
   };
 
-  const cloneConfig = config => _.mergeWith({}, JSON.parse(JSON.stringify(config)), omitUndefined(_.cloneDeep(config)));
+  const cloneConfig = config =>
+    _.mergeWith(
+      {},
+      JSON.parse(JSON.stringify(config)),
+      omitUndefined(_.cloneDeep(config))
+    );
 
-  const getConfig = async (slug) => {
+  const getConfig = async slug => {
     const configClone = cloneConfig(config);
 
     configClone.slug = slug;
@@ -167,22 +172,23 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
         redisOptions.db = config.redis.db;
       }
 
-      cache = cacheManager.caching(_.merge({ store: redisStore }, redisOptions));
+      cache = cacheManager.caching(
+        _.merge({ store: redisStore }, redisOptions)
+      );
 
       const redisClient = cache.store.getClient();
       redisClient.on('ready', () => {
         console.log('redis: ready');
       });
-      redisClient.on('error', (error) => {
+      redisClient.on('error', error => {
         console.error('redis: error:', error);
       });
-
     } else {
       cache = cacheManager.caching({
         store: 'memory',
         ttl: config.cache.ttl,
         max: config.cache.memory.max,
-        length: (item) => {
+        length: item => {
           // const length = Buffer.byteLength(item, 'utf8')
           const length = sizeof(item);
           return length;
@@ -193,21 +199,23 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
   // Cache middleware
 
-  const hash = (req) => {
+  const hash = req => {
     const obj = {
       path: req.path,
       query: req.query,
       body: req.body,
     };
-    return `${req.session.slug}:${XXH.h64(JSON.stringify(obj), HASH_SEED).toString(16)}`;
+    return `${req.session.slug}:${XXH.h64(
+      JSON.stringify(obj),
+      HASH_SEED
+    ).toString(16)}`;
   };
 
   const cacheMiddleware = asyncMiddleware(async (req, res, next) => {
-    const useCachedResponse = (
-      config.cache.enabled
-      && req.session.role === 'guest' // TODO: Replace 'guest' with constant
-      && (req.query.__cache && JSON.parse(req.query.__cache)) !== false
-    );
+    const useCachedResponse =
+      config.cache.enabled &&
+      req.session.role === 'guest' && // TODO: Replace 'guest' with constant
+      (req.query.__cache && JSON.parse(req.query.__cache)) !== false;
 
     if (useCachedResponse) {
       try {
@@ -217,7 +225,9 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
         if (typeof response === 'string') {
           if (config.cache.compress) {
-            response = (await zlib.gunzipAsync(Buffer.from(response, 'base64'))).toString();
+            response = (
+              await zlib.gunzipAsync(Buffer.from(response, 'base64'))
+            ).toString();
           }
 
           try {
@@ -253,7 +263,14 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
     console.error(error);
 
     const code = error.statusCode || error.status || error.code || 500;
-    const message = error.stack || error.error || error.message || error.body || error.data || error.statusText || error;
+    const message =
+      error.stack ||
+      error.error ||
+      error.message ||
+      error.body ||
+      error.data ||
+      error.statusText ||
+      error;
 
     res.status(typeof code === 'string' ? 500 : code);
     res.send({
@@ -267,21 +284,25 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
       response = '';
       res.status(204);
       res.send(response);
-
     } else {
       response = CircularJSON.stringify(response);
       res.status(200);
       res.send(JSON.parse(response));
     }
 
-    if (cacheResponse && config.cache.enabled && req.session.role === 'guest') { // TODO: Replace 'guest' with constant
+    if (cacheResponse && config.cache.enabled && req.session.role === 'guest') {
+      // TODO: Replace 'guest' with constant
       const key = hash(req);
 
       if (config.cache.compress) {
-        response = (await zlib.gzipAsync(Buffer.from(response))).toString('base64');
+        response = (await zlib.gzipAsync(Buffer.from(response))).toString(
+          'base64'
+        );
       }
 
-      const ttl = req.query.__cache ? parseInt(req.query.__cache, 10) : config.cache.ttl;
+      const ttl = req.query.__cache
+        ? parseInt(req.query.__cache, 10)
+        : config.cache.ttl;
 
       cache.set(key, response, { ttl });
     }
@@ -298,7 +319,8 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
     };
 
     if (req.headers['access-control-request-headers']) {
-      headers['Access-Control-Allow-Headers'] = req.headers['access-control-request-headers'];
+      headers['Access-Control-Allow-Headers'] =
+        req.headers['access-control-request-headers'];
     }
 
     res.set(headers);
@@ -324,8 +346,10 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
     const referrer = req.headers.referrer || req.headers.referer;
 
     if (referrer) {
-      const referrerHostname = new URL(referrer)
-        .hostname.split('.').slice(-2).join('.');
+      const referrerHostname = new URL(referrer).hostname
+        .split('.')
+        .slice(-2)
+        .join('.');
 
       if (config.api.blacklistReferrer.indexOf(referrerHostname) > -1) {
         res.status(401);
@@ -337,7 +361,8 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
       }
     }
 
-    const token = req.headers['x-api-token'] || req.query.apiToken || req.session.apiToken;
+    const token =
+      req.headers['x-api-token'] || req.query.apiToken || req.session.apiToken;
 
     if (!token) {
       res.status(401);
@@ -363,7 +388,6 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
       req.session.userId = payload.userId;
       req.session.slug = payload.slug;
       req.session.role = payload.role || 'guest'; // TODO: Replace 'guest' with constant
-
     } catch (error) {
       res.status(401);
       res.send({
@@ -404,8 +428,10 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
   const forceHttps = (req, res, next) => {
     if (
-      (req.headers['x-forwarded-proto'] && req.headers['x-forwarded-proto'] !== 'https')
-      && (req.headers['cf-visitor'] && JSON.parse(req.headers['cf-visitor']).scheme !== 'https') // Fix for Cloudflare/Heroku flexible SSL
+      req.headers['x-forwarded-proto'] &&
+      req.headers['x-forwarded-proto'] !== 'https' &&
+      req.headers['cf-visitor'] &&
+      JSON.parse(req.headers['cf-visitor']).scheme !== 'https' // Fix for Cloudflare/Heroku flexible SSL
     ) {
       res.redirect(301, `https://${req.headers.host}${req.path}`);
       return;
@@ -423,7 +449,9 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
   app.use(`/${config.api.prefix}`, headerMiddleware, sessionMiddleware, router);
 
   app.get(`/${config.api.prefix}`, (req, res) => {
-    res.send('<pre> ______\n|A     |\n|  /\\  |\n| /  \\ |\n|(    )|\n|  )(  |\n|______|</pre>');
+    res.send(
+      '<pre> ______\n|A     |\n|  /\\  |\n| /  \\ |\n|(    )|\n|  )(  |\n|______|</pre>'
+    );
   });
 
   // Context
@@ -443,7 +471,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
   // Inject API into context
 
-  Object.keys(Api).forEach((key) => {
+  Object.keys(Api).forEach(key => {
     context[key] = Api[key];
   });
 

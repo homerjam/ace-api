@@ -1,4 +1,4 @@
-function Api() { }
+function Api() {}
 
 Api.defaultConfig = require('./config.default');
 

@@ -8,20 +8,19 @@ module.exports = ({
   getConfig,
   handleError,
 }) => {
-
   router.get(
     '/pdf/view.:ext?',
     asyncMiddleware(async (req, res) => {
       const pdf = Pdf(await getConfig(req.session.slug));
 
-      pdf.getPayload(req.query.template, req.query.id, req.session.role)
-        .then((payload) => {
-          pdf.getPdf(payload)
-            .then((pdf) => {
-              res.type('application/pdf');
-              res.status(200);
-              res.send(pdf);
-            }, handleError.bind(null, req, res));
+      pdf
+        .getPayload(req.query.template, req.query.id, req.session.role)
+        .then(payload => {
+          pdf.getPdf(payload).then(pdf => {
+            res.type('application/pdf');
+            res.status(200);
+            res.send(pdf);
+          }, handleError.bind(null, req, res));
         }, handleError.bind(null, req, res));
     })
   );
@@ -31,14 +30,14 @@ module.exports = ({
     asyncMiddleware(async (req, res) => {
       const pdf = Pdf(await getConfig(req.session.slug));
 
-      pdf.getPayload(req.query.template, req.query.id, req.session.role)
-        .then((payload) => {
-          pdf.getPdf(payload)
-            .then((pdf) => {
-              res.attachment(payload.fileName || 'download.pdf');
-              res.status(200);
-              res.send(pdf);
-            }, handleError.bind(null, req, res));
+      pdf
+        .getPayload(req.query.template, req.query.id, req.session.role)
+        .then(payload => {
+          pdf.getPdf(payload).then(pdf => {
+            res.attachment(payload.fileName || 'download.pdf');
+            res.status(200);
+            res.send(pdf);
+          }, handleError.bind(null, req, res));
         }, handleError.bind(null, req, res));
     })
   );
@@ -48,8 +47,9 @@ module.exports = ({
     asyncMiddleware(async (req, res) => {
       const pdf = Pdf(await getConfig(req.session.slug));
 
-      pdf.getPayload(req.query.template, req.query.id, req.session.role)
-        .then((payload) => {
+      pdf
+        .getPayload(req.query.template, req.query.id, req.session.role)
+        .then(payload => {
           res.status(200);
           res.json(payload);
         }, handleError.bind(null, req, res));
@@ -68,8 +68,9 @@ module.exports = ({
 
       const pdf = Pdf(config);
 
-      pdf.getPayload(req.query.template, req.query.id, req.session.role)
-        .then((payload) => {
+      pdf
+        .getPayload(req.query.template, req.query.id, req.session.role)
+        .then(payload => {
           payload = JSON.stringify(payload).replace(/'/gi, '’');
 
           res.status(200);

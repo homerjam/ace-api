@@ -1,3 +1,5 @@
+/* global getRow send  */
+
 module.exports = function(head, req) {
   function Calculator(SCORE_BASE, SCORE_LENGTH) {
     var SCORE_INDEX = 1 - SCORE_BASE - SCORE_LENGTH;
@@ -7,9 +9,10 @@ module.exports = function(head, req) {
       var value = null;
       var match = pattern.exec(input);
       if (match) {
-        value = SCORE_BASE +
-          (SCORE_LENGTH * Math.sqrt(match[0].length / length)) +
-          (SCORE_INDEX * (1 - (match.index / length)));
+        value =
+          SCORE_BASE +
+          SCORE_LENGTH * Math.sqrt(match[0].length / length) +
+          SCORE_INDEX * (1 - match.index / length);
       }
       return value;
     };
@@ -20,7 +23,7 @@ module.exports = function(head, req) {
   var row;
   var rows = [];
 
-  while (row = getRow()) {
+  while ((row = getRow())) {
     rows.push(row);
   }
 
@@ -31,7 +34,11 @@ module.exports = function(head, req) {
       q.forEach(function(part) {
         part = part.split(':');
         if (part[0].trim() !== '*') {
-          row.score += score(new RegExp(part[1].trim(), 'gi'), row.value[part[0].trim()]) || 0;
+          row.score +=
+            score(
+              new RegExp(part[1].trim(), 'gi'),
+              row.value[part[0].trim()]
+            ) || 0;
         }
       });
     });
@@ -70,8 +77,10 @@ module.exports = function(head, req) {
   var offset = req.query.offset || 0;
   var limit = req.query.limit || rows.length;
 
-  send(JSON.stringify({
-    total_rows: rows.length,
-    rows: rows.slice(offset, limit),
-  }));
+  send(
+    JSON.stringify({
+      total_rows: rows.length,
+      rows: rows.slice(offset, limit),
+    })
+  );
 };

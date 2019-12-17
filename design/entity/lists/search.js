@@ -1,14 +1,18 @@
+/* global getRow send toJSON  */
+
 module.exports = function(head, req) {
   var Fuse = require('lib/fuse');
 
   var row;
   var rows = [];
-  // eslint-disable-next-line
-  while (row = getRow()) {
+
+  while ((row = getRow())) {
     rows.push(row);
   }
 
-  rows = rows.filter(function(row) { return row.key; });
+  rows = rows.filter(function(row) {
+    return row.key;
+  });
 
   rows = rows.map(function(row) {
     return {
@@ -23,9 +27,7 @@ module.exports = function(head, req) {
     distance: 100,
     maxPatternLength: 32,
     minMatchCharLength: 1,
-    keys: [
-      'value',
-    ],
+    keys: ['value'],
   };
 
   if (req.query.searchTerm) {
@@ -33,7 +35,9 @@ module.exports = function(head, req) {
     rows = fuse.search(req.query.searchTerm);
   }
 
-  rows = rows.map(function(row) { return row.value; });
+  rows = rows.map(function(row) {
+    return row.value;
+  });
 
   send(toJSON({ rows: rows }));
 };

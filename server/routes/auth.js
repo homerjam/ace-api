@@ -10,13 +10,12 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   router.get(
     '/auth/user.:ext?',
     asyncMiddleware(async (req, res) => {
       const auth = Auth(await getConfig(req.query.slug));
 
-      const user = pick((await auth.authUser(req.query.slug, req.query.userId)), [
+      const user = pick(await auth.authUser(req.query.slug, req.query.userId), [
         'active',
         'role',
       ]);
@@ -53,7 +52,13 @@ module.exports = ({
     permissionMiddleware.bind(null, 'settings'),
     (req, res) => {
       res.status(req.query.error ? 500 : 200);
-      res.send(`${req.params.provider}: ${(req.query.error_description ? req.query.error_description : 'successfully authenticated')}`);
+      res.send(
+        `${req.params.provider}: ${
+          req.query.error_description
+            ? req.query.error_description
+            : 'successfully authenticated'
+        }`
+      );
     }
   );
 
@@ -65,7 +70,11 @@ module.exports = ({
       const auth = Auth(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await auth.authProvider(req.params.provider, req.body));
+        handleResponse(
+          req,
+          res,
+          await auth.authProvider(req.params.provider, req.body)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -79,7 +88,11 @@ module.exports = ({
       const auth = Auth(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await auth.authProvider(req.params.provider, req.body, null, true));
+        handleResponse(
+          req,
+          res,
+          await auth.authProvider(req.params.provider, req.body, null, true)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -94,7 +107,15 @@ module.exports = ({
       const auth = Auth(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await auth.authProvider(req.params.provider, req.body, req.params.userId));
+        handleResponse(
+          req,
+          res,
+          await auth.authProvider(
+            req.params.provider,
+            req.body,
+            req.params.userId
+          )
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -108,11 +129,19 @@ module.exports = ({
       const auth = Auth(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await auth.authProvider(req.params.provider, req.body, req.params.userId, true));
+        handleResponse(
+          req,
+          res,
+          await auth.authProvider(
+            req.params.provider,
+            req.body,
+            req.params.userId,
+            true
+          )
+        );
       } catch (error) {
         handleError(req, res, error);
       }
     })
   );
-
 };

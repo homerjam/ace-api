@@ -3,7 +3,9 @@ const config = {
 
   api: {
     prefix: process.env.API_PREFIX || '',
-    forceHttps: process.env.API_FORCE_HTTPS ? JSON.parse(process.env.API_FORCE_HTTPS) : false,
+    forceHttps: process.env.API_FORCE_HTTPS
+      ? JSON.parse(process.env.API_FORCE_HTTPS)
+      : false,
     blacklistToken: (process.env.API_BLACKLIST_TOKEN || '').split(','),
     blacklistReferrer: (process.env.API_BLACKLIST_REFERRER || '').split(','),
   },
@@ -14,9 +16,13 @@ const config = {
   },
 
   cache: {
-    enabled: process.env.CACHE_ENABLED ? JSON.parse(process.env.CACHE_ENABLED) : false,
+    enabled: process.env.CACHE_ENABLED
+      ? JSON.parse(process.env.CACHE_ENABLED)
+      : false,
     ttl: parseInt(process.env.CACHE_TTL || 30, 10) * 60, // 30mins
-    compress: process.env.CACHE_COMPRESS ? JSON.parse(process.env.CACHE_COMPRESS) : false,
+    compress: process.env.CACHE_COMPRESS
+      ? JSON.parse(process.env.CACHE_COMPRESS)
+      : false,
     memory: {
       max: parseInt(process.env.CACHE_MEMORY_MAX || 128, 10) * 1000 * 1000, // ~128mb
     },

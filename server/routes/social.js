@@ -8,7 +8,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   const instagramAccessTokenMap = {};
 
   router.get(
@@ -23,15 +22,22 @@ module.exports = ({
       const Promise = require('bluebird');
       const Twitter = require('twitter');
 
-      const twitter = Promise.promisifyAll(new Twitter({
-        consumer_key: config.provider.twitter.consumerKey,
-        consumer_secret: config.provider.twitter.consumerSecret,
-        access_token_key: config.provider.twitter.accessTokenKey,
-        access_token_secret: config.provider.twitter.accessTokenSecret,
-      }));
+      const twitter = Promise.promisifyAll(
+        new Twitter({
+          consumer_key: config.provider.twitter.consumerKey,
+          consumer_secret: config.provider.twitter.consumerSecret,
+          access_token_key: config.provider.twitter.accessTokenKey,
+          access_token_secret: config.provider.twitter.accessTokenSecret,
+        })
+      );
 
       try {
-        handleResponse(req, res, await twitter[`${method}Async`](params.join('/'), req.query), true);
+        handleResponse(
+          req,
+          res,
+          await twitter[`${method}Async`](params.join('/'), req.query),
+          true
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -47,26 +53,32 @@ module.exports = ({
 
       const config = await getConfig(req.session.slug);
 
-      if (!instagramAccessTokenMap[req.session.slug]) {
+      let accessToken = instagramAccessTokenMap[req.session.slug];
+
+      if (!accessToken) {
         const cc = ClientConfig(config);
 
         try {
           const clientConfig = await cc.get();
-          instagramAccessTokenMap[req.session.slug] = clientConfig.provider.instagram.access_token;
+          accessToken = clientConfig.provider.instagram.access_token;
         } catch (error) {
           handleError(res, new Error('Instagram: access_token required'));
           return;
         }
       }
 
-      req.query.access_token = instagramAccessTokenMap[req.session.slug];
+      // eslint-disable-next-line
+      instagramAccessTokenMap[req.session.slug] = accessToken;
 
       const instagram = Instagram({
         client_id: config.provider.instagram.clientId,
       });
 
       try {
-        const result = await instagram[method](params.join('/'), req.query);
+        const result = await instagram[method](params.join('/'), {
+          ...req.query,
+          access_token: accessToken,
+        });
         try {
           delete result.pagination.next_url;
         } catch (error) {
@@ -78,5 +90,4 @@ module.exports = ({
       }
     })
   );
-
 };

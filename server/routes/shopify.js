@@ -7,7 +7,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   /**
    * @swagger
    * /shopify/catalog:
@@ -47,5 +46,4 @@ module.exports = ({
       }
     })
   );
-
 };

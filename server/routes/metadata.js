@@ -7,7 +7,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   /**
    * @swagger
    * /metadata:
@@ -42,5 +41,4 @@ module.exports = ({
       }
     })
   );
-
 };

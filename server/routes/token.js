@@ -7,7 +7,6 @@ module.exports = ({
   handleResponse,
   // handleError,
 }) => {
-
   /**
    * @swagger
    * /token:
@@ -56,20 +55,29 @@ module.exports = ({
         userId: req.session.userId,
       };
 
-      if (req.session.role === 'super' || config.environment === 'development') {
+      if (
+        req.session.role === 'super' ||
+        config.environment === 'development'
+      ) {
         payload.role = req.query.role || req.session.role || config.dev.role;
         payload.slug = req.query.slug || req.session.slug || config.dev.slug;
         if (payload.role !== 'guest') {
-          payload.userId = req.query.userId || req.session.userId || config.dev.userId;
+          payload.userId =
+            req.query.userId || req.session.userId || config.dev.userId;
         }
       }
 
       const _ = require('lodash');
 
-      let options = _.pickBy(req.query, (value, key) => /^(expiresIn|notBefore|audience|issuer|jwtid|subject|noTimestamp|header)$/.test(key));
+      let options = _.pickBy(req.query, (value, key) =>
+        /^(expiresIn|notBefore|audience|issuer|jwtid|subject|noTimestamp|header)$/.test(
+          key
+        )
+      );
 
-      options = _.mapValues(options, (value) => {
-        if (!_.isNaN(+value)) { // Check if value is a numeric string
+      options = _.mapValues(options, value => {
+        if (!_.isNaN(+value)) {
+          // Check if value is a numeric string
           return +value; // Convert numeric string to number
         }
         return value;
@@ -90,5 +98,4 @@ module.exports = ({
       handleResponse(req, res, response);
     })
   );
-
 };

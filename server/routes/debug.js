@@ -1,7 +1,4 @@
-module.exports = ({
-  router,
-}) => {
-
+module.exports = ({ router }) => {
   router.all('/debug/useragent.:ext?', (req, res) => {
     const expressUseragent = require('express-useragent');
     const useragent = expressUseragent.parse(req.headers['user-agent']);
@@ -17,5 +14,4 @@ module.exports = ({
       </html>
     `);
   });
-
 };

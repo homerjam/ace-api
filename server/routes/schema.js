@@ -8,7 +8,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   router.post(
     '/schema.:ext?',
     authMiddleware,
@@ -62,7 +61,16 @@ module.exports = ({
       const schema = Schema(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await schema.delete(req.body.schemaSlug || req.body.schemaSlugs || req.query.schemaSlug || req.query.schemaSlugs));
+        handleResponse(
+          req,
+          res,
+          await schema.delete(
+            req.body.schemaSlug ||
+              req.body.schemaSlugs ||
+              req.query.schemaSlug ||
+              req.query.schemaSlugs
+          )
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -83,5 +91,4 @@ module.exports = ({
       }
     })
   );
-
 };

@@ -1,3 +1,5 @@
+/* global emit index  */
+
 var ddoc = {
   _id: '_design/ecommerce',
   views: {
@@ -76,20 +78,28 @@ var ddoc = {
             index: 'not_analyzed',
           });
 
-          index('sort.paid', (doc.paid || false) ? 1 : 0, {
+          index('sort.paid', doc.paid || false ? 1 : 0, {
             store: false,
             index: 'not_analyzed',
           });
 
-          index('sort.createdAt', new Date(Date.parse(doc.createdAt || 0)).getTime(), {
-            store: false,
-            index: 'not_analyzed',
-          });
+          index(
+            'sort.createdAt',
+            new Date(Date.parse(doc.createdAt || 0)).getTime(),
+            {
+              store: false,
+              index: 'not_analyzed',
+            }
+          );
 
-          index('sort.modifiedAt', new Date(Date.parse(doc.modifiedAt || 0)).getTime(), {
-            store: false,
-            index: 'not_analyzed',
-          });
+          index(
+            'sort.modifiedAt',
+            new Date(Date.parse(doc.modifiedAt || 0)).getTime(),
+            {
+              store: false,
+              index: 'not_analyzed',
+            }
+          );
 
           index('test', doc.test || false, {
             store: false,
@@ -146,15 +156,23 @@ var ddoc = {
             index: 'not_analyzed',
           });
 
-          index('sort.dateStart', new Date(Date.parse(doc.dateStart || 0)).getTime(), {
-            store: false,
-            index: 'not_analyzed',
-          });
+          index(
+            'sort.dateStart',
+            new Date(Date.parse(doc.dateStart || 0)).getTime(),
+            {
+              store: false,
+              index: 'not_analyzed',
+            }
+          );
 
-          index('sort.dateEnd', new Date(Date.parse(doc.dateEnd || 0)).getTime(), {
-            store: false,
-            index: 'not_analyzed',
-          });
+          index(
+            'sort.dateEnd',
+            new Date(Date.parse(doc.dateEnd || 0)).getTime(),
+            {
+              store: false,
+              index: 'not_analyzed',
+            }
+          );
         }
       },
     },
@@ -162,4 +180,3 @@ var ddoc = {
 };
 
 module.exports = ddoc;
-

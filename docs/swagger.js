@@ -4,7 +4,7 @@ const serveStatic = require('serve-static');
 const swaggerUi = require('swagger-ui-dist');
 const config = require('./config');
 
-module.exports = (callback) => {
+module.exports = callback => {
   const app = express();
 
   app.use('/docs', serveStatic(path.resolve(__dirname)));

@@ -12,7 +12,7 @@ if (!args[1]) {
 const dbUrl = args[0];
 const dbNames = args.slice(1);
 
-dbNames.forEach(async (dbName) => {
+dbNames.forEach(async dbName => {
   const db = new Cloudant({
     url: dbUrl,
     plugins: ['promises', 'retry'],

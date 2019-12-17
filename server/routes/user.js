@@ -8,7 +8,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   router.post(
     '/user.:ext?',
     authMiddleware,
@@ -62,11 +61,19 @@ module.exports = ({
       const user = User(await getConfig(req.session.slug));
 
       try {
-        handleResponse(req, res, await user.delete(req.body.userId || req.body.userIds || req.query.userId || req.query.userIds));
+        handleResponse(
+          req,
+          res,
+          await user.delete(
+            req.body.userId ||
+              req.body.userIds ||
+              req.query.userId ||
+              req.query.userIds
+          )
+        );
       } catch (error) {
         handleError(req, res, error);
       }
     })
   );
-
 };

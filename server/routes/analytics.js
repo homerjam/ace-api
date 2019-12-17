@@ -8,7 +8,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   router.get(
     '/analytics.:ext?',
     authMiddleware,

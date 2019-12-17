@@ -1,11 +1,9 @@
+/* eslint no-unused-vars: 1 */
+
 var ddoc = {
   _id: '_design/tools',
-  views: {
-
-  },
-  lists: {
-
-  },
+  views: {},
+  lists: {},
   filters: {
     changesEntity: function(doc, req) {
       if (!doc._deleted && doc.type === 'entity') {
@@ -18,4 +16,3 @@ var ddoc = {
 };
 
 module.exports = ddoc;
-

@@ -9,6 +9,7 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
+const redis = require('redis');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 
@@ -41,7 +42,11 @@ function Serve(customConfig = {}, listen = true) {
       redisOptions.db = config.redis.db;
     }
 
-    sessionOptions.store = new RedisStore(redisOptions);
+    const redisClient = redis.createClient(redisOptions);
+    redisClient.unref();
+    redisClient.on('error', console.log);
+
+    sessionOptions.store = new RedisStore({ client: redisClient });
   } else {
     sessionOptions.cookie = {
       maxAge: config.session.ttl,

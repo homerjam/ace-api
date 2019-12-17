@@ -8,7 +8,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   router.post(
     '/settings.:ext?',
     authMiddleware,
@@ -23,5 +22,4 @@ module.exports = ({
       }
     })
   );
-
 };

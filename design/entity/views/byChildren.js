@@ -3,7 +3,10 @@
 module.exports = function(doc) {
   if (doc.type === 'entity') {
     function type(obj) {
-      return Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
+      return Object.prototype.toString
+        .call(obj)
+        .slice(8, -1)
+        .toLowerCase();
     }
 
     function forEach(obj, fn) {

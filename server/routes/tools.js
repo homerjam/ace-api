@@ -8,7 +8,6 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
-
   router.get(
     '/tools/export-db.:ext?',
     authMiddleware,
@@ -19,11 +18,13 @@ module.exports = ({
       try {
         const db = await tools.getDb();
 
-        res.setHeader('Content-Disposition', `attachment; filename=${req.session.slug}.json`);
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename=${req.session.slug}.json`
+        );
         res.setHeader('Content-Type', 'application/json');
         res.status(200);
         res.send(db);
-
       } catch (error) {
         handleError(req, res, error);
       }
@@ -43,5 +44,4 @@ module.exports = ({
       }
     })
   );
-
 };

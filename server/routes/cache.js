@@ -5,7 +5,6 @@ module.exports = ({
   getConfig,
   handleResponse,
 }) => {
-
   /**
    * @swagger
    * /cache/clear:
@@ -32,7 +31,7 @@ module.exports = ({
 
       const pattern = cache.store.name === 'redis' ? '*' : undefined;
 
-      cache.keys(pattern).then((keys) => {
+      cache.keys(pattern).then(keys => {
         const items = keys.filter(key => key.indexOf(req.session.slug) === 0);
 
         items.forEach(key => cache.del(key));
@@ -41,5 +40,4 @@ module.exports = ({
       });
     })
   );
-
 };

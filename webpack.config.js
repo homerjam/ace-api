@@ -6,9 +6,7 @@ module.exports = [
     devtool: 'source-map',
     entry: './index.js',
     target: 'node',
-    externals: [
-      nodeExternals(),
-    ],
+    externals: [nodeExternals()],
     module: {
       rules: [
         {
@@ -33,9 +31,7 @@ module.exports = [
     devtool: 'source-map',
     entry: './server/server.js',
     target: 'node',
-    externals: [
-      nodeExternals(),
-    ],
+    externals: [nodeExternals()],
     module: {
       rules: [
         {
