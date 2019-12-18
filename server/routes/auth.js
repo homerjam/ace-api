@@ -15,12 +15,12 @@ module.exports = async ({
     '/auth/user.:ext?',
     auth.jwtCheck,
     asyncMiddleware(async (req, res) => {
-      const authUser = await auth.authUser(
-        req.query.slug,
-        req.headers.authorization.split(' ')[1]
-      );
-
       try {
+        const authUser = await auth.authUser(
+          req.query.slug,
+          req.headers.authorization.split(' ')[1]
+        );
+
         handleResponse(req, res, authUser);
       } catch (error) {
         handleError(req, res, error);
