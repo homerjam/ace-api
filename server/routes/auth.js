@@ -1,6 +1,5 @@
 module.exports = async ({
   Auth,
-  Jwt,
   router,
   authMiddleware,
   permissionMiddleware,
@@ -9,37 +8,20 @@ module.exports = async ({
   handleResponse,
   handleError,
 }) => {
-  const jwt = Jwt(await getConfig());
+  const config = await getConfig();
+  const auth = Auth(config);
 
   router.get(
     '/auth/user.:ext?',
-    jwt.checkBearer,
+    auth.jwtCheck,
     asyncMiddleware(async (req, res) => {
-      const config = await getConfig(req.query.slug);
-
-      const auth = Auth(config);
-
-      const { active, role } = await auth.authUser(
+      const authUser = await auth.authUser(
         req.query.slug,
-        req.query.userId
+        req.headers.authorization.split(' ')[1]
       );
 
-      const payload = {
-        slug: req.query.slug,
-        userId: req.query.userId,
-        active,
-        role,
-      };
-
-      const apiToken = jwt.signToken(payload, {
-        expiresIn: 7200,
-      });
-
       try {
-        handleResponse(req, res, {
-          ...payload,
-          apiToken,
-        });
+        handleResponse(req, res, authUser);
       } catch (error) {
         handleError(req, res, error);
       }
@@ -51,8 +33,6 @@ module.exports = async ({
     authMiddleware,
     permissionMiddleware.bind(null, ['settings', 'userSettings']),
     asyncMiddleware(async (req, res) => {
-      const config = await getConfig();
-
       if (!config.provider[req.params.provider]) {
         res.status(404);
         res.send({});
