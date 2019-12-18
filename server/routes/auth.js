@@ -1,7 +1,6 @@
-const pick = require('lodash/pick');
-
-module.exports = ({
+module.exports = async ({
   Auth,
+  Jwt,
   router,
   authMiddleware,
   permissionMiddleware,
@@ -10,18 +9,37 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
+  const jwt = Jwt(await getConfig());
+
   router.get(
     '/auth/user.:ext?',
+    jwt.checkBearer,
     asyncMiddleware(async (req, res) => {
-      const auth = Auth(await getConfig(req.query.slug));
+      const config = await getConfig(req.query.slug);
 
-      const user = pick(await auth.authUser(req.query.slug, req.query.userId), [
-        'active',
-        'role',
-      ]);
+      const auth = Auth(config);
+
+      const { active, role } = await auth.authUser(
+        req.query.slug,
+        req.query.userId
+      );
+
+      const payload = {
+        slug: req.query.slug,
+        userId: req.query.userId,
+        active,
+        role,
+      };
+
+      const apiToken = jwt.signToken(payload, {
+        expiresIn: 7200,
+      });
 
       try {
-        handleResponse(req, res, user);
+        handleResponse(req, res, {
+          ...payload,
+          apiToken,
+        });
       } catch (error) {
         handleError(req, res, error);
       }

@@ -20,6 +20,11 @@ const config = {
     tokenSecret: process.env.AUTH_TOKEN_SECRET || 'change_this_secret',
   },
 
+  auth0: {
+    domain: process.env.AUTH0_DOMAIN,
+    audience: process.env.AUTH0_AUDIENCE,
+  },
+
   dev: {
     userId: process.env.DEV_USER_ID || 'dev',
     role: process.env.DEV_ROLE || 'super',

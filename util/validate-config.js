@@ -213,6 +213,7 @@ const configSchema = {
               type: 'object',
               properties: {
                 instagram: { type: ['object', null] },
+                spotify: { type: ['object', null] },
               },
             },
           },
@@ -222,8 +223,9 @@ const configSchema = {
     provider: {
       type: 'object',
       properties: {
-        instagram: { type: ['object', null] },
         google: { type: ['object', null] },
+        instagram: { type: ['object', null] },
+        spotify: { type: ['object', null] },
         vimeo: { type: ['object', null] },
       },
     },
