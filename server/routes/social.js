@@ -62,7 +62,7 @@ module.exports = ({
           const clientConfig = await cc.get();
           accessToken = clientConfig.provider.instagram.access_token;
         } catch (error) {
-          handleError(res, new Error('Instagram: access_token required'));
+          handleError(res, Error('Instagram: access_token required'));
           return;
         }
       }

@@ -68,7 +68,7 @@ module.exports = ({
       const slug = input.slug || req.session.slug;
 
       // if (!slug) {
-      //   throw new Error('Missing `slug` parameter');
+      //   throw Error('Missing `slug` parameter');
       // }
 
       async function renderTemplate(data = {}) {

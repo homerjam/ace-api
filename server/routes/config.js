@@ -20,7 +20,7 @@ module.exports = ({
       const clientInfo = pick(await clientConfig.get(), ['client.name']);
 
       if (Object.keys(clientInfo).length === 0) {
-        handleError(req, res, new Error('Account ID not found'));
+        handleError(req, res, Error('Account ID not found'));
         return;
       }
 
