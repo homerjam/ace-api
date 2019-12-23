@@ -16,6 +16,30 @@ Push design docs to your couchdb instance using `DB_URL` stored in `.env` file:
 $ npm run db:design [DOC_NAME] [DB_NAME[,DB_NAME,DB_NAME]]
 ```
 
+### Development
+
+Run a local version of Cloudant using Docker.
+
+https://hub.docker.com/r/ibmcom/cloudant-developer
+
+```
+$ docker run \
+    --detach \
+    --volume cloudant:/srv \
+    --name cloudant-dev \
+    --publish 5986:80 \
+    ibmcom/cloudant-developer
+```
+
+Access the dashboard using the following credentials.
+
+http://localhost:5986/dashboard.html
+
+```
+username: admin
+password: pass
+```
+
 ### Environment Variables
 
     PORT=5000
