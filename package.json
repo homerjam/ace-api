@@ -22,6 +22,7 @@
     "db:list": "source .env; curl -Ss $DB_URL/_all_dbs | jq -r '.[] | @uri' | grep '^[^_]' | xargs echo | sed 's/ /,/g' | pbcopy; echo 'Database list copied to clipboard'",
     "db:shell": "source .env; COUCH_URL=$DB_URL couchshell",
     "db:upgrade": "source .env; util/upgrade.sh $DB_URL",
+    "db:migrate": "source .env; util/migrate.sh $MIGRATE_SRC $MIGRATE_DEST",
     "docs": "gulp docs",
     "config:validate": "nodemon --watch config --watch util --ext json,js util/validate-config.js config/$1.json"
   },

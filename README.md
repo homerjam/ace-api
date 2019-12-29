@@ -27,13 +27,13 @@ $ docker run \
     --detach \
     --volume cloudant:/srv \
     --name cloudant-dev \
-    --publish 5986:80 \
+    --publish 80:80 \
     ibmcom/cloudant-developer
 ```
 
 Access the dashboard using the following credentials.
 
-http://localhost:5986/dashboard.html
+http://localhost/dashboard.html
 
 ```
 username: admin
@@ -58,6 +58,9 @@ password: pass
 
     DB_NAME=
     DB_URL=
+
+    MIGRATE_SRC=
+    MIGRATE_DEST=
 
     API_PREFIX=
     API_BLACKLIST_TOKEN=
