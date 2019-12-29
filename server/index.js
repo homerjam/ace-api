@@ -157,7 +157,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
   let cache;
 
-  if (config.cache.enabled) {
+  if (config.environment === 'production' && config.cache.enabled) {
     if (config.redis.url || config.redis.host) {
       const redisOptions = {
         ttl: config.cache.ttl,
@@ -178,10 +178,10 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
       const redisClient = cache.store.getClient();
       redisClient.on('ready', () => {
-        console.log('redis: ready');
+        console.log('cache: ready');
       });
       redisClient.on('error', error => {
-        console.error('redis: error:', error);
+        console.error('cache: error:', error);
       });
     } else {
       cache = cacheManager.caching({

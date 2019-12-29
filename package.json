@@ -16,7 +16,7 @@
     "dev:inspect": "nodemon --inspect --exec 'node -r dotenv/config' --watch lib --watch server dev.js",
     "build": "webpack --mode production",
     "release": "npm run build && git add --all && git commit --all --message \"build\" && npm version patch && npm publish && git remote | xargs -L1 git push --all",
-    "db:design": "source .env; node util/design.js $DB_URL",
+    "db:design": "source .env; node util/push-design-docs.js $DB_URL",
     "db:backup": "bash -c 'source .env; couchbackup --url $DB_URL --db $1 | gzip > tmp/$1.json.gz' -- ",
     "db:restore": "bash -c 'source .env; cat $1 | gunzip | couchrestore --url $DB_URL --db $2' -- ",
     "db:list": "source .env; curl -Ss $DB_URL/_all_dbs | jq -r '.[] | @uri' | grep '^[^_]' | xargs echo | sed 's/ /,/g' | pbcopy; echo 'Database list copied to clipboard'",

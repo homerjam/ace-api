@@ -28,7 +28,10 @@ function Serve(customConfig = {}, listen = true) {
     saveUninitialized: true,
   };
 
-  if (config.redis.url || config.redis.host) {
+  if (
+    config.environment === 'production' &&
+    (config.redis.url || config.redis.host)
+  ) {
     const redisOptions = {
       ttl: config.session.ttl,
     };
@@ -44,7 +47,12 @@ function Serve(customConfig = {}, listen = true) {
 
     const redisClient = redis.createClient(redisOptions);
     redisClient.unref();
-    redisClient.on('error', console.log);
+    redisClient.on('ready', () => {
+      console.log('redis: ready');
+    });
+    redisClient.on('error', error => {
+      console.error('redis: error:', error);
+    });
 
     sessionOptions.store = new RedisStore({ client: redisClient });
   } else {
