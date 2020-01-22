@@ -23,6 +23,7 @@
     "db:shell": "source .env; COUCH_URL=$DB_URL couchshell",
     "db:upgrade": "source .env; util/upgrade.sh $DB_URL",
     "db:migrate": "source .env; util/migrate.sh $MIGRATE_SRC $MIGRATE_DEST",
+    "db:local": "docker run -d -p 80:80 -v $(pwd)/.docker/cloudant:/srv/cloudant --name cloudant-dev ibmcom/cloudant-developer",
     "docs": "gulp docs",
     "config:validate": "nodemon --watch config --watch util --ext json,js util/validate-config.js config/$1.json"
   },

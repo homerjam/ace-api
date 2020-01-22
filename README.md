@@ -25,7 +25,7 @@ https://hub.docker.com/r/ibmcom/cloudant-developer
 ```
 $ docker run \
     --detach \
-    --volume cloudant:/srv \
+    --volume $(pwd)/.docker/cloudant:/srv/cloudant \
     --name cloudant-dev \
     --publish 80:80 \
     ibmcom/cloudant-developer
