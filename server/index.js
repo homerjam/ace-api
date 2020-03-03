@@ -32,7 +32,11 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
   // Skip authorisation
 
   const skipAuth = req => {
-    const prodAllowedRoutes = ['/auth/user', '/config/info'];
+    const prodAllowedRoutes = [
+      '/auth/user',
+      '/connect/(.+)/callback',
+      '/config/info',
+    ];
 
     const devAllowedRoutes = ['/token', '/email'];
 
@@ -492,6 +496,7 @@ function AceApiServer(app, customConfig = {}, customAuthMiddleware = null) {
 
   require('./routes/analytics')(context, config);
   require('./routes/auth')(context, config);
+  require('./routes/connect')(context, config);
   require('./routes/cache')(context, config);
   require('./routes/config')(context, config);
   require('./routes/debug')(context, config);

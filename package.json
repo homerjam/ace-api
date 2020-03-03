@@ -55,6 +55,7 @@
     "express-session": "^1.17.0",
     "express-useragent": "^1.0.12",
     "forever": "^1.0.0",
+    "grant-express": "^4.7.0",
     "handlebars": "^4.5.3",
     "hashids": "^2.1.0",
     "he": "^1.2.0",
