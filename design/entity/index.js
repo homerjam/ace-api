@@ -14,7 +14,7 @@ var ddoc = {
       .toString('utf8'),
     fuse: fs
       .readFileSync(
-        path.resolve(__dirname, '../../node_modules/fuse.js/dist/fuse.js')
+        path.resolve(__dirname, '../../node_modules/fuse.js/dist/fuse.min.js')
       )
       .toString('utf8'),
   },
@@ -34,15 +34,15 @@ var ddoc = {
     },
     byTaxonomyTerm: {
       map: require('./views/byTaxonomyTerm'),
-      reduce: function(keys, values) {
-        var unique = function(v, i, self) {
+      reduce: function (keys, values) {
+        var unique = function (v, i, self) {
           return self.indexOf(v) === i;
         };
         return values.filter(unique);
       },
     },
     trashed: {
-      map: function(doc) {
+      map: function (doc) {
         if (doc.type === 'entity' && doc.trashed) {
           emit(doc._id, null);
         }
@@ -63,7 +63,7 @@ var ddoc = {
     },
   },
   filters: {
-    changes: function(doc, req) {
+    changes: function (doc, req) {
       if (doc.type === 'entity' && !doc._deleted) {
         return true;
       }

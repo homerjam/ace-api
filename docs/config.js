@@ -1,11 +1,11 @@
-const API_PORT = process.env.PORT || 4000;
+const API_PORT = process.env.PORT || 5001;
 const DOCS_PORT = process.env.DOCS_PORT || 3000;
 
 module.exports = {
   port: DOCS_PORT,
   swaggerDefinition: {
     info: {
-      title: 'ACE API', // Title (required)
+      title: 'ace-api', // Title (required)
       version: '0.0.0', // Version (required)
     },
     host: `localhost:${API_PORT}`,

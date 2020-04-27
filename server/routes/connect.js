@@ -6,8 +6,7 @@ module.exports = async ({ app, getConfig }) => {
   app.all('/connect*', (req, res, next) => {
     grant({
       defaults: {
-        protocol: req.protocol,
-        host: req.get('Host'),
+        origin: req.protocol + '://' + req.get('Host'),
         // transport: 'session',
         // state: true,
       },

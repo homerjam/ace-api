@@ -1,4 +1,4 @@
-# ACE API
+# ace-api
 
 Content API with included RESTish server.
 
