@@ -2,6 +2,7 @@ const _ = require('lodash');
 const htmlToText = require('html-to-text');
 const dayjs = require('dayjs');
 const Entity = require('./entity');
+const Helpers = require('./helpers');
 
 class Fields {
   static all() {
@@ -263,6 +264,27 @@ class Fields {
       toText(value) {
         return htmlToText.fromString(value.html);
       },
+      toDb(value) {
+        const html = Helpers.cleanHtml(value.html);
+        let entities = [];
+
+        const pattern = 'href=["\']urn:entity:(\\S+)["\']';
+
+        const matchStrings = html.match(new RegExp(pattern, 'gim'));
+
+        if (matchStrings) {
+          entities = matchStrings.map((matchString) => {
+            return {
+              id: new RegExp(pattern, 'i').exec(matchString)[1],
+            };
+          });
+        }
+
+        return {
+          html,
+          entities,
+        };
+      },
     },
     {
       type: 'select',
@@ -294,6 +316,30 @@ class Fields {
             .map((term) => term.title)
             .join(', ');
         }
+
+        return value;
+      },
+      toDb(value, settings) {
+        if (!_.isArray(value.terms) || !value.terms.length) {
+          return {
+            taxonomy: settings.taxonomy,
+            terms: [],
+          };
+        }
+
+        const terms = value.terms.map((term) => {
+          term.slug = _.kebabCase(term.title);
+          term.parents = (term.parents || []).map((parentTerm) => {
+            parentTerm.slug = _.kebabCase(parentTerm.title);
+            return _.pick(parentTerm, ['id', 'title', 'slug']);
+          });
+          return _.pick(term, ['id', 'title', 'slug', 'parents']);
+        });
+
+        return {
+          taxonomy: settings.taxonomy,
+          terms,
+        };
       },
     },
     {

@@ -39,7 +39,7 @@ class Entity {
       (result, value) => {
         const id = value._id;
         if (!id) {
-          throw Error('Entity missing required `_id`');
+          throw Error('Entity requires `_id`');
         }
         result[id] = value;
         return result;
@@ -108,7 +108,7 @@ class Entity {
     });
   }
 
-  static _appendParents(rows, parents = null, role = 'guest') {
+  static _appendParents(rows, parents = false, role = 'guest') {
     let entityMap = {};
 
     rows.forEach((row) => {
@@ -195,6 +195,10 @@ class Entity {
 
     const schema = _.find(clientConfig.schemas, { slug: entity.schema });
 
+    if (!schema) {
+      throw Error('Schema not found');
+    }
+
     const thumbnailFields = (schema.thumbnailFields || []).concat(
       _.keys(schema.fields || {})
     );
@@ -239,7 +243,7 @@ class Entity {
 
     entity.schema = schema.slug;
 
-    const now = JSON.stringify(new Date()).replace(/"/g, '');
+    const now = Helpers.now();
 
     if (!entity.createdBy) {
       entity.createdBy = this.config.userId;
@@ -954,6 +958,10 @@ class Entity {
   }
 
   async entityCreate(entity) {
+    if (!entity.schema) {
+      throw Error('Entity requires `schema`');
+    }
+
     const cc = new ClientConfig(this.config);
     const clientConfig = await cc.get();
 
@@ -972,9 +980,6 @@ class Entity {
   }
 
   async entityUpdate(entities, restore = false) {
-    const cc = new ClientConfig(this.config);
-    const clientConfig = await cc.get();
-
     const entityMap = Entity._mapEntities(entities);
 
     entities = (
@@ -983,6 +988,9 @@ class Entity {
         include_docs: true,
       })
     ).rows;
+
+    const cc = new ClientConfig(this.config);
+    const clientConfig = await cc.get();
 
     const childEntityMap = {};
     const oldFileNames = [];
