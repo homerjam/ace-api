@@ -14,7 +14,7 @@ module.exports = ({
     '/config/info.:ext?',
     asyncMiddleware(async (req, res) => {
       const clientConfig = ClientConfig(
-        await getConfig(req.query.slug || req.session.slug)
+        await getConfig({ slug: req.query.slug || req.session.slug })
       );
 
       const clientInfo = pick(await clientConfig.get(), ['client.name']);
@@ -36,7 +36,7 @@ module.exports = ({
     '/config.:ext?',
     authMiddleware,
     asyncMiddleware(async (req, res) => {
-      const clientConfig = ClientConfig(await getConfig(req.session.slug));
+      const clientConfig = ClientConfig(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await clientConfig.get());
@@ -51,7 +51,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'config'),
     asyncMiddleware(async (req, res) => {
-      const clientConfig = ClientConfig(await getConfig(req.session.slug));
+      const clientConfig = ClientConfig(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await clientConfig.set(req.body.config));

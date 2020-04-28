@@ -217,10 +217,12 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
       omitUndefined(_.cloneDeep(config))
     );
 
-  const getConfig = async (slug) => {
+  const getConfig = async ({ slug, userId } = {}) => {
     const configClone = cloneConfig(config);
 
     configClone.slug = slug;
+    configClone.userId = userId;
+
     configClone.db.name = slug;
 
     return configClone;

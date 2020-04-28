@@ -13,7 +13,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'user'),
     asyncMiddleware(async (req, res) => {
-      const user = User(await getConfig(req.session.slug));
+      const user = User(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await user.create(req.body.user));
@@ -28,7 +28,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'user'),
     asyncMiddleware(async (req, res) => {
-      const user = User(await getConfig(req.session.slug));
+      const user = User(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await user.read(req.query.userId));
@@ -43,7 +43,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'user'),
     asyncMiddleware(async (req, res) => {
-      const user = User(await getConfig(req.session.slug));
+      const user = User(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await user.update(req.body.user));
@@ -58,7 +58,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'user'),
     asyncMiddleware(async (req, res) => {
-      const user = User(await getConfig(req.session.slug));
+      const user = User(await getConfig(req.session));
 
       try {
         handleResponse(

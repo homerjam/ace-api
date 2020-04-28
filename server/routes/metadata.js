@@ -30,7 +30,7 @@ module.exports = ({
     '/metadata.:ext?',
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
-      const cc = ClientConfig(await getConfig(req.session.slug));
+      const cc = ClientConfig(await getConfig(req.session));
 
       const clientConfig = await cc.get();
 

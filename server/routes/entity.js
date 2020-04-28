@@ -63,7 +63,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Db(await getConfig(req.session.slug)).indexAsync()
+          await Db(await getConfig(req.session)).indexAsync()
         );
       } catch (error) {
         handleError(req, res, error);
@@ -225,7 +225,7 @@ module.exports = ({
 
       query = query.join(' AND ');
 
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -362,7 +362,7 @@ module.exports = ({
         query.limit = parseInt(req.query.limit, 10);
       }
 
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -385,7 +385,7 @@ module.exports = ({
     '/entities/field.:ext?',
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -480,7 +480,7 @@ module.exports = ({
         ids = isArray(ids) ? ids : [ids];
       }
 
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -505,7 +505,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'entityRead'),
     asyncMiddleware(async (req, res) => {
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await entity.entityRevisions(req.query.id));
@@ -520,7 +520,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'entityCreate'),
     asyncMiddleware(async (req, res) => {
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await entity.entityCreate(req.body.entity));
@@ -535,7 +535,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'entityRead'),
     asyncMiddleware(async (req, res) => {
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await entity.entityRead(req.query.id));
@@ -550,7 +550,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'entityUpdate'),
     asyncMiddleware(async (req, res) => {
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -572,7 +572,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'entityDelete'),
     asyncMiddleware(async (req, res) => {
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -594,7 +594,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'entityDelete'),
     asyncMiddleware(async (req, res) => {
-      const entity = Entity(await getConfig(req.session.slug));
+      const entity = Entity(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await entity.entityDelete('trashed'));

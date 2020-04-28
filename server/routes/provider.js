@@ -24,10 +24,10 @@ module.exports = ({
     const userId = req.params[2] ? req.params[1] : null;
     const endpoint = (req.params[2] || req.params[1])
       .split('/')
-      .filter(param => param !== '')
+      .filter((param) => param !== '')
       .join('/');
 
-    const config = await getConfig(req.session.slug);
+    const config = await getConfig(req.session);
 
     const cc = ClientConfig(config);
 
@@ -47,7 +47,7 @@ module.exports = ({
       Math.floor(new Date().getTime() / 1000) - (providerConfig.begins || 0) >
       providerConfig.expires_in
     ) {
-      const auth = Auth(await getConfig(req.session.slug));
+      const auth = Auth(await getConfig(req.session));
 
       if (userId) {
         clientConfig = await auth.authProvider(provider, {}, userId, true);

@@ -11,12 +11,12 @@ module.exports = ({
   router.get(
     '/pdf/view.:ext?',
     asyncMiddleware(async (req, res) => {
-      const pdf = Pdf(await getConfig(req.session.slug));
+      const pdf = Pdf(await getConfig(req.session));
 
       pdf
         .getPayload(req.query.template, req.query.id, req.session.role)
-        .then(payload => {
-          pdf.getPdf(payload).then(pdf => {
+        .then((payload) => {
+          pdf.getPdf(payload).then((pdf) => {
             res.type('application/pdf');
             res.status(200);
             res.send(pdf);
@@ -28,12 +28,12 @@ module.exports = ({
   router.get(
     '/pdf/download.:ext?',
     asyncMiddleware(async (req, res) => {
-      const pdf = Pdf(await getConfig(req.session.slug));
+      const pdf = Pdf(await getConfig(req.session));
 
       pdf
         .getPayload(req.query.template, req.query.id, req.session.role)
-        .then(payload => {
-          pdf.getPdf(payload).then(pdf => {
+        .then((payload) => {
+          pdf.getPdf(payload).then((pdf) => {
             res.attachment(payload.fileName || 'download.pdf');
             res.status(200);
             res.send(pdf);
@@ -45,11 +45,11 @@ module.exports = ({
   router.get(
     '/pdf/payload.:ext?',
     asyncMiddleware(async (req, res) => {
-      const pdf = Pdf(await getConfig(req.session.slug));
+      const pdf = Pdf(await getConfig(req.session));
 
       pdf
         .getPayload(req.query.template, req.query.id, req.session.role)
-        .then(payload => {
+        .then((payload) => {
           res.status(200);
           res.json(payload);
         }, handleError.bind(null, req, res));
@@ -59,7 +59,7 @@ module.exports = ({
   router.get(
     '/pdf/submit.:ext?',
     asyncMiddleware(async (req, res) => {
-      const config = await getConfig(req.session.slug);
+      const config = await getConfig(req.session);
 
       const cc = ClientConfig(config);
       const clientConfig = await cc.get();
@@ -70,7 +70,7 @@ module.exports = ({
 
       pdf
         .getPayload(req.query.template, req.query.id, req.session.role)
-        .then(payload => {
+        .then((payload) => {
           payload = JSON.stringify(payload).replace(/'/gi, '’');
 
           res.status(200);

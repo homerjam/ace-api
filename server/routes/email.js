@@ -77,7 +77,7 @@ module.exports = ({
           return;
         }
 
-        const email = Email(await getConfig(slug));
+        const email = Email(await getConfig({ slug }));
 
         try {
           const template = await email.getTemplate(
@@ -98,13 +98,13 @@ module.exports = ({
       }
 
       if (input.entityId) {
-        const entity = Entity(await getConfig(slug));
+        const entity = Entity(await getConfig({ slug }));
 
         const entities = (
           await entity.entityList([input.entityId], { children: 2 })
-        ).map(row => row.doc);
+        ).map((row) => row.doc);
 
-        renderTemplate(entity.flattenValues(entities)[0]);
+        renderTemplate(Entity.flattenValues(entities)[0]);
         return;
       }
 
@@ -140,7 +140,7 @@ module.exports = ({
 
       const slug = input.slug || req.session.slug;
 
-      const email = Email(await getConfig(slug));
+      const email = Email(await getConfig({ slug }));
 
       try {
         const result = await email.sendEmail(
@@ -160,7 +160,7 @@ module.exports = ({
   router.post(
     '/email/subscribe.:ext?',
     asyncMiddleware(async (req, res) => {
-      const email = Email(await getConfig(req.session.slug));
+      const email = Email(await getConfig(req.session));
 
       try {
         handleResponse(

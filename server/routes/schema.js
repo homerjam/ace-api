@@ -13,7 +13,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session.slug));
+      const schema = Schema(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await schema.create(req.body.schema));
@@ -28,7 +28,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session.slug));
+      const schema = Schema(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await schema.read(req.query.schemaId));
@@ -43,7 +43,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session.slug));
+      const schema = Schema(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await schema.update(req.body.schema));
@@ -58,7 +58,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session.slug));
+      const schema = Schema(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -82,7 +82,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session.slug));
+      const schema = Schema(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await schema.updateAll(req.body.schemas));

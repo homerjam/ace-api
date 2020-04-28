@@ -17,7 +17,7 @@ module.exports = ({
       const method = req.params[0];
       const params = req.params[1].split('/').filter((param) => param !== '');
 
-      const config = await getConfig(req.session.slug);
+      const config = await getConfig(req.session);
 
       const Twitter = require('twitter');
 
@@ -48,7 +48,7 @@ module.exports = ({
       const method = req.params[0];
       const params = req.params[1].split('/').filter((param) => param !== '');
 
-      const config = await getConfig(req.session.slug);
+      const config = await getConfig(req.session);
 
       let accessToken = instagramAccessTokenMap[req.session.slug];
 

@@ -1,8 +1,11 @@
 const _ = require('lodash');
 const jsonQuery = require('json-query');
 const { diff } = require('deep-diff');
+const he = require('he');
+const Handlebars = require('handlebars');
 const ClientConfig = require('./client-config');
 const Db = require('./db');
+const Fields = require('./fields');
 const Helpers = require('./helpers');
 const Schema = require('./schema');
 const Assist = require('./assist');
@@ -10,9 +13,6 @@ const Assist = require('./assist');
 class Entity {
   constructor(config) {
     this.config = config;
-
-    // Expose helpers
-    this.flattenValues = Entity.flattenValues;
   }
 
   static flattenValues(docs) {
@@ -31,6 +31,21 @@ class Entity {
 
       return doc;
     });
+  }
+
+  static _mapEntities(entities = []) {
+    return _.reduce(
+      _.isArray(entities) ? entities : [entities],
+      (result, value) => {
+        const id = value._id;
+        if (!id) {
+          throw Error('Entity missing required `_id`');
+        }
+        result[id] = value;
+        return result;
+      },
+      {}
+    );
   }
 
   static _filterEntityFields(docs, role = 'guest') {
@@ -141,6 +156,130 @@ class Entity {
     return _.uniq(fileNames);
   }
 
+  _templateString(entity, schema, template) {
+    let string;
+
+    // Grab template, fallback to first field
+    template = template
+      ? template
+      : schema.settings.singular
+      ? schema.name
+      : `{{${schema.fields[0].slug}}}`;
+
+    // Convert fields to text
+    const fields = _.mapValues(entity.fields, (field, fieldSlug) => {
+      const schemaField = _.find(schema.fields, { slug: fieldSlug });
+      return Fields.toText(field.value, schemaField);
+    });
+
+    // Compile templates
+    string = Handlebars.compile(template)(fields);
+
+    // Trim dashes
+    string = string
+      .replace(/^(-|–|—|\/|:|\s)+/, '')
+      .replace(/(-|–|—|\/|:|\s)+$/, '');
+
+    // Decode entities
+    string = he.decode(string);
+
+    return string;
+  }
+
+  static thumbnail(entity, clientConfig) {
+    let thumbnail;
+
+    if (!entity) {
+      return thumbnail;
+    }
+
+    const schema = _.find(clientConfig.schemas, { slug: entity.schema });
+
+    const thumbnailFields = (schema.thumbnailFields || []).concat(
+      _.keys(schema.fields || {})
+    );
+
+    thumbnailFields.forEach((fieldSlug) => {
+      if (!thumbnail) {
+        const field = _.get(entity.fields, fieldSlug);
+        const schemaField = _.find(schema.fields, { slug: fieldSlug });
+
+        thumbnail = Fields.toThumbnail(field, schemaField, clientConfig);
+      }
+    });
+
+    return thumbnail;
+  }
+
+  _prepEntity(entity, clientConfig) {
+    entity = _.pick(entity, [
+      '_id',
+      '_rev',
+      'type',
+      'schema',
+      'title',
+      'slug',
+      'fields',
+      'createdAt',
+      'createdBy',
+      'modifiedAt',
+      'modifiedBy',
+      'published',
+      'publishedAt',
+      'thumbnail',
+    ]);
+
+    const schema = _.find(clientConfig.schemas, { slug: entity.schema });
+
+    if (!schema) {
+      throw Error('Schema not found');
+    }
+
+    entity.type = 'entity';
+
+    entity.schema = schema.slug;
+
+    const now = JSON.stringify(new Date()).replace(/"/g, '');
+
+    if (!entity.createdBy) {
+      entity.createdBy = this.config.userId;
+      entity.created = now;
+    }
+
+    entity.modifiedBy = this.config.userId;
+    entity.modifiedAt = now;
+
+    if (entity.published) {
+      // entity.publishedAt = JSON.stringify(entity.publishedAt).replace(/"/g, '');
+    }
+
+    entity.title = this._templateString(entity, schema, schema.titleTemplate);
+
+    entity.slug = this._templateString(entity, schema, schema.slugTemplate);
+    entity.slug = _.kebabCase(entity.slug);
+
+    entity.thumbnail = Entity.thumbnail(entity, clientConfig);
+
+    entity.fields = _.mapValues(entity.fields, (field, fieldSlug) => {
+      const schemaField = _.find(schema.fields, { slug: fieldSlug });
+
+      if (!schemaField) {
+        return null;
+      }
+
+      field.type = schemaField.type;
+      field.fieldType = schemaField.type; // TODO: remove fieldType
+
+      field.value = Fields.toDb(field, schemaField);
+
+      return field;
+    });
+
+    entity.fields = _.pickBy(entity.fields, (field) => field);
+
+    return entity;
+  }
+
   async fieldValues(fieldSlug, searchTerm) {
     const result = await Db.connect(this.config).viewWithList(
       'entity',
@@ -156,19 +295,20 @@ class Entity {
     return result;
   }
 
-  static _query(data, query, isFieldQuery = false) {
-    query = query.replace(/(\s\s|\t|\r|\n)/g, '');
+  // TODO: document json query use
+  static _jsonQuery(data, queryString, isFieldJsonQuery = false) {
+    queryString = queryString.replace(/(\s\s|\t|\r|\n)/g, '');
 
-    if (isFieldQuery) {
-      const queryParts = query.trim().split(/\[|\]/);
+    if (isFieldJsonQuery) {
+      const queryParts = queryString.trim().split(/\[|\]/);
       const selector = `fields.${queryParts[0]}.value[${queryParts[1] || '*'}]`;
-      const modifier = /\]:/.test(query)
-        ? `:${query.split(/\]:/).slice(-1)[0].trim()}`
+      const modifier = /\]:/.test(queryString)
+        ? `:${queryString.split(/\]:/).slice(-1)[0].trim()}`
         : '';
-      query = `${selector}${modifier}`;
+      queryString = `${selector}${modifier}`;
     }
 
-    const result = jsonQuery(query, {
+    const result = jsonQuery(queryString, {
       data,
       locals: {
         slice: (input, start, end) => _.slice(input, start, end),
@@ -224,31 +364,31 @@ class Entity {
     return result;
   }
 
-  static _queriesFromString(queryString) {
+  static _splitJsonQueries(queriesString) {
     // Remove white space
-    queryString = queryString.replace(/(\s\s|\t|\r|\n)/gm, '');
+    queriesString = queriesString.replace(/(\s\s|\t|\r|\n)/gm, '');
 
     // Match and store (...args) from query so we can split by comma
-    const methodArgs = queryString.match(/\(([^)]+)\)/g);
+    const methodArgs = queriesString.match(/\(([^)]+)\)/g);
 
     // Replace (...args) with empty ()
-    queryString = queryString.replace(/\(.*?\)/g, '()');
+    queriesString = queriesString.replace(/\(.*?\)/g, '()');
 
     // Extract queries
-    let queries = queryString.split(/,(?![^([]*[\])])/g);
+    let queryStrings = queriesString.split(/,(?![^([]*[\])])/g);
 
-    queries = queries.map((query) => {
+    queryStrings = queryStrings.map((queryString) => {
       // Replace () with original (...args)
-      const emptyArgs = query.match(/\(\)/g);
+      const emptyArgs = queryString.match(/\(\)/g);
       if (emptyArgs) {
         _.times(emptyArgs.length, () => {
-          query = query.replace('()', methodArgs.splice(0, 1));
+          queryString = queryString.replace('()', methodArgs.splice(0, 1));
         });
       }
-      return query.trim();
+      return queryString.trim();
     });
 
-    return queries;
+    return queryStrings;
   }
 
   async _entitiesById(ids = [], options = {}) {
@@ -260,18 +400,18 @@ class Entity {
       options
     );
 
-    const query = {
+    const queryParams = {
       include_docs: true,
     };
 
     if (ids.length) {
-      query.keys = ids;
+      queryParams.keys = ids;
     }
 
     const result = await Db.connect(this.config).view(
       'entity',
       options.parents ? 'byIdExtended' : 'byId',
-      query
+      queryParams
     );
 
     result.rows = result.rows.map((row) => {
@@ -299,7 +439,7 @@ class Entity {
     return limit;
   }
 
-  async _getDocMap(rowsOrDocs, docMap = {}, options = {}) {
+  async _mapDocs(rowsOrDocs, docMap = {}, options = {}) {
     options._childDepth = options._childDepth || 0;
 
     if (!options.parents && !options.children) {
@@ -318,11 +458,11 @@ class Entity {
 
       if (options.children && doc.fields && _.size(doc.fields)) {
         if (_.isArray(options.children)) {
-          Entity._queriesFromString(
+          Entity._splitJsonQueries(
             options.children[options._childDepth]
-          ).forEach((query) => {
+          ).forEach((queryString) => {
             childIds = childIds.concat(
-              _.flatten(Entity._query(doc, query, true).value).map(
+              _.flatten(Entity._jsonQuery(doc, queryString, true).value).map(
                 (obj) => obj && obj.id
               )
             );
@@ -380,7 +520,7 @@ class Entity {
       return docMap;
     }
 
-    return await this._getDocMap(childDocs, docMap, {
+    return await this._mapDocs(childDocs, docMap, {
       ...options,
       parents: false,
       _childDepth: options._childDepth + 1,
@@ -411,15 +551,15 @@ class Entity {
       }
 
       if (options.children && doc.fields && _.size(doc.fields)) {
-        let fieldQueryMap;
+        let fieldJsonQueryMap;
 
         if (_.isArray(options.children)) {
-          fieldQueryMap = {};
-          Entity._queriesFromString(
+          fieldJsonQueryMap = {};
+          Entity._splitJsonQueries(
             options.children[options._childDepth]
-          ).forEach((query) => {
-            const key = query.split(/\[|\]/)[0];
-            fieldQueryMap[key] = query;
+          ).forEach((queryString) => {
+            const key = queryString.split(/\[|\]/)[0];
+            fieldJsonQueryMap[key] = queryString;
           });
         }
 
@@ -427,8 +567,11 @@ class Entity {
           if (_.isArray(field.value)) {
             field.value = field.value.filter((obj) => obj);
 
-            if (!fieldQueryMap || (fieldQueryMap && fieldQueryMap[fieldSlug])) {
-              if (fieldQueryMap && fieldQueryMap[fieldSlug]) {
+            if (
+              !fieldJsonQueryMap ||
+              (fieldJsonQueryMap && fieldJsonQueryMap[fieldSlug])
+            ) {
+              if (fieldJsonQueryMap && fieldJsonQueryMap[fieldSlug]) {
                 field.value = field.value.filter(
                   (obj) => obj.id && docMap[obj.id]
                 );
@@ -453,9 +596,9 @@ class Entity {
 
         doc.fields = _.mapValues(doc.fields, (field, fieldSlug) => {
           if (_.isArray(field.value)) {
-            if (fieldQueryMap && fieldQueryMap[fieldSlug]) {
+            if (fieldJsonQueryMap && fieldJsonQueryMap[fieldSlug]) {
               field.value = _.flatten(
-                Entity._query(doc, fieldQueryMap[fieldSlug], true).value
+                Entity._jsonQuery(doc, fieldJsonQueryMap[fieldSlug], true).value
               );
             }
           }
@@ -465,7 +608,7 @@ class Entity {
 
       if (_.isArray(options.parents) && doc.parents) {
         doc.parents = _.flatten(
-          Entity._query(doc.parents, options.parents[0]).value
+          Entity._jsonQuery(doc.parents, options.parents[0]).value
         );
       }
 
@@ -492,12 +635,14 @@ class Entity {
       options
     );
 
-    let docMap = await this._getDocMap(rowsOrDocs, {}, options);
+    let docMap = await this._mapDocs(rowsOrDocs, {}, options);
 
     rowsOrDocs = Entity._mergeDocs(rowsOrDocs, docMap, options);
 
     if (options.select) {
-      rowsOrDocs = _.flatten(Entity._query(rowsOrDocs, options.select).value);
+      rowsOrDocs = _.flatten(
+        Entity._jsonQuery(rowsOrDocs, options.select).value
+      );
     }
 
     docMap = null;
@@ -545,21 +690,14 @@ class Entity {
     return await Helpers.chunkUpdate(this.config, updatedEntities);
   }
 
-  async _updateChildren(entities) {
-    if (entities.length === 0) {
+  async _updateChildren(childEntityMap) {
+    if (_.keys(childEntityMap.length) === 0) {
       return [];
     }
 
-    const entityMap = {};
-
-    entities = entities.map((entity) => {
-      entityMap[entity._id] = entity;
-      return entity._id;
-    });
-
-    entities = (
+    const entities = (
       await Db.connect(this.config).view('entity', 'byChildren', {
-        keys: entities,
+        keys: _.keys(childEntityMap),
         include_docs: true,
       })
     ).rows;
@@ -573,14 +711,14 @@ class Entity {
         field.value = field.value
           .filter((obj) => obj)
           .map((obj) => {
-            if (obj.type === 'entity' && entityMap[obj.id]) {
-              obj.slug = entityMap[obj.id].slug;
-              obj.title = entityMap[obj.id].title;
-              obj.schema = entityMap[obj.id].schema;
-              obj.published = entityMap[obj.id].published;
+            if (obj.type === 'entity' && childEntityMap[obj.id]) {
+              obj.slug = childEntityMap[obj.id].slug;
+              obj.title = childEntityMap[obj.id].title;
+              obj.schema = childEntityMap[obj.id].schema;
+              obj.published = childEntityMap[obj.id].published;
 
-              if (entityMap[obj.id].thumbnail) {
-                obj.thumbnail = entityMap[obj.id].thumbnail;
+              if (childEntityMap[obj.id].thumbnail) {
+                obj.thumbnail = childEntityMap[obj.id].thumbnail;
               } else {
                 obj.thumbnail = null;
               }
@@ -616,34 +754,34 @@ class Entity {
     return rows;
   }
 
-  async _entitySearch(query, options = {}) {
-    query.limit = Math.min(query.limit || 200, 200);
+  async _entitySearch(queryParams, options = {}) {
+    queryParams.limit = Math.min(queryParams.limit || 200, 200);
 
     if (options.children) {
-      query.include_docs = true;
+      queryParams.include_docs = true;
     }
 
-    if (!query.include_fields) {
-      query.include_fields = [];
+    if (!queryParams.include_fields) {
+      queryParams.include_fields = [];
     }
 
-    if (!query.sort) {
-      delete query.sort;
+    if (!queryParams.sort) {
+      delete queryParams.sort;
     }
-    if (!query.bookmark) {
-      delete query.bookmark;
+    if (!queryParams.bookmark) {
+      delete queryParams.bookmark;
     }
-    if (!query.index) {
-      delete query.index;
+    if (!queryParams.index) {
+      delete queryParams.index;
     }
-    if (!query.group_field) {
-      delete query.group_field;
+    if (!queryParams.group_field) {
+      delete queryParams.group_field;
     }
 
     const result = await Db.connect(this.config).search(
       'entity',
-      query.index || 'all',
-      query
+      queryParams.index || 'all',
+      queryParams
     );
 
     if (result.groups) {
@@ -673,7 +811,7 @@ class Entity {
     return result;
   }
 
-  async entitySearch(query, options = {}) {
+  async entitySearch(queryParams, options = {}) {
     options = _.merge(
       {
         children: false,
@@ -683,23 +821,23 @@ class Entity {
       options
     );
 
-    const limit = query.limit || 25;
+    const limit = queryParams.limit || 25;
 
     if (limit <= 200) {
-      return await this._entitySearch(query, options);
+      return await this._entitySearch(queryParams, options);
     }
 
     let rows = [];
     let groups = [];
 
     const _entitySearch = async (bookmark) => {
-      const _query = _.clone(query);
+      const _queryParams = _.clone(queryParams);
 
       if (bookmark) {
-        _query.bookmark = bookmark;
+        _queryParams.bookmark = bookmark;
       }
 
-      const result = await this._entitySearch(_query, options);
+      const result = await this._entitySearch(_queryParams, options);
 
       if (result.rows) {
         rows = rows.concat(result.rows);
@@ -722,7 +860,7 @@ class Entity {
     return await _entitySearch();
   }
 
-  async entityFind(query, options = {}) {
+  async entityFind(mangoQuery, options = {}) {
     options = _.merge(
       {
         children: false,
@@ -735,16 +873,13 @@ class Entity {
     let result;
 
     try {
-      result = await Db.connect(this.config).find(query);
+      result = await Db.connect(this.config).find(mangoQuery);
     } catch (error) {
       if (error.error === 'no_usable_index') {
-        const cc = new ClientConfig(this.config);
-        const clientConfig = await cc.get();
-
         const schema = new Schema(this.config);
-        await schema.updateEntityIndex(clientConfig.schemas);
+        await schema.updateEntityIndex();
 
-        result = await Db.connect(this.config).find(query);
+        result = await Db.connect(this.config).find(mangoQuery);
       }
     }
 
@@ -752,7 +887,7 @@ class Entity {
       return result;
     }
 
-    if (query.fields && query.fields.indexOf('_id') === -1) {
+    if (mangoQuery.fields && mangoQuery.fields.indexOf('_id') === -1) {
       throw Error('_id field required for `children`');
     }
 
@@ -819,7 +954,10 @@ class Entity {
   }
 
   async entityCreate(entity) {
-    entity.type = 'entity';
+    const cc = new ClientConfig(this.config);
+    const clientConfig = await cc.get();
+
+    entity = this._prepEntity(entity, clientConfig);
 
     const { id, rev } = await Db.connect(this.config).insert(entity);
 
@@ -833,80 +971,69 @@ class Entity {
     return await Db.connect(this.config).get(entityId);
   }
 
-  async entityUpdate(entities, restore) {
-    entities = _.isArray(entities) ? entities : [entities];
+  async entityUpdate(entities, restore = false) {
+    const cc = new ClientConfig(this.config);
+    const clientConfig = await cc.get();
 
-    const entityMap = {};
+    const entityMap = Entity._mapEntities(entities);
 
-    const entityIds = entities.map((entityOrEntityId) => {
-      let entityId;
+    entities = (
+      await Db.connect(this.config).fetch({
+        keys: _.keys(entityMap),
+        include_docs: true,
+      })
+    ).rows;
 
-      if (_.isObject(entityOrEntityId)) {
-        entityId = entityOrEntityId._id;
-        entityMap[entityId] = entityOrEntityId;
-      }
-      if (_.isString(entityOrEntityId)) {
-        entityId = entityOrEntityId;
-      }
-
-      return entityId;
-    });
-
-    const response = await Db.connect(this.config).fetch({
-      keys: entityIds,
-      include_docs: true,
-    });
-
-    const children = [];
+    const childEntityMap = {};
     const oldFileNames = [];
 
-    entities = response.rows.map((row) => {
-      const oldEntity = row.doc;
-      const newEntity = entityMap[oldEntity._id];
+    entities = entities.map(({ doc: oldEntity }) => {
+      const newEntity = this._prepEntity(
+        entityMap[oldEntity._id],
+        clientConfig
+      );
 
-      let entity = oldEntity;
+      const updatedEntity = _.mergeWith(
+        {},
+        oldEntity,
+        newEntity || {},
+        (a, b) => {
+          if (_.isArray(a) && _.isArray(b)) {
+            return b;
+          }
+          return undefined;
+        }
+      );
+
+      if (restore) {
+        updatedEntity.trashed = false;
+      }
 
       if (newEntity) {
-        delete newEntity._rev;
-
         const diffs = diff(oldEntity, newEntity);
 
         diffs.forEach((diff) => {
           // If any reference fields have changed, update all references
-          if (/published|slug|title|thumbnail/.test(diff.path[0])) {
-            if (
-              children.indexOf(newEntity) === -1 &&
-              entityIds.indexOf(newEntity._id) !== -1
-            ) {
-              children.push(newEntity);
-            }
+          if (
+            ['published', 'slug', 'title', 'thumbnail'].includes(diff.path[0])
+          ) {
+            childEntityMap[updatedEntity._id] = updatedEntity;
           }
 
           // If any file fields have changed, remove the old file
           if (diff.path[0] === 'fields' && diff.path[2] === 'value') {
             const field = oldEntity.fields[diff.path[1]];
             if (
-              /attachment|image|audio|video/.test(field.type) &&
+              ['attachment', 'image', 'audio', 'video'].includes(field.type) &&
               field.value
             ) {
               oldFileNames.push(field.value.file.name);
             }
           }
         });
-
-        entity = _.mergeWith({}, oldEntity, newEntity, (a, b) => {
-          if (_.isArray(a) && _.isArray(b)) {
-            return b;
-          }
-          return undefined;
-        });
       }
 
-      if (restore) {
-        entity.trashed = false;
-      }
-
-      return entity;
+      return updatedEntity;
     });
 
     if (oldFileNames.length) {
@@ -915,13 +1042,9 @@ class Entity {
       // await assist.deleteFiles(oldFileNames);
     }
 
-    if (children.length) {
-      await this._updateChildren(children);
-    }
+    await this._updateChildren(childEntityMap);
 
-    const result = await Helpers.chunkUpdate(this.config, entities);
-
-    return result;
+    return await Helpers.chunkUpdate(this.config, entities);
   }
 
   async entityDelete(entityIds, forever = false) {

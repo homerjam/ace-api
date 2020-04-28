@@ -62,20 +62,20 @@ class Schema {
     schemaSlugs = _.isArray(schemaSlugs) ? schemaSlugs : [schemaSlugs];
 
     clientConfig.schemas = clientConfig.schemas.filter(
-      schema => schemaSlugs.indexOf(schema.slug) === -1
+      (schema) => schemaSlugs.indexOf(schema.slug) === -1
     );
 
-    clientConfig.schemas = clientConfig.schemas.map(schema => {
+    clientConfig.schemas = clientConfig.schemas.map((schema) => {
       if (!schema.fields) {
         return schema;
       }
-      schema.fields = schema.fields.map(field => {
+      schema.fields = schema.fields.map((field) => {
         if (!field.settings) {
           return field;
         }
         if (field.settings.schemas) {
           field.settings.schemas = field.settings.schemas.filter(
-            schema => schemaSlugs.indexOf(schema) === -1
+            (schema) => schemaSlugs.indexOf(schema) === -1
           );
         }
         return field;
@@ -101,9 +101,15 @@ class Schema {
   }
 
   async updateEntityIndex(schemas) {
+    if (!schemas) {
+      const cc = new ClientConfig(this.config);
+      const clientConfig = await cc.get();
+      schemas = clientConfig.schemas;
+    }
+
     let fields = [];
 
-    schemas.forEach(schema => {
+    schemas.forEach((schema) => {
       fields = fields.concat(schema.fields);
     });
 
@@ -158,7 +164,7 @@ class Schema {
       },
     };
 
-    fields.forEach(field => {
+    fields.forEach((field) => {
       const fieldRef = Fields.field(field.type);
 
       if (/number|string|boolean/.test(fieldRef.dataType)) {

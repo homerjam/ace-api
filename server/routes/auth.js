@@ -65,7 +65,7 @@ module.exports = async ({
     authMiddleware,
     permissionMiddleware.bind(null, 'settings'),
     asyncMiddleware(async (req, res) => {
-      const auth = Auth(await getConfig(req.session.slug));
+      const auth = Auth(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -83,7 +83,7 @@ module.exports = async ({
     '/auth/provider/:provider/refresh',
     authMiddleware,
     asyncMiddleware(async (req, res) => {
-      const auth = Auth(await getConfig(req.session.slug));
+      const auth = Auth(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -102,7 +102,7 @@ module.exports = async ({
     authMiddleware,
     permissionMiddleware.bind(null, 'userSettings'),
     asyncMiddleware(async (req, res) => {
-      const auth = Auth(await getConfig(req.session.slug));
+      const auth = Auth(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -124,7 +124,7 @@ module.exports = async ({
     '/auth/provider/:provider/:userId/refresh',
     authMiddleware,
     asyncMiddleware(async (req, res) => {
-      const auth = Auth(await getConfig(req.session.slug));
+      const auth = Auth(await getConfig(req.session));
 
       try {
         handleResponse(

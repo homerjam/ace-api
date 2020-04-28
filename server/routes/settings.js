@@ -13,7 +13,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'settings'),
     asyncMiddleware(async (req, res) => {
-      const settings = Settings(await getConfig(req.session.slug));
+      const settings = Settings(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await settings.update(req.body.settings));

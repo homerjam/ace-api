@@ -36,7 +36,7 @@ module.exports = ({
     '/shopify/catalog.:ext?',
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
-      const shopify = Shopify(await getConfig(req.session.slug));
+      const shopify = Shopify(await getConfig(req.session));
 
       try {
         res.setHeader('Content-Type', 'application/rss+xml');

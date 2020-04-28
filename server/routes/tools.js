@@ -13,7 +13,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'tools'),
     asyncMiddleware(async (req, res) => {
-      const tools = Tools(await getConfig(req.session.slug));
+      const tools = Tools(await getConfig(req.session));
 
       try {
         const db = await tools.getDb();
@@ -35,7 +35,7 @@ module.exports = ({
     '/tools/changes.:ext?',
     authMiddleware,
     asyncMiddleware(async (req, res) => {
-      const tools = Tools(await getConfig(req.session.slug));
+      const tools = Tools(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await tools.getChanges());

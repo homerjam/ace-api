@@ -50,7 +50,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session.slug));
+      const taxonomy = Taxonomy(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await taxonomy.create(req.body.taxonomy));
@@ -86,7 +86,7 @@ module.exports = ({
     '/taxonomy.:ext?',
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session.slug));
+      const taxonomy = Taxonomy(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -106,7 +106,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session.slug));
+      const taxonomy = Taxonomy(await getConfig(req.session));
 
       try {
         handleResponse(req, res, await taxonomy.update(req.body.taxonomy));
@@ -121,7 +121,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session.slug));
+      const taxonomy = Taxonomy(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -145,7 +145,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session.slug));
+      const taxonomy = Taxonomy(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -167,7 +167,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session.slug));
+      const taxonomy = Taxonomy(await getConfig(req.session));
 
       try {
         handleResponse(
@@ -186,7 +186,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session.slug));
+      const taxonomy = Taxonomy(await getConfig(req.session));
 
       try {
         handleResponse(
