@@ -54,6 +54,7 @@
     "express-jwt": "^5.3.3",
     "express-session": "^1.17.1",
     "express-useragent": "^1.0.13",
+    "got": "^11.0.2",
     "grant-express": "^5.0.0",
     "handlebars": "^4.7.6",
     "he": "^1.2.0",
@@ -82,8 +83,6 @@
     "pug": "^2.0.4",
     "recursive-readdir": "^2.2.2",
     "redis": "^3.0.2",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.5",
     "twitter": "^1.7.1",
     "url-parse": "^1.4.7",
     "xxhashjs": "^0.2.2"

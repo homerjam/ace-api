@@ -54,7 +54,6 @@ password: pass
 
     CACHE_ENABLED=false
     CACHE_TTL=30
-    CACHE_COMPRESS=false
 
     DB_NAME=
     DB_URL=

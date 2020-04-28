@@ -15,27 +15,24 @@ module.exports = ({
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
       const method = req.params[0];
-      const params = req.params[1].split('/').filter(param => param !== '');
+      const params = req.params[1].split('/').filter((param) => param !== '');
 
       const config = await getConfig(req.session.slug);
 
-      const Promise = require('bluebird');
       const Twitter = require('twitter');
 
-      const twitter = Promise.promisifyAll(
-        new Twitter({
-          consumer_key: config.provider.twitter.consumerKey,
-          consumer_secret: config.provider.twitter.consumerSecret,
-          access_token_key: config.provider.twitter.accessTokenKey,
-          access_token_secret: config.provider.twitter.accessTokenSecret,
-        })
-      );
+      const twitter = new Twitter({
+        consumer_key: config.provider.twitter.consumerKey,
+        consumer_secret: config.provider.twitter.consumerSecret,
+        access_token_key: config.provider.twitter.accessTokenKey,
+        access_token_secret: config.provider.twitter.accessTokenSecret,
+      });
 
       try {
         handleResponse(
           req,
           res,
-          await twitter[`${method}Async`](params.join('/'), req.query),
+          await twitter[`${method}`](params.join('/'), req.query),
           true
         );
       } catch (error) {
@@ -49,7 +46,7 @@ module.exports = ({
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
       const method = req.params[0];
-      const params = req.params[1].split('/').filter(param => param !== '');
+      const params = req.params[1].split('/').filter((param) => param !== '');
 
       const config = await getConfig(req.session.slug);
 

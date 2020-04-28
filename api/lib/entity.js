@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const Promise = require('bluebird');
 const jsonQuery = require('json-query');
 const { diff } = require('deep-diff');
 const ClientConfig = require('./client-config');
@@ -7,8 +6,6 @@ const Db = require('./db');
 const Helpers = require('./helpers');
 const Schema = require('./schema');
 const Assist = require('./assist');
-
-const CHUNK_UPDATE_SIZE = 1000;
 
 class Entity {
   constructor(config) {
@@ -19,12 +16,12 @@ class Entity {
   }
 
   static flattenValues(docs) {
-    return docs.map(doc => {
+    return docs.map((doc) => {
       if (!doc.fields || !_.size(doc.fields)) {
         return doc;
       }
 
-      doc.fields = _.mapValues(doc.fields, field => {
+      doc.fields = _.mapValues(doc.fields, (field) => {
         if (/entity/.test(field.type) && _.isArray(field.value)) {
           // entity / entityTile / entityGrid
           field.value = Entity.flattenValues(field.value);
@@ -39,11 +36,11 @@ class Entity {
   static _filterEntityFields(docs, role = 'guest') {
     const isArray = _.isArray(docs);
 
-    docs = (isArray ? docs : [docs]).map(doc => {
+    docs = (isArray ? docs : [docs]).map((doc) => {
       if (_.size(doc.fields)) {
-        doc.fields = _.mapValues(doc.fields, field => {
+        doc.fields = _.mapValues(doc.fields, (field) => {
           if (_.isArray(field.value)) {
-            field.value = field.value.filter(obj => {
+            field.value = field.value.filter((obj) => {
               if (!obj) {
                 return false;
               }
@@ -63,14 +60,14 @@ class Entity {
   }
 
   static _appendChildren(docs, childrenMap) {
-    return docs.map(doc => {
+    return docs.map((doc) => {
       if (!_.size(doc.fields)) {
         return doc;
       }
 
-      doc.fields = _.mapValues(doc.fields, field => {
+      doc.fields = _.mapValues(doc.fields, (field) => {
         if (_.isArray(field.value)) {
-          field.value = field.value.filter(obj => {
+          field.value = field.value.filter((obj) => {
             if (!obj) {
               return false;
             }
@@ -80,7 +77,7 @@ class Entity {
             return true;
           });
 
-          field.value = field.value.map(obj => {
+          field.value = field.value.map((obj) => {
             if (obj.type === 'entity') {
               obj = _.merge(obj, childrenMap[obj.id]);
             }
@@ -99,14 +96,14 @@ class Entity {
   static _appendParents(rows, parents = null, role = 'guest') {
     let entityMap = {};
 
-    rows.forEach(row => {
+    rows.forEach((row) => {
       if (row.doc && row.value.type === 'entity') {
         entityMap[row.id] = { ...row.doc, parents: [] };
       }
     });
 
     if (parents) {
-      rows.forEach(row => {
+      rows.forEach((row) => {
         if (row.doc && row.value.type === 'parent') {
           entityMap[row.key].parents.push(
             Entity._filterEntityFields(row.doc, role)
@@ -114,18 +111,18 @@ class Entity {
         }
       });
 
-      entityMap = _.mapValues(entityMap, entity => {
-        entity.parents = _.uniqBy(entity.parents, entity => entity._id);
+      entityMap = _.mapValues(entityMap, (entity) => {
+        entity.parents = _.uniqBy(entity.parents, (entity) => entity._id);
         return entity;
       });
     }
 
-    rows = rows.map(row => {
+    rows = rows.map((row) => {
       row.doc = entityMap[row.id];
       return row;
     });
 
-    rows = rows.filter(row => row.value.type === 'entity');
+    rows = rows.filter((row) => row.value.type === 'entity');
 
     return rows;
   }
@@ -133,8 +130,8 @@ class Entity {
   static _fileNames(entities) {
     const fileNames = [];
 
-    entities.forEach(entity => {
-      _.forEach(entity.fields, field => {
+    entities.forEach((entity) => {
+      _.forEach(entity.fields, (field) => {
         if (field.value && field.value.file) {
           fileNames.push(field.value.file.name);
         }
@@ -166,10 +163,7 @@ class Entity {
       const queryParts = query.trim().split(/\[|\]/);
       const selector = `fields.${queryParts[0]}.value[${queryParts[1] || '*'}]`;
       const modifier = /\]:/.test(query)
-        ? `:${query
-            .split(/\]:/)
-            .slice(-1)[0]
-            .trim()}`
+        ? `:${query.split(/\]:/).slice(-1)[0].trim()}`
         : '';
       query = `${selector}${modifier}`;
     }
@@ -184,7 +178,7 @@ class Entity {
 
           let group = [];
 
-          entities.forEach(entity => {
+          entities.forEach((entity) => {
             if (!entity.groupBefore || group.length >= groupSize) {
               group = [];
             }
@@ -194,11 +188,11 @@ class Entity {
             if (!entity.groupAfter || group.length >= groupSize) {
               group.ratio = 0;
 
-              group.forEach(entity => {
+              group.forEach((entity) => {
                 group.ratio += (entity.thumbnail || entity).ratio;
               });
 
-              group.forEach(entity => {
+              group.forEach((entity) => {
                 entity.groupRatio =
                   (entity.thumbnail || entity).ratio / group.ratio;
               });
@@ -210,12 +204,12 @@ class Entity {
           return grouped;
         },
         pick: (input, ...paths) =>
-          _.map(input, obj => {
+          _.map(input, (obj) => {
             const copy = {
               id: obj.id || undefined,
             };
-            paths = paths.filter(path => path); // Remove empty paths (tolerate trailing comma in args)
-            paths.forEach(path => {
+            paths = paths.filter((path) => path); // Remove empty paths (tolerate trailing comma in args)
+            paths.forEach((path) => {
               const pathParts = path.match(/([^\s]+)/g);
               const pathFrom = pathParts[0];
               const pathTo = pathParts[pathParts.length - 1];
@@ -243,7 +237,7 @@ class Entity {
     // Extract queries
     let queries = queryString.split(/,(?![^([]*[\])])/g);
 
-    queries = queries.map(query => {
+    queries = queries.map((query) => {
       // Replace () with original (...args)
       const emptyArgs = query.match(/\(\)/g);
       if (emptyArgs) {
@@ -280,7 +274,7 @@ class Entity {
       query
     );
 
-    result.rows = result.rows.map(row => {
+    result.rows = result.rows.map((row) => {
       row.doc = Entity._filterEntityFields(row.doc, options.role);
       return row;
     });
@@ -315,7 +309,7 @@ class Entity {
     let ids = [];
     let childIds = [];
 
-    rowsOrDocs.forEach(rowOrDoc => {
+    rowsOrDocs.forEach((rowOrDoc) => {
       const isRow = !!rowOrDoc.doc;
 
       let doc = isRow ? rowOrDoc.doc : rowOrDoc;
@@ -326,19 +320,19 @@ class Entity {
         if (_.isArray(options.children)) {
           Entity._queriesFromString(
             options.children[options._childDepth]
-          ).forEach(query => {
+          ).forEach((query) => {
             childIds = childIds.concat(
               _.flatten(Entity._query(doc, query, true).value).map(
-                obj => obj && obj.id
+                (obj) => obj && obj.id
               )
             );
           });
         } else {
-          _.forEach(doc.fields, field => {
+          _.forEach(doc.fields, (field) => {
             if (_.isArray(field.value)) {
-              field.value = field.value.filter(obj => obj);
+              field.value = field.value.filter((obj) => obj);
 
-              field.value.forEach(obj => {
+              field.value.forEach((obj) => {
                 if (obj.id) {
                   childIds.push(obj.id);
                 }
@@ -352,27 +346,29 @@ class Entity {
     });
 
     ids = _.uniq(ids);
-    ids = ids.filter(id => !docMap[id]);
+    ids = ids.filter((id) => !docMap[id]);
 
     let docs = [];
     if (ids.length > 0) {
-      docs = (await this._entitiesById(ids, options)).rows.map(row => row.doc);
+      docs = (await this._entitiesById(ids, options)).rows.map(
+        (row) => row.doc
+      );
 
-      docs.forEach(doc => {
+      docs.forEach((doc) => {
         docMap[doc._id] = doc;
       });
     }
 
     childIds = _.uniq(childIds);
-    childIds = childIds.filter(id => !docMap[id]);
+    childIds = childIds.filter((id) => !docMap[id]);
 
     let childDocs = [];
     if (childIds.length > 0) {
       childDocs = (
         await this._entitiesById(childIds, { ...options, parents: false })
-      ).rows.map(row => row.doc);
+      ).rows.map((row) => row.doc);
 
-      childDocs.forEach(doc => {
+      childDocs.forEach((doc) => {
         docMap[doc._id] = doc;
       });
     }
@@ -405,7 +401,7 @@ class Entity {
       return docs;
     }
 
-    docs = docs.map(rowOrDoc => {
+    docs = docs.map((rowOrDoc) => {
       const isRow = !!rowOrDoc.doc;
 
       let doc = isRow ? rowOrDoc.doc : rowOrDoc;
@@ -421,7 +417,7 @@ class Entity {
           fieldQueryMap = {};
           Entity._queriesFromString(
             options.children[options._childDepth]
-          ).forEach(query => {
+          ).forEach((query) => {
             const key = query.split(/\[|\]/)[0];
             fieldQueryMap[key] = query;
           });
@@ -429,16 +425,16 @@ class Entity {
 
         doc.fields = _.mapValues(doc.fields, (field, fieldSlug) => {
           if (_.isArray(field.value)) {
-            field.value = field.value.filter(obj => obj);
+            field.value = field.value.filter((obj) => obj);
 
             if (!fieldQueryMap || (fieldQueryMap && fieldQueryMap[fieldSlug])) {
               if (fieldQueryMap && fieldQueryMap[fieldSlug]) {
                 field.value = field.value.filter(
-                  obj => obj.id && docMap[obj.id]
+                  (obj) => obj.id && docMap[obj.id]
                 );
               }
 
-              field.value = field.value.map(obj => {
+              field.value = field.value.map((obj) => {
                 if (obj && obj.id && docMap[obj.id]) {
                   obj = _.merge(obj, docMap[obj.id] || {});
                   obj = _.omitBy(obj, (value, key) => key.startsWith('_'));
@@ -509,109 +505,97 @@ class Entity {
     return rowsOrDocs;
   }
 
-  _removeChildren(entities) {
-    return new Promise((resolve, reject) => {
-      if (entities.length === 0) {
-        resolve([]);
-        return;
-      }
+  async _removeChildren(entities) {
+    if (entities.length === 0) {
+      return [];
+    }
 
-      entities = entities.map(entity => entity._id);
+    entities = entities.map((entity) => entity._id);
 
-      Db.connect(this.config)
-        .view('entity', 'byChildren', {
-          keys: entities,
-          include_docs: true,
-        })
-        .then(response => {
-          const updatedEntities = _.uniqBy(
-            response.rows,
-            row => row.doc._id
-          ).map(row => {
-            row.doc.fields = _.mapValues(row.doc.fields, field => {
-              if (_.isArray(field.value)) {
-                field.value = _.filter(
-                  field.value,
-                  obj =>
-                    !(obj.type === 'entity' && entities.indexOf(obj.id) !== -1)
-                );
-              }
-              return field;
-            });
+    entities = (
+      await Db.connect(this.config).view('entity', 'byChildren', {
+        keys: entities,
+        include_docs: true,
+      })
+    ).rows;
 
-            return row.doc;
-          });
+    entities = _.uniqBy(entities, ({ doc: entity }) => entity._id);
 
-          if (updatedEntities.length === 0) {
-            resolve([]);
-            return;
-          }
+    const updatedEntities = entities.map(({ doc: entity }) => {
+      entity.fields = _.mapValues(entity.fields, (field) => {
+        if (!_.isArray(field.value)) {
+          return field;
+        }
 
-          Helpers.chunkUpdate(
-            this.config,
-            updatedEntities,
-            CHUNK_UPDATE_SIZE
-          ).then(resolve, reject);
-        }, reject);
-    });
-  }
+        field.value = _.filter(
+          field.value,
+          (obj) => !(obj.type === 'entity' && entities.indexOf(obj.id) !== -1)
+        );
 
-  _updateChildren(entities) {
-    return new Promise((resolve, reject) => {
-      if (entities.length === 0) {
-        resolve([]);
-        return;
-      }
-
-      const entityMap = {};
-
-      entities = entities.map(entity => {
-        entityMap[entity._id] = entity;
-
-        return entity._id;
+        return field;
       });
 
-      Db.connect(this.config)
-        .view('entity', 'byChildren', {
-          keys: entities,
-          include_docs: true,
-        })
-        .then(response => {
-          const entities = response.rows.map(row => {
-            const entity = row.doc;
+      return entity;
+    });
 
-            _.forEach(entity.fields, (field, fieldSlug) => {
-              if (_.isArray(field.value)) {
-                entity.fields[fieldSlug].value = field.value
-                  .filter(obj => obj)
-                  .map(obj => {
-                    if (obj.type === 'entity' && entityMap[obj.id]) {
-                      obj.slug = entityMap[obj.id].slug;
-                      obj.title = entityMap[obj.id].title;
-                      obj.schema = entityMap[obj.id].schema;
-                      obj.published = entityMap[obj.id].published;
+    if (updatedEntities.length === 0) {
+      return [];
+    }
 
-                      if (entityMap[obj.id].thumbnail) {
-                        obj.thumbnail = entityMap[obj.id].thumbnail;
-                      } else {
-                        obj.thumbnail = null;
-                      }
-                    }
+    return await Helpers.chunkUpdate(this.config, updatedEntities);
+  }
 
-                    return obj;
-                  });
+  async _updateChildren(entities) {
+    if (entities.length === 0) {
+      return [];
+    }
+
+    const entityMap = {};
+
+    entities = entities.map((entity) => {
+      entityMap[entity._id] = entity;
+      return entity._id;
+    });
+
+    entities = (
+      await Db.connect(this.config).view('entity', 'byChildren', {
+        keys: entities,
+        include_docs: true,
+      })
+    ).rows;
+
+    const updatedEntities = entities.map(({ doc: entity }) => {
+      entity.fields = _.mapValues(entity.fields, (field) => {
+        if (!_.isArray(field.value)) {
+          return field;
+        }
+
+        field.value = field.value
+          .filter((obj) => obj)
+          .map((obj) => {
+            if (obj.type === 'entity' && entityMap[obj.id]) {
+              obj.slug = entityMap[obj.id].slug;
+              obj.title = entityMap[obj.id].title;
+              obj.schema = entityMap[obj.id].schema;
+              obj.published = entityMap[obj.id].published;
+
+              if (entityMap[obj.id].thumbnail) {
+                obj.thumbnail = entityMap[obj.id].thumbnail;
+              } else {
+                obj.thumbnail = null;
               }
-            });
+            }
 
-            return entity;
+            return obj;
           });
 
-          Helpers.chunkUpdate(this.config, entities, CHUNK_UPDATE_SIZE).then(
-            resolve,
-            reject
-          );
-        }, reject);
+        return field;
+      });
+
+      return entity;
     });
+
+    return await Helpers.chunkUpdate(this.config, updatedEntities);
   }
 
   async entityList(ids = [], options = {}) {
@@ -632,75 +616,64 @@ class Entity {
     return rows;
   }
 
-  _entitySearch(query, options = {}) {
-    return new Promise((resolve, reject) => {
-      query.limit = Math.min(query.limit || 200, 200);
+  async _entitySearch(query, options = {}) {
+    query.limit = Math.min(query.limit || 200, 200);
 
-      if (options.children) {
-        query.include_docs = true;
-      }
+    if (options.children) {
+      query.include_docs = true;
+    }
 
-      if (!query.include_fields) {
-        query.include_fields = [];
-      }
+    if (!query.include_fields) {
+      query.include_fields = [];
+    }
 
-      if (!query.sort) {
-        delete query.sort;
-      }
-      if (!query.bookmark) {
-        delete query.bookmark;
-      }
-      if (!query.index) {
-        delete query.index;
-      }
-      if (!query.group_field) {
-        delete query.group_field;
-      }
+    if (!query.sort) {
+      delete query.sort;
+    }
+    if (!query.bookmark) {
+      delete query.bookmark;
+    }
+    if (!query.index) {
+      delete query.index;
+    }
+    if (!query.group_field) {
+      delete query.group_field;
+    }
 
-      Db.connect(this.config)
-        .search('entity', query.index || 'all', query)
-        .then(result => {
-          if (result.groups) {
-            const promises = [];
+    const result = await Db.connect(this.config).search(
+      'entity',
+      query.index || 'all',
+      query
+    );
 
-            result.groups = result.groups.map(group => {
-              promises.push(
-                new Promise((resolve, reject) => {
-                  if (
-                    (!options.children && !options.parents) ||
-                    group.total_rows === 0
-                  ) {
-                    resolve();
-                    return;
-                  }
+    if (result.groups) {
+      const extendGroupHits = async (group) => {
+        if ((!options.children && !options.parents) || group.total_rows === 0) {
+          return [];
+        }
+        return await this._extendRowsOrDocs(group.hits, options);
+      };
 
-                  this._extendRowsOrDocs(group.hits, options).then(docs => {
-                    group.hits = docs;
+      const promises = result.groups.map((group) => extendGroupHits(group));
 
-                    resolve();
-                  }, reject);
-                })
-              );
-              return group;
-            });
+      const groupHits = await Promise.all(promises);
 
-            Promise.all(promises).then(() => {
-              resolve(result);
-            }, reject);
+      result.groups = result.groups.map((group, i) => {
+        group.hits = groupHits[i];
+        return group;
+      });
 
-            return;
-          }
+      return result;
+    }
 
-          this._extendRowsOrDocs(result.rows, options).then(docs => {
-            result.rows = docs;
+    const docs = await this._extendRowsOrDocs(result.rows, options);
 
-            resolve(result);
-          }, reject);
-        }, reject);
-    });
+    result.rows = docs;
+
+    return result;
   }
 
-  entitySearch(query, options = {}) {
+  async entitySearch(query, options = {}) {
     options = _.merge(
       {
         children: false,
@@ -710,46 +683,43 @@ class Entity {
       options
     );
 
-    return new Promise((resolve, reject) => {
-      const limit = query.limit || 25;
+    const limit = query.limit || 25;
 
-      if (limit <= 200) {
-        this._entitySearch(query, options).then(resolve, reject);
-        return;
+    if (limit <= 200) {
+      return await this._entitySearch(query, options);
+    }
+
+    let rows = [];
+    let groups = [];
+
+    const _entitySearch = async (bookmark) => {
+      const _query = _.clone(query);
+
+      if (bookmark) {
+        _query.bookmark = bookmark;
       }
 
-      let rows = [];
-      let groups = [];
+      const result = await this._entitySearch(_query, options);
 
-      function __entitySearch(bookmark) {
-        const _query = _.clone(query);
-
-        if (bookmark) {
-          _query.bookmark = bookmark;
-        }
-
-        this._entitySearch(_query, options).then(result => {
-          if (result.rows) {
-            rows = rows.concat(result.rows);
-          }
-          if (result.groups) {
-            groups = groups.concat(result.groups);
-          }
-
-          if (rows.length < result.total_rows && rows.length < limit) {
-            __entitySearch.call(this, result.bookmark);
-            return;
-          }
-
-          result.rows = rows;
-          result.groups = groups;
-
-          resolve(result);
-        }, reject);
+      if (result.rows) {
+        rows = rows.concat(result.rows);
       }
 
-      __entitySearch.call(this);
-    });
+      if (result.groups) {
+        groups = groups.concat(result.groups);
+      }
+
+      if (rows.length < result.total_rows && rows.length < limit) {
+        await _entitySearch(result.bookmark);
+      }
+
+      result.rows = rows;
+      result.groups = groups;
+
+      return result;
+    };
+
+    return await _entitySearch();
   }
 
   async entityFind(query, options = {}) {
@@ -791,89 +761,76 @@ class Entity {
     return result;
   }
 
-  entityRevisions(entityId) {
-    return new Promise((resolve, reject) => {
-      Db.connect(this.config)
-        .get(entityId, {
-          revs_info: true,
-        })
-        .then(response => {
-          const revisionIds = [];
+  async entityRevisions(entityId) {
+    const db = Db.connect(this.config);
 
-          response._revs_info.forEach(revision => {
-            if (revision.status === 'available') {
-              revisionIds.push(revision.rev);
-            }
-          });
+    const revisionsInfo = (
+      await db.get(entityId, {
+        revs_info: true,
+      })
+    )._revs_info;
 
-          Db.connect(this.config)
-            .get(entityId, {
-              open_revs: JSON.stringify(revisionIds),
-            })
-            .then(response => {
-              const revisions = [];
-              const childrenIds = [];
+    const revisionIds = revisionsInfo
+      .filter((revision) => revision.status === 'available')
+      .map((revision) => {
+        return revision.rev;
+      });
 
-              response.forEach(revision => {
-                if (revision.ok) {
-                  revisions.push(revision.ok);
-
-                  _.forEach(revision.ok.fields, field => {
-                    if (/entity/.test(field.type)) {
-                      _.forEach(field.value, obj => {
-                        if (obj.id) {
-                          childrenIds.push(obj.id);
-                        }
-                      });
-                    }
-                  });
-                }
-              });
-
-              Db.connect(this.config)
-                .fetch({
-                  keys: _.uniq(childrenIds),
-                  include_docs: true,
-                })
-                .then(result => {
-                  const childrenMap = {};
-
-                  result.rows.forEach(row => {
-                    try {
-                      childrenMap[row.doc._id] = row.doc;
-                    } catch (error) {
-                      console.error('Error: child no longer exists');
-                    }
-                  });
-
-                  resolve(Entity._appendChildren(revisions, childrenMap));
-                }, reject);
-            }, reject);
-        }, reject);
+    const openRevisions = await db.get(entityId, {
+      open_revs: JSON.stringify(revisionIds),
     });
+
+    const childrenIds = [];
+
+    const revisions = openRevisions
+      .filter((revision) => revision.ok)
+      .map((revision) => {
+        _.forEach(revision.ok.fields, (field) => {
+          if (/entity/.test(field.type) && _.isArray(field.value)) {
+            _.forEach(field.value, (obj) => {
+              if (obj.id) {
+                childrenIds.push(obj.id);
+              }
+            });
+          }
+        });
+
+        return revision.ok;
+      });
+
+    const entities = (
+      await db.fetch({
+        keys: _.uniq(childrenIds),
+        include_docs: true,
+      })
+    ).rows;
+
+    const childrenMap = {};
+
+    entities.forEach(({ doc: entity }) => {
+      try {
+        childrenMap[entity._id] = entity;
+      } catch (error) {
+        console.error('Error: child no longer exists');
+      }
+    });
+
+    return Entity._appendChildren(revisions, childrenMap);
   }
 
-  entityCreate(entity) {
-    return new Promise((resolve, reject) => {
-      entity.type = 'entity';
+  async entityCreate(entity) {
+    entity.type = 'entity';
 
-      Db.connect(this.config)
-        .insert(entity)
-        .then(response => {
-          entity._id = response.id;
-          entity._rev = response.rev;
+    const { id, rev } = await Db.connect(this.config).insert(entity);
 
-          resolve(entity);
-        }, reject);
-    });
+    entity._id = id;
+    entity._rev = rev;
+
+    return entity;
   }
 
-  entityRead(entityId) {
-    return new Promise((resolve, reject) => {
-      Db.connect(this.config)
-        .get(entityId)
-        .then(resolve, reject);
-    });
+  async entityRead(entityId) {
+    return await Db.connect(this.config).get(entityId);
   }
 
   async entityUpdate(entities, restore) {
@@ -881,7 +838,7 @@ class Entity {
 
     const entityMap = {};
 
-    const entityIds = entities.map(entityOrEntityId => {
+    const entityIds = entities.map((entityOrEntityId) => {
       let entityId;
 
       if (_.isObject(entityOrEntityId)) {
@@ -903,7 +860,7 @@ class Entity {
     const children = [];
     const oldFileNames = [];
 
-    entities = response.rows.map(row => {
+    entities = response.rows.map((row) => {
       const oldEntity = row.doc;
       const newEntity = entityMap[oldEntity._id];
 
@@ -914,7 +871,7 @@ class Entity {
 
         const diffs = diff(oldEntity, newEntity);
 
-        diffs.forEach(diff => {
+        diffs.forEach((diff) => {
           // If any reference fields have changed, update all references
           if (/published|slug|title|thumbnail/.test(diff.path[0])) {
             if (
@@ -962,11 +919,7 @@ class Entity {
       await this._updateChildren(children);
     }
 
-    const result = await Helpers.chunkUpdate(
-      this.config,
-      entities,
-      CHUNK_UPDATE_SIZE
-    );
+    const result = await Helpers.chunkUpdate(this.config, entities);
 
     return result;
   }
@@ -993,10 +946,10 @@ class Entity {
     }
 
     entities = entities.filter(
-      entity => !entity.value || !entity.value.deleted
+      (entity) => !entity.value || !entity.value.deleted
     );
 
-    entities = entities.map(entity => entity.doc);
+    entities = entities.map((entity) => entity.doc);
 
     await this._removeChildren(entities);
 
@@ -1008,23 +961,19 @@ class Entity {
         filesResult = await assist.deleteFiles(fileNames);
       }
 
-      entities = entities.map(entity => ({
+      entities = entities.map((entity) => ({
         _id: entity._id,
         _rev: entity._rev,
         _deleted: true,
       }));
     } else {
-      entities = entities.map(entity => {
+      entities = entities.map((entity) => {
         entity.trashed = true;
         return entity;
       });
     }
 
-    const entitiesResult = await Helpers.chunkUpdate(
-      this.config,
-      entities,
-      CHUNK_UPDATE_SIZE
-    );
+    const entitiesResult = await Helpers.chunkUpdate(this.config, entities);
 
     return {
       entities: entitiesResult,

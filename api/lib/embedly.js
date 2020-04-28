@@ -1,5 +1,5 @@
+const util = require('util');
 const _ = require('lodash');
-const Promise = require('bluebird');
 const EmbedlyApi = require('embedly');
 
 class Embedly {
@@ -7,25 +7,16 @@ class Embedly {
     this.config = config;
   }
 
-  oembed(urls) {
-    return new Promise((resolve, reject) => {
-      const embedly = new EmbedlyApi({
-        key: this.config.embedly.apiKey,
-      });
+  async oembed(urls) {
+    const embedly = new EmbedlyApi({
+      key: this.config.embedly.apiKey,
+    });
 
-      const opts = {
-        urls: _.isArray(urls) ? urls : [urls],
-        format: 'json',
-      };
+    const oembed = util.promisify(embedly.oembed);
 
-      embedly.oembed(opts, (error, result) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-
-        resolve(result);
-      });
+    return await oembed({
+      urls: _.isArray(urls) ? urls : [urls],
+      format: 'json',
     });
   }
 }

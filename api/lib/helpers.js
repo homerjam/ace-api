@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const Promise = require('bluebird');
 const Db = require('./db');
 
 class Helpers {
@@ -9,58 +8,46 @@ class Helpers {
     this.slug = config.slug;
   }
 
-  static createOrUpdate(config, doc) {
-    return new Promise((resolve, reject) => {
-      Db.connect(config)
-        .insert(doc)
-        .then(
-          response => {
-            doc._id = response.id;
-            doc._rev = response.rev;
-            resolve(doc);
-          },
-          error => {
-            if (error.statusCode !== 409) {
-              reject(error);
-              return;
-            }
+  static async createOrUpdate(config, doc) {
+    const db = Db.connect(config);
+    let response;
 
-            Db.connect(config)
-              .get(doc._id)
-              .then(response => {
-                doc._rev = response._rev;
+    try {
+      response = await db.insert(doc);
 
-                Db.connect(config)
-                  .insert(doc)
-                  .then(response => {
-                    doc._rev = response.rev;
-                    resolve(doc);
-                  }, reject);
-              }, reject);
-          }
-        );
-    });
+      doc._id = response.id;
+      doc._rev = response.rev;
+
+      return doc;
+    } catch (error) {
+      if (error.statusCode !== 409) {
+        throw error;
+      }
+    }
+
+    response = await db.get(doc._id);
+
+    doc._rev = response._rev;
+
+    response = await db.insert(doc);
+
+    doc._rev = response.rev;
+
+    return doc;
   }
 
-  static chunkUpdate(config, docs, chunkSize = 1000) {
-    return new Promise((resolve, reject) => {
-      const chunks = _.chunk(docs, chunkSize);
-      const promises = [];
+  static async chunkUpdate(config, docs, chunkSize = 1000) {
+    const db = Db.connect(config);
 
-      chunks.forEach(chunk => {
-        promises.push(
-          new Promise((resolve, reject) => {
-            Db.connect(config)
-              .bulk({
-                docs: chunk,
-              })
-              .then(resolve, reject);
-          })
-        );
-      });
+    const chunks = _.chunk(docs, chunkSize);
 
-      Promise.all(promises).then(resolve, reject);
-    });
+    const promises = chunks.map((chunk) =>
+      db.bulk({
+        docs: chunk,
+      })
+    );
+
+    return await Promise.all(promises);
   }
 
   static groupEntities(entities, groupSize = Infinity) {
@@ -70,7 +57,7 @@ class Helpers {
       entities: [],
     };
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       if (!entity.groupBefore || group.entities.length >= groupSize) {
         group = {
           entities: [],
@@ -82,11 +69,11 @@ class Helpers {
       if (!entity.groupAfter || group.entities.length >= groupSize) {
         group.ratio = 0;
 
-        group.entities.forEach(entity => {
+        group.entities.forEach((entity) => {
           group.ratio += (entity.thumbnail || entity).ratio;
         });
 
-        group.entities.forEach(entity => {
+        group.entities.forEach((entity) => {
           entity.groupRatio = (entity.thumbnail || entity).ratio / group.ratio;
         });
 
@@ -102,7 +89,7 @@ class Helpers {
   }
 
   static replace(array, replacementObject, key) {
-    return array.map(object => {
+    return array.map((object) => {
       if (object[key] === replacementObject[key]) {
         return replacementObject;
       }
@@ -122,7 +109,7 @@ class Helpers {
 
       settings = {};
 
-      settingsArray.forEach(setting => {
+      settingsArray.forEach((setting) => {
         setting = setting.split(/_|:/);
 
         settings[setting[0]] = setting[1];

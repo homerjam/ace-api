@@ -1,8 +1,8 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const _ = require('lodash');
 const _eval = require('eval');
-const request = require('request-promise');
+const got = require('got');
 const readdir = require('recursive-readdir');
 const Entity = require('./entity');
 const ClientConfig = require('./client-config');
@@ -17,7 +17,7 @@ class Pdf {
 
     const files = await readdir(this.config.pdf.templatesPath);
 
-    files.forEach(file => {
+    files.forEach((file) => {
       if (!/\.js$/.test(file)) {
         return;
       }
@@ -42,21 +42,18 @@ class Pdf {
     //   throw Error('Template not found');
     // }
 
-    const template = _eval(
-      fs.readFileSync(
-        path.join(this.config.pdf.templatesPath, `${templateId}.js`),
-        'utf-8'
-      ),
-      `${templateId}.js`,
-      {},
-      true
+    const templateFile = await fs.readFile(
+      path.join(this.config.pdf.templatesPath, `${templateId}.js`),
+      'utf-8'
     );
+
+    const template = _eval(templateFile, `${templateId}.js`, {}, true);
 
     const entity = new Entity(this.config);
 
     const entities = (
       await entity.entityList([entityId], { children: 2, role })
-    ).map(row => row.doc);
+    ).map(({ doc: entity }) => entity);
 
     if (entities.length === 0) {
       throw Error('Entity not found');
@@ -74,21 +71,11 @@ class Pdf {
     const assetSlug = _.get(clientConfig, 'assets.slug', this.config.slug);
     const assistPdfUrl = `${this.config.assist.url}/${assetSlug}/pdf/download`;
 
-    payload =
-      typeof payload === 'object'
-        ? JSON.stringify(payload).replace(/'/gi, '’')
-        : payload;
-
-    const response = await request({
-      method: 'POST',
-      uri: assistPdfUrl,
-      encoding: null,
-      form: {
-        payload,
-      },
+    const { body } = await got.post(assistPdfUrl, {
+      form: payload,
     });
 
-    return response;
+    return body;
   }
 }
 

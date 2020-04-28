@@ -4,9 +4,7 @@ const _ = require('lodash');
 const express = require('express');
 const cacheManager = require('cache-manager');
 const redisStore = require('cache-manager-redis-store');
-const Promise = require('bluebird');
 const URL = require('url-parse');
-const zlib = Promise.promisifyAll(require('zlib'));
 const CircularJSON = require('circular-json-es6');
 const sizeof = require('object-sizeof');
 const deepFreeze = require('deep-freeze');
@@ -299,12 +297,6 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
         let response = await cache.get(key);
 
         if (typeof response === 'string') {
-          if (config.cache.compress) {
-            response = (
-              await zlib.gunzipAsync(Buffer.from(response, 'base64'))
-            ).toString();
-          }
-
           try {
             response = JSON.parse(response);
           } catch (error) {
@@ -368,12 +360,6 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     if (cacheResponse && config.cache.enabled && req.session.role === 'guest') {
       // TODO: Replace 'guest' with constant
       const key = hash(req);
-
-      if (config.cache.compress) {
-        response = (await zlib.gzipAsync(Buffer.from(response))).toString(
-          'base64'
-        );
-      }
 
       const ttl = req.query.__cache
         ? parseInt(req.query.__cache, 10)

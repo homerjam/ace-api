@@ -1,21 +1,19 @@
 const path = require('path');
-const Promise = require('bluebird');
-const fs = Promise.promisifyAll(require('fs'));
+const util = require('util');
+const fs = require('fs').promises;
 const _ = require('lodash');
 const nodemailer = require('nodemailer');
-const Createsend = Promise.promisifyAll(require('createsend-node'));
+const Createsend = require('createsend-node');
 const nodemailerMailgunTransport = require('nodemailer-mailgun-transport');
 const Inky = require('inky').Inky;
 const mjml2html = require('mjml');
-// eslint-disable-next-line
-const registerComponent = require('mjml-core').registerComponent;
-// eslint-disable-next-line
-const registerDependencies = require('mjml-validator').registerDependencies;
+const { registerComponent } = require('mjml-core');
+const { registerDependencies } = require('mjml-validator');
 const { McSection, McImage } = require('mjml-mailchimp');
 const htmlToText = require('html-to-text');
 const moment = require('moment');
 const countries = require('i18n-iso-countries');
-const sass = Promise.promisifyAll(require('node-sass'));
+const sass = util.promisify(require('node-sass').render);
 const pug = require('pug');
 const juice = require('juice');
 
@@ -52,29 +50,29 @@ class Email {
     let templatePath = path.join(this.config.email.templatesPath, templateSlug);
 
     try {
-      await fs.statAsync(templatePath);
+      await fs.stat(templatePath);
     } catch (error) {
       templatePath = path.resolve('../email', templateSlug);
     }
 
-    const templateFiles = await fs.readdirAsync(templatePath);
+    const templateFiles = await fs.readdir(templatePath);
 
     let htmlFileName = 'html';
     // Support mjml templates
-    if (_.find(templateFiles, fileName => /^html\.mjml/.test(fileName))) {
+    if (_.find(templateFiles, (fileName) => /^html\.mjml/.test(fileName))) {
       htmlFileName = 'html.mjml';
       options.mjml = true;
     }
 
     let htmlFileExtension = 'html';
-    if (_.find(templateFiles, fileName => /\.pug$/.test(fileName))) {
+    if (_.find(templateFiles, (fileName) => /\.pug$/.test(fileName))) {
       htmlFileExtension = 'pug';
     }
 
     let style = '';
-    if (_.find(templateFiles, fileName => /^style\.scss$/.test(fileName))) {
+    if (_.find(templateFiles, (fileName) => /^style\.scss$/.test(fileName))) {
       style = (
-        await sass.renderAsync({
+        await sass({
           file: path.join(templatePath, 'style.scss'),
           sourceMapContents: !options.inlineStyles,
           sourceMapEmbed: !options.inlineStyles,
@@ -103,7 +101,7 @@ class Email {
 
     let html;
     if (htmlFileExtension === 'html') {
-      html = fs.readFileAsync(
+      html = fs.readFile(
         `${templatePath}/${htmlFileName}.${htmlFileExtension}`
       );
     }
@@ -122,7 +120,7 @@ class Email {
       if (convertMjmlResult.errors && convertMjmlResult.errors.length) {
         throw Error(
           _.uniq(
-            convertMjmlResult.errors.map(error => error.formattedMessage)
+            convertMjmlResult.errors.map((error) => error.formattedMessage)
           ).join('\n')
         );
       }
@@ -156,78 +154,68 @@ class Email {
     };
   }
 
-  sendEmail(
+  async sendEmail(
     emailOptions,
     templateSlug,
     templateData = {},
     templateOptions = {}
   ) {
-    return new Promise((resolve, reject) => {
-      const nodemailerMailgun = nodemailer.createTransport(
-        nodemailerMailgunTransport({
-          auth: {
-            api_key: this.config.mailgun.apiKey,
-            domain: this.config.mailgun.domain,
-          },
-        })
-      );
+    const nodemailerMailgun = nodemailer.createTransport(
+      nodemailerMailgunTransport({
+        auth: {
+          api_key: this.config.mailgun.apiKey,
+          domain: this.config.mailgun.domain,
+        },
+      })
+    );
 
-      this.getTemplate(
-        templateSlug,
-        _.merge({}, emailOptions, templateData),
-        templateOptions
-      ).then(emailTemplate => {
-        emailOptions.html = emailTemplate.html;
-        emailOptions.text = emailTemplate.text;
+    const emailTemplate = await this.getTemplate(
+      templateSlug,
+      _.merge({}, emailOptions, templateData),
+      templateOptions
+    );
 
-        nodemailerMailgun.sendMail(emailOptions, (error, metadata) => {
-          if (error) {
-            reject(error);
-            return;
-          }
+    emailOptions.html = emailTemplate.html;
+    emailOptions.text = emailTemplate.text;
 
-          resolve({
-            metadata,
-            email: emailOptions,
-          });
-        });
-      }, reject);
-    });
+    const metadata = await nodemailerMailgun.sendMail(emailOptions);
+
+    return {
+      metadata,
+      email: emailOptions,
+    };
   }
 
-  subscribe(details, provider, listId) {
-    return new Promise((resolve, reject) => {
-      const cc = new ClientConfig(this.config);
+  async subscribe(details, provider, listId) {
+    const cc = new ClientConfig(this.config);
 
-      cc.get().then(clientConfig => {
-        if (provider === 'createsend') {
-          if (clientConfig.provider.createsend) {
-            const cs = new Createsend({
-              apiKey: clientConfig.provider.createsend.clientApiKey,
-            });
+    const clientConfig = await cc.get();
 
-            const subscribers = Promise.promisifyAll(cs.subscribers);
+    if (provider === 'createsend') {
+      if (!clientConfig.provider.createsend) {
+        throw Error('Provider not configured');
+      }
 
-            subscribers
-              .addSubscriberAsync(listId, {
-                EmailAddress: details.email,
-                Name: details.name,
-                Resubscribe: true,
-                RestartSubscriptionBasedAutoresponders: true,
-              })
-              .then(result => {
-                resolve(`Email.subscribe(): ${result.emailAddress}`);
-              })
-              .catch(error => {
-                reject(error.Message);
-              });
+      const cs = new Createsend({
+        apiKey: clientConfig.provider.createsend.clientApiKey,
+      });
 
-            return;
-          }
-          reject(Error('Subscriber list not configured'));
-        }
-      }, reject);
-    });
+      const addSubscriber = util.promisify(cs.subscribers.addSubscriber);
+
+      try {
+        const result = await addSubscriber(listId, {
+          EmailAddress: details.email,
+          Name: details.name,
+          Resubscribe: true,
+          RestartSubscriptionBasedAutoresponders: true,
+        });
+        return result;
+      } catch (error) {
+        throw Error(error.Message);
+      }
+    }
+
+    throw Error('Unknown provider');
   }
 }
 

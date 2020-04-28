@@ -1,5 +1,4 @@
-const Promise = require('bluebird');
-const fs = Promise.promisifyAll(require('fs'));
+const fs = require('fs').promises;
 const Cloudant = require('@cloudant/cloudant');
 const Db = require('./db');
 
@@ -29,15 +28,15 @@ class Tools {
   async importDb(dbBackupFile) {
     const dbName = this.config.db.name;
 
-    const fileConents = await fs.readFileAsync(dbBackupFile.path);
+    const fileConents = await fs.readFile(dbBackupFile.path);
 
-    const docs = JSON.parse(fileConents).rows.map(row => {
+    const docs = JSON.parse(fileConents).rows.map((row) => {
       const { doc } = row;
       delete doc._rev;
       return doc;
     });
 
-    await fs.unlinkAsync(dbBackupFile.path);
+    await fs.unlink(dbBackupFile.path);
 
     const cloudant = new Cloudant({
       url: this.config.db.url,

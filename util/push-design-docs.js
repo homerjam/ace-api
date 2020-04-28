@@ -1,10 +1,10 @@
-process.on('unhandledRejection', rejection => console.error(rejection));
+process.on('unhandledRejection', (rejection) => console.error(rejection));
 
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const Stagger = require('stagger');
-const request = require('request-promise');
+const got = require('got');
 
 const args = process.argv.slice(2);
 
@@ -21,6 +21,15 @@ const COMMENT_PATTERN = new RegExp(
   '(\\/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/)|(//.*)',
   'g'
 );
+
+const dbUrl = new URL(DB_URL);
+
+const dbGot = got.extend({
+  prefixUrl: dbUrl.origin,
+  username: dbUrl.username,
+  password: dbUrl.password,
+  responseType: 'json',
+});
 
 const docMap = {};
 
@@ -48,150 +57,84 @@ function prepareDesignDoc(x) {
 function getDirs(srcpath) {
   return fs
     .readdirSync(srcpath)
-    .filter(file => fs.statSync(path.join(srcpath, file)).isDirectory());
+    .filter((file) => fs.statSync(path.join(srcpath, file)).isDirectory());
 }
 
-function deleteOldDesignDocs(newDesignDocs, dbName) {
-  return cb => {
-    request({
-      method: 'GET',
-      uri: [
-        DB_URL,
-        dbName,
-        '_all_docs?startkey="_design"&endkey="_design0"&include_docs=true',
-      ].join('/'),
-      simple: false,
-      resolveWithFullResponse: true,
-    }).then(
-      ({ body }) => {
-        const result = JSON.parse(body);
+async function deleteOldDesignDocs(newDesignDocs, dbName) {
+  const { body: result } = await dbGot([dbName, '_all_docs'].join('/'), {
+    searchParams: {
+      startkey: '"_design"',
+      endkey: '"_design0"',
+      include_docs: true,
+    },
+  });
 
-        if (result.error) {
-          console.error(dbName, result.error);
-          process.exit(0);
-        }
+  if (result.error) {
+    console.error(dbName, result.error);
+    process.exit(0);
+  }
 
-        let oldDocs = result.rows.map(({ doc }) => doc);
+  let oldDocs = result.rows.map(({ doc }) => doc);
 
-        oldDocs = oldDocs.filter(
-          ({ _id }) => !newDesignDocs.includes(_id.replace('_design/', ''))
-        );
+  oldDocs = oldDocs.filter(
+    ({ _id }) => !newDesignDocs.includes(_id.replace('_design/', ''))
+  );
 
-        if (!oldDocs.length) {
-          cb();
-          return;
-        }
+  if (!oldDocs.length) {
+    return;
+  }
 
-        oldDocs = oldDocs.map(({ _id, _rev }) => ({
-          _id: _id,
-          _rev: _rev,
-          _deleted: true,
-        }));
+  oldDocs = oldDocs.map(({ _id, _rev }) => ({
+    _id: _id,
+    _rev: _rev,
+    _deleted: true,
+  }));
 
-        request({
-          method: 'POST',
-          uri: [DB_URL, dbName, '_bulk_docs'].join('/'),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            docs: oldDocs,
-          }),
-          simple: false,
-          resolveWithFullResponse: true,
-        }).then(
-          () => {
-            console.log(
-              dbName,
-              'deleted',
-              oldDocs.map(({ _id }) => _id).join(', ')
-            );
+  await dbGot([dbName, '_bulk_docs'].join('/'), {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    json: {
+      docs: oldDocs,
+    },
+  });
 
-            cb();
-          },
-          error => {
-            console.error(error.error);
-            process.exit(1);
-          }
-        );
-      },
-      error => {
-        console.error(error.error);
-        process.exit(1);
-      }
-    );
-  };
+  console.log(dbName, 'deleted', oldDocs.map(({ _id }) => _id).join(', '));
 }
 
-function createNewDesignDocs(dbName, designDocName, designDoc) {
-  return cb => {
-    const uri = [DB_URL, dbName, '_design', designDocName].join('/');
+async function createNewDesignDocs(dbName, designDocName, designDoc) {
+  const url = [dbName, '_design', designDocName].join('/');
 
-    docMap[uri] = _.cloneDeep(designDoc);
+  docMap[url] = _.cloneDeep(designDoc);
 
-    request({
-      method: 'GET',
-      uri,
-      simple: false,
-      resolveWithFullResponse: true,
-    }).then(
-      response => {
-        const result = JSON.parse(response.body);
+  const { statusCode, body: result } = await dbGot(url, {
+    throwHttpErrors: false,
+  });
 
-        if (result.error && result.error !== 'not_found') {
-          console.error(dbName, result.error);
-          process.exit(0);
-        }
+  if (result.error && result.error !== 'not_found') {
+    console.error(dbName, result.error);
+    process.exit(0);
+  }
 
-        const uri = response.request.uri.href;
-        const dDoc = docMap[uri];
+  const dDoc = docMap[url];
 
-        if (response.statusCode === 200) {
-          dDoc._rev = JSON.parse(response.body)._rev;
-        }
+  if (statusCode === 200) {
+    dDoc._rev = result._rev;
+  }
 
-        request({
-          method: 'PUT',
-          uri: response.request.uri.href,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dDoc),
-          simple: true,
-          resolveWithFullResponse: true,
-        }).then(
-          response => {
-            const result = JSON.parse(response.body);
-
-            if (result.error) {
-              console.error(dbName, result.error);
-              process.exit(0);
-            }
-
-            console.log(
-              '%d %s',
-              response.statusCode,
-              response.request.uri.path
-            );
-
-            cb();
-          },
-          error => {
-            console.error(
-              '%d %s',
-              error.statusCode,
-              error.response.request.uri.path
-            );
-            process.exit(1);
-          }
-        );
+  try {
+    const { statusCode } = await dbGot.put(url, {
+      headers: {
+        'Content-Type': 'application/json',
       },
-      error => {
-        console.error(error.error);
-        process.exit(1);
-      }
-    );
-  };
+      json: dDoc,
+    });
+
+    console.log('%d %s', statusCode, url);
+  } catch (error) {
+    console.error('%d %s', error.response.statusCode, url);
+    process.exit(1);
+  }
 }
 
 function init() {
@@ -203,8 +146,11 @@ function init() {
     requestsPerSecond: 2,
   });
 
-  dbs.forEach(dbName => {
-    part1.push(deleteOldDesignDocs(newDesignDocs, dbName));
+  dbs.forEach((dbName) => {
+    part1.push(async (cb) => {
+      await deleteOldDesignDocs(newDesignDocs, dbName);
+      cb();
+    });
   });
 
   part1.on('finish', () => {
@@ -212,7 +158,7 @@ function init() {
       requestsPerSecond: 2,
     });
 
-    newDesignDocs.forEach(designDocName => {
+    newDesignDocs.forEach((designDocName) => {
       if (DOC_NAME && DOC_NAME !== designDocName) {
         return;
       }
@@ -225,8 +171,11 @@ function init() {
 
       prepareDesignDoc(designDoc);
 
-      dbs.forEach(dbName => {
-        part2.push(createNewDesignDocs(dbName, designDocName, designDoc));
+      dbs.forEach((dbName) => {
+        part2.push(async (cb) => {
+          await createNewDesignDocs(dbName, designDocName, designDoc);
+          cb();
+        });
       });
     });
 

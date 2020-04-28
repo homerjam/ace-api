@@ -20,9 +20,6 @@ const config = {
       ? JSON.parse(process.env.CACHE_ENABLED)
       : false,
     ttl: parseInt(process.env.CACHE_TTL || 30, 10) * 60, // 30mins
-    compress: process.env.CACHE_COMPRESS
-      ? JSON.parse(process.env.CACHE_COMPRESS)
-      : false,
     memory: {
       max: parseInt(process.env.CACHE_MEMORY_MAX || 128, 10) * 1000 * 1000, // ~128mb
     },
