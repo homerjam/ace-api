@@ -217,12 +217,12 @@ class Entity {
     const now = Helpers.now();
 
     if (!entity.createdBy) {
+      entity.createdAt = now;
       entity.createdBy = this.config.userId;
-      entity.created = now;
     }
 
-    entity.modifiedBy = this.config.userId;
     entity.modifiedAt = now;
+    entity.modifiedBy = this.config.userId;
 
     if (entity.published) {
       // entity.publishedAt = JSON.stringify(entity.publishedAt).replace(/"/g, '');
