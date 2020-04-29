@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const sanitizeHtml = require('sanitize-html');
 const Db = require('./db');
-
 class Helpers {
   constructor(config) {
     this.config = config;
@@ -48,7 +47,25 @@ class Helpers {
       })
     );
 
-    return await Promise.all(promises);
+    const results = await Promise.all(promises);
+
+    const revMap = _.reduce(
+      _.flatten(results),
+      (result, value) => {
+        if (value.ok) {
+          result[value.id] = value.rev;
+        }
+        return result;
+      },
+      {}
+    );
+
+    docs = docs.map((doc) => {
+      doc._rev = revMap[doc._id];
+      return doc;
+    });
+
+    return docs;
   }
 
   static groupEntities(entities, groupSize = Infinity) {

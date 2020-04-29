@@ -186,35 +186,6 @@ class Entity {
     return string;
   }
 
-  static thumbnail(entity, clientConfig) {
-    let thumbnail;
-
-    if (!entity) {
-      return thumbnail;
-    }
-
-    const schema = _.find(clientConfig.schemas, { slug: entity.schema });
-
-    if (!schema) {
-      throw Error('Schema not found');
-    }
-
-    const thumbnailFields = (schema.thumbnailFields || []).concat(
-      _.keys(schema.fields || {})
-    );
-
-    thumbnailFields.forEach((fieldSlug) => {
-      if (!thumbnail) {
-        const field = _.get(entity.fields, fieldSlug);
-        const schemaField = _.find(schema.fields, { slug: fieldSlug });
-
-        thumbnail = Fields.toThumbnail(field, schemaField, clientConfig);
-      }
-    });
-
-    return thumbnail;
-  }
-
   _prepEntity(entity, clientConfig) {
     entity = _.pick(entity, [
       '_id',
@@ -262,7 +233,7 @@ class Entity {
     entity.slug = this._templateString(entity, schema, schema.slugTemplate);
     entity.slug = _.kebabCase(entity.slug);
 
-    entity.thumbnail = Entity.thumbnail(entity, clientConfig);
+    entity.thumbnail = Fields.thumbnailFields(entity, clientConfig)[0];
 
     entity.fields = _.mapValues(entity.fields, (field, fieldSlug) => {
       const schemaField = _.find(schema.fields, { slug: fieldSlug });

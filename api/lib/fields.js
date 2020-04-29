@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const htmlToText = require('html-to-text');
 const dayjs = require('dayjs');
-const Entity = require('./entity');
 const Helpers = require('./helpers');
 
 class Fields {
@@ -60,6 +59,35 @@ class Fields {
     }
 
     return field.value;
+  }
+
+  static thumbnailFields(entity, clientConfig) {
+    let thumbnailFields = [];
+
+    if (!entity) {
+      return thumbnailFields;
+    }
+
+    const schema = _.find(clientConfig.schemas, { slug: entity.schema });
+
+    if (!schema) {
+      throw Error('Schema not found');
+    }
+
+    thumbnailFields = _.uniq(
+      (schema.thumbnailFields || []).concat(_.keys(schema.fields || {}))
+    );
+
+    thumbnailFields = thumbnailFields.map((fieldSlug) => {
+      const field = _.get(entity.fields, fieldSlug);
+      const schemaField = _.find(schema.fields, { slug: fieldSlug });
+
+      return Fields.toThumbnail(field, schemaField, clientConfig);
+    });
+
+    thumbnailFields = thumbnailFields.filter((thumbnail) => thumbnail);
+
+    return thumbnailFields;
   }
 
   static fields = [
@@ -145,7 +173,7 @@ class Fields {
         return value;
       },
       toThumbnail(value, clientConfig) {
-        return Entity.thumbnail(value[0], clientConfig);
+        return Fields.thumbnailFields(value[0], clientConfig)[0];
       },
       toDb(value, settings) {
         value = _.isArray(value) ? value : [value];
