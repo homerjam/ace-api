@@ -523,7 +523,11 @@ module.exports = ({
       const entity = Entity(await getConfig(req.session));
 
       try {
-        handleResponse(req, res, await entity.entityCreate(req.body.entity));
+        handleResponse(
+          req,
+          res,
+          await entity.entityCreate(req.body.entity || req.body.entities)
+        );
       } catch (error) {
         handleError(req, res, error);
       }

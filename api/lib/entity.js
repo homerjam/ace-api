@@ -662,7 +662,7 @@ class Entity {
       return [];
     }
 
-    return await Helpers.chunkUpdate(this.config, updatedEntities);
+    return await Helpers.chunkBulk(this.config, updatedEntities);
   }
 
   async _updateChildren(childEntityMap) {
@@ -708,7 +708,7 @@ class Entity {
       return entity;
     });
 
-    return await Helpers.chunkUpdate(this.config, updatedEntities);
+    return await Helpers.chunkBulk(this.config, updatedEntities);
   }
 
   async entityList(ids = [], options = {}) {
@@ -928,22 +928,19 @@ class Entity {
     return Entity._appendChildren(revisions, childrenMap);
   }
 
-  async entityCreate(entity) {
-    if (!entity.schema) {
+  async entityCreate(entities) {
+    if (!entities[0].schema) {
       throw Error('Entity requires `schema`');
     }
 
     const cc = new ClientConfig(this.config);
     const clientConfig = await cc.get();
 
-    entity = this._prepEntity(entity, clientConfig);
+    entities = entities.map((entity) => {
+      return this._prepEntity(entity, clientConfig);
+    });
 
-    const { id, rev } = await Db.connect(this.config).insert(entity);
-
-    entity._id = id;
-    entity._rev = rev;
-
-    return entity;
+    return await Helpers.chunkBulk(this.config, entities);
   }
 
   async entityRead(entityId) {
@@ -967,12 +964,9 @@ class Entity {
     const oldFileNames = [];
 
     entities = entities.map(({ doc: oldEntity }) => {
-      const newEntity = this._prepEntity(
-        entityMap[oldEntity._id],
-        clientConfig
-      );
+      const newEntity = entityMap[oldEntity._id];
 
-      const updatedEntity = _.mergeWith(
+      let updatedEntity = _.mergeWith(
         {},
         oldEntity,
         newEntity || {},
@@ -987,6 +981,8 @@ class Entity {
       if (restore) {
         updatedEntity.trashed = false;
       }
+
+      updatedEntity = this._prepEntity(updatedEntity, clientConfig);
 
       if (newEntity) {
         const diffs = diff(oldEntity, newEntity);
@@ -1023,7 +1019,7 @@ class Entity {
 
     await this._updateChildren(childEntityMap);
 
-    return await Helpers.chunkUpdate(this.config, entities);
+    return await Helpers.chunkBulk(this.config, entities);
   }
 
   async entityDelete(entityIds, forever = false) {
@@ -1075,7 +1071,7 @@ class Entity {
       });
     }
 
-    const entitiesResult = await Helpers.chunkUpdate(this.config, entities);
+    const entitiesResult = await Helpers.chunkBulk(this.config, entities);
 
     return {
       entities: entitiesResult,

@@ -36,7 +36,7 @@ class Helpers {
     return doc;
   }
 
-  static async chunkUpdate(config, docs, chunkSize = 1000) {
+  static async chunkBulk(config, docs, chunkSize = 1000) {
     const db = Db.connect(config);
 
     const chunks = _.chunk(docs, chunkSize);
@@ -47,10 +47,10 @@ class Helpers {
       })
     );
 
-    const results = await Promise.all(promises);
+    const results = _.flatten(await Promise.all(promises));
 
     const revMap = _.reduce(
-      _.flatten(results),
+      results,
       (result, value) => {
         if (value.ok) {
           result[value.id] = value.rev;
@@ -60,8 +60,13 @@ class Helpers {
       {}
     );
 
-    docs = docs.map((doc) => {
-      doc._rev = revMap[doc._id];
+    docs = docs.map((doc, i) => {
+      if (doc._id) {
+        doc._rev = revMap[doc._id];
+      } else {
+        doc._id = results[i].id;
+        doc._rev = results[i].rev;
+      }
       return doc;
     });
 
