@@ -169,7 +169,7 @@ class Entity {
     // Convert fields to text
     const fields = _.mapValues(entity.fields, (field, fieldSlug) => {
       const schemaField = _.find(schema.fields, { slug: fieldSlug });
-      return Fields.toText(field.value, schemaField);
+      return Fields.toText(field, schemaField);
     });
 
     // Compile templates
