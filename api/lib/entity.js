@@ -216,8 +216,10 @@ class Entity {
 
     const now = Helpers.now();
 
-    if (!entity.createdBy) {
+    if (!entity.createdAt) {
       entity.createdAt = now;
+    }
+    if (!entity.createdBy) {
       entity.createdBy = this.config.userId;
     }
 
