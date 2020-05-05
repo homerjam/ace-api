@@ -108,7 +108,7 @@ class Entity {
     });
   }
 
-  static _appendParents(rows, parents = false, role = 'guest') {
+  static _appendParentEntities(rows, parents = false, role = 'guest') {
     let entityMap = {};
 
     rows.forEach((row) => {
@@ -396,7 +396,7 @@ class Entity {
       return row;
     });
 
-    result.rows = Entity._appendParents(
+    result.rows = Entity._appendParentEntities(
       result.rows,
       options.parents,
       options.role
@@ -405,7 +405,7 @@ class Entity {
     return result;
   }
 
-  static _childDepthLimit(children) {
+  static _childEntitiesDepthLimit(children) {
     let limit = 0;
     if (_.isNumber(children)) {
       limit = children - 1;
@@ -492,16 +492,18 @@ class Entity {
 
     if (
       !options.children ||
-      options._childDepth === Entity._childDepthLimit(options.children)
+      options._childDepth === Entity._childEntitiesDepthLimit(options.children)
     ) {
       return docMap;
     }
 
-    return await this._mapDocs(childDocs, docMap, {
+    docMap = await this._mapDocs(childDocs, docMap, {
       ...options,
       parents: false,
       _childDepth: options._childDepth + 1,
     });
+
+    return docMap;
   }
 
   static _mergeDocs(
@@ -513,7 +515,8 @@ class Entity {
 
     if (
       options.children &&
-      options._childDepth - 1 === Entity._childDepthLimit(options.children)
+      options._childDepth - 1 ===
+        Entity._childEntitiesDepthLimit(options.children)
     ) {
       return docs;
     }
@@ -627,7 +630,7 @@ class Entity {
     return rowsOrDocs;
   }
 
-  async _removeChildren(entities) {
+  async _removeChildEntities(entities) {
     if (entities.length === 0) {
       return [];
     }
@@ -643,7 +646,7 @@ class Entity {
 
     entities = _.uniqBy(entities, ({ doc: entity }) => entity._id);
 
-    const updatedEntities = entities.map(({ doc: entity }) => {
+    let updatedEntities = entities.map(({ doc: entity }) => {
       entity.fields = _.mapValues(entity.fields, (field) => {
         if (!_.isArray(field.value)) {
           return field;
@@ -664,22 +667,24 @@ class Entity {
       return [];
     }
 
-    return await Helpers.chunkBulk(this.config, updatedEntities);
+    updatedEntities = await Helpers.chunkBulk(this.config, updatedEntities);
+
+    return updatedEntities;
   }
 
-  async _updateChildren(childEntityMap) {
-    if (_.keys(childEntityMap.length) === 0) {
+  async _updateChildEntities(childEntitiesMap) {
+    if (_.keys(childEntitiesMap.length) === 0) {
       return [];
     }
 
     const entities = (
       await Db.connect(this.config).view('entity', 'byChildren', {
-        keys: _.keys(childEntityMap),
+        keys: _.keys(childEntitiesMap),
         include_docs: true,
       })
     ).rows;
 
-    const updatedEntities = entities.map(({ doc: entity }) => {
+    let updatedEntities = entities.map(({ doc: entity }) => {
       entity.fields = _.mapValues(entity.fields, (field) => {
         if (!_.isArray(field.value)) {
           return field;
@@ -688,14 +693,14 @@ class Entity {
         field.value = field.value
           .filter((obj) => obj)
           .map((obj) => {
-            if (obj.type === 'entity' && childEntityMap[obj.id]) {
-              obj.slug = childEntityMap[obj.id].slug;
-              obj.title = childEntityMap[obj.id].title;
-              obj.schema = childEntityMap[obj.id].schema;
-              obj.published = childEntityMap[obj.id].published;
+            if (obj.type === 'entity' && childEntitiesMap[obj.id]) {
+              obj.slug = childEntitiesMap[obj.id].slug;
+              obj.title = childEntitiesMap[obj.id].title;
+              obj.schema = childEntitiesMap[obj.id].schema;
+              obj.published = childEntitiesMap[obj.id].published;
 
-              if (childEntityMap[obj.id].thumbnail) {
-                obj.thumbnail = childEntityMap[obj.id].thumbnail;
+              if (childEntitiesMap[obj.id].thumbnail) {
+                obj.thumbnail = childEntitiesMap[obj.id].thumbnail;
               } else {
                 obj.thumbnail = null;
               }
@@ -710,7 +715,9 @@ class Entity {
       return entity;
     });
 
-    return await Helpers.chunkBulk(this.config, updatedEntities);
+    updatedEntities = await Helpers.chunkBulk(this.config, updatedEntities);
+
+    return updatedEntities;
   }
 
   async entityList(ids = [], options = {}) {
@@ -766,7 +773,8 @@ class Entity {
         if ((!options.children && !options.parents) || group.total_rows === 0) {
           return [];
         }
-        return await this._extendRowsOrDocs(group.hits, options);
+        const docs = await this._extendRowsOrDocs(group.hits, options);
+        return docs;
       };
 
       const promises = result.groups.map((group) => extendGroupHits(group));
@@ -801,7 +809,8 @@ class Entity {
     const limit = queryParams.limit || 25;
 
     if (limit <= 200) {
-      return await this._entitySearch(queryParams, options);
+      const result = await this._entitySearch(queryParams, options);
+      return result;
     }
 
     let rows = [];
@@ -834,7 +843,8 @@ class Entity {
       return result;
     };
 
-    return await _entitySearch();
+    const result = await _entitySearch();
+    return result;
   }
 
   async entityFind(mangoQuery, options = {}) {
@@ -942,11 +952,14 @@ class Entity {
       return this._prepEntity(entity, clientConfig);
     });
 
-    return await Helpers.chunkBulk(this.config, entities);
+    const createdEntities = await Helpers.chunkBulk(this.config, entities);
+
+    return createdEntities;
   }
 
   async entityRead(entityId) {
-    return await Db.connect(this.config).get(entityId);
+    const entity = await Db.connect(this.config).get(entityId);
+    return entity;
   }
 
   async entityUpdate(entities, restore = false) {
@@ -962,10 +975,10 @@ class Entity {
     const cc = new ClientConfig(this.config);
     const clientConfig = await cc.get();
 
-    const childEntityMap = {};
+    const updateChildEntitiesMap = {};
     const oldFileNames = [];
 
-    entities = entities.map(({ doc: oldEntity }) => {
+    let updatedEntities = entities.map(({ doc: oldEntity }) => {
       const newEntity = entityMap[oldEntity._id];
 
       let updatedEntity = _.mergeWith(
@@ -994,7 +1007,7 @@ class Entity {
           if (
             ['published', 'slug', 'title', 'thumbnail'].includes(diff.path[0])
           ) {
-            childEntityMap[updatedEntity._id] = updatedEntity;
+            updateChildEntitiesMap[updatedEntity._id] = updatedEntity;
           }
 
           // If any file fields have changed, remove the old file
@@ -1019,9 +1032,11 @@ class Entity {
       // await assist.deleteFiles(oldFileNames);
     }
 
-    await this._updateChildren(childEntityMap);
+    updatedEntities = await Helpers.chunkBulk(this.config, updatedEntities);
 
-    return await Helpers.chunkBulk(this.config, entities);
+    await this._updateChildEntities(updateChildEntitiesMap);
+
+    return updatedEntities;
   }
 
   async entityDelete(entityIds, forever = false) {
@@ -1051,7 +1066,7 @@ class Entity {
 
     entities = entities.map((entity) => entity.doc);
 
-    await this._removeChildren(entities);
+    await this._removeChildEntities(entities);
 
     if (forever) {
       const fileNames = Entity._fileNames(entities);
