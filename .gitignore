@@ -2,9 +2,7 @@
 .DS_Store
 .docker
 .idea
-.vscode
-config
+.config
 tmp
 node_modules
 package-lock.json
-yarn.lock

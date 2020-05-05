@@ -12,8 +12,8 @@
   "main": "dist/api.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec 'node -r dotenv/config' --watch api --watch server dev.js",
-    "dev:inspect": "nodemon --inspect --exec 'node -r dotenv/config' --watch api --watch server dev.js",
+    "dev": "nodemon --exec 'node -r dotenv/config' --watch api --watch server dev.js --ace-api",
+    "dev:inspect": "nodemon --inspect --exec 'node -r dotenv/config' --watch api --watch server dev.js --ace-api",
     "build": "webpack --mode production",
     "release": "npm run build && git add --all && git commit --all --message \"build\" && npm version patch && npm publish && git remote | xargs -L1 git push --all",
     "db:design": "source .env; node util/push-design-docs.js $DB_URL",
