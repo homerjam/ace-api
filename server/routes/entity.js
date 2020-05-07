@@ -119,17 +119,22 @@ module.exports = ({
    *        required: false
    *        type: string
    *        default: all
+   *      - name: select
+   *        description: Select fields via json query
+   *        in: query
+   *        required: false
+   *        type: string
    *      - name: children
    *        description: Get child entities
    *        in: query
    *        required: false
-   *        type: boolean
+   *        type: boolean | number | array
    *        default: false
    *      - name: parents
    *        description: Get parent entities
    *        in: query
    *        required: false
-   *        type: boolean
+   *        type: boolean | number | array
    *        default: false
    *      - name: trashed
    *        description: Get trashed entities
@@ -273,17 +278,22 @@ module.exports = ({
    *        in: query
    *        required: true
    *        type: string
+   *      - name: select
+   *        description: Select fields via json query
+   *        in: query
+   *        required: false
+   *        type: string
    *      - name: children
    *        description: Get child entities
    *        in: query
    *        required: false
-   *        type: boolean
+   *        type: boolean | number | array
    *        default: false
    *      - name: parents
    *        description: Get parent entities
    *        in: query
    *        required: false
-   *        type: boolean
+   *        type: boolean | number | array
    *        default: false
    *    responses:
    *      200:
