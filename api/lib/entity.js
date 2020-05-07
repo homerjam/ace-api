@@ -686,11 +686,11 @@ class Entity {
 
     if (result.groups) {
       const extendGroup = async (group) => {
-        let entities = group.rows.map((row) => row.doc);
-
         if ((!children && !parents) || group.total_rows === 0) {
-          return entities;
+          return group;
         }
+
+        let entities = group.rows.map((row) => row.doc);
 
         entities = await this._extendEntities(entities, {
           select,
@@ -699,7 +699,14 @@ class Entity {
           role,
         });
 
-        return entities;
+        const entityMap = Entity._mapEntities(entities);
+
+        group.rows = group.rows.map((row) => {
+          row.doc = entityMap[row.id];
+          return row;
+        });
+
+        return group;
       };
 
       const promises = result.groups.map((group) => extendGroup(group));
@@ -707,8 +714,7 @@ class Entity {
       const extendGroupResults = await Promise.all(promises);
 
       result.groups = result.groups.map((group, i) => {
-        group.rows = extendGroupResults[i];
-        return group;
+        return extendGroupResults[i];
       });
 
       return result;
@@ -723,7 +729,12 @@ class Entity {
       role,
     });
 
-    result.rows = entities;
+    const entityMap = Entity._mapEntities(entities);
+
+    result.rows = result.rows.map((row) => {
+      row.doc = entityMap[row.id];
+      return row;
+    });
 
     return result;
   }
