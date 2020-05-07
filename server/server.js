@@ -232,7 +232,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
 
   let cache;
 
-  if (config.environment === 'production' && config.cache.enabled) {
+  if (config.cache.enabled) {
     if (config.redis.url || config.redis.host) {
       const redisOptions = {
         ttl: config.cache.ttl,

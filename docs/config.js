@@ -1,5 +1,5 @@
 const API_PORT = process.env.PORT || 5001;
-const DOCS_PORT = process.env.DOCS_PORT || 3000;
+const DOCS_PORT = process.env.DOCS_PORT || 5011;
 
 module.exports = {
   port: DOCS_PORT,
