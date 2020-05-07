@@ -152,6 +152,7 @@ class Entity {
       'published',
       'publishedAt',
       'thumbnail',
+      'trashed',
     ]);
 
     const schema = _.find(clientConfig.schemas, { slug: entity.schema });
@@ -1037,13 +1038,13 @@ class Entity {
       ).rows.map((row) => row.id);
 
       const result = await this._entityDelete(entityIds, true);
-      return result;
+      return result.entities;
     }
 
     const entityIds = entities.map((entity) => entity._id);
 
     const result = await this._entityDelete(entityIds, forever);
-    return result;
+    return result.entities;
   }
 }
 
