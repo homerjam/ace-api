@@ -1036,11 +1036,14 @@ class Entity {
         await Db.connect(this.config).view('entity', 'trashed', {})
       ).rows.map((row) => row.id);
 
-      return this._entityDelete(entityIds, true);
+      const result = await this._entityDelete(entityIds, true);
+      return result;
     }
 
     const entityIds = entities.map((entity) => entity._id);
-    return this._entityDelete(entityIds, forever);
+
+    const result = await this._entityDelete(entityIds, forever);
+    return result;
   }
 }
 
