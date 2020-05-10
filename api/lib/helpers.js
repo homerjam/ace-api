@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const sanitizeHtml = require('sanitize-html');
 const Db = require('./db');
 class Helpers {
   constructor(config) {
@@ -199,68 +198,6 @@ class Helpers {
     }
 
     return '';
-  }
-
-  static cleanHtml(html) {
-    return sanitizeHtml(`<p>${html}</p>`, {
-      allowedTags: [
-        'p',
-        'a',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'blockquote',
-        'caption',
-        'strike',
-        'code',
-        'pre',
-        'ul',
-        'ol',
-        'li',
-        'u',
-        'b',
-        'i',
-        'strong',
-        'em',
-        'sub',
-        'sup',
-        'hr',
-        'br',
-        'table',
-        'thead',
-        'tbody',
-        'tr',
-        'th',
-        'td',
-        'entity',
-      ],
-      allowedSchemes: ['http', 'https', 'ftp', 'mailto', 'tel', 'urn'],
-      parser: {
-        lowerCaseTags: true,
-      },
-      transformTags: {
-        a(tagName, attribs) {
-          const absoluteUrl = /https?:\/\//.test(attribs.href);
-
-          const newTag = {
-            tagName,
-            attribs: {
-              href: attribs.href || '',
-            },
-          };
-
-          if (absoluteUrl) {
-            newTag.attribs.target = '_blank';
-          }
-
-          return newTag;
-        },
-      },
-      exclusiveFilter: (frame) =>
-        /^(a|p)$/.test(frame.tag) && !frame.text.trim(),
-    });
   }
 }
 

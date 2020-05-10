@@ -149,8 +149,8 @@ class Entity {
       'createdBy',
       'modifiedAt',
       'modifiedBy',
-      'published',
       'publishedAt',
+      'published',
       'thumbnail',
       'trashed',
     ]);
@@ -950,7 +950,7 @@ class Entity {
       updatedEntity = this._prepEntity(updatedEntity, clientConfig);
 
       if (newEntity) {
-        const diffs = diff(oldEntity, newEntity);
+        const diffs = diff(oldEntity, newEntity) || [];
 
         diffs.forEach((diff) => {
           // If any reference fields have changed, update all references

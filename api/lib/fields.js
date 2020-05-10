@@ -1,7 +1,68 @@
 const _ = require('lodash');
 const htmlToText = require('html-to-text');
 const dayjs = require('dayjs');
-const Helpers = require('./helpers');
+const sanitizeHtml = require('sanitize-html');
+
+const cleanHtml = (html) => {
+  return sanitizeHtml(`<p>${html}</p>`, {
+    allowedTags: [
+      'p',
+      'a',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'blockquote',
+      'caption',
+      'strike',
+      'code',
+      'pre',
+      'ul',
+      'ol',
+      'li',
+      'u',
+      'b',
+      'i',
+      'strong',
+      'em',
+      'sub',
+      'sup',
+      'hr',
+      'br',
+      'table',
+      'thead',
+      'tbody',
+      'tr',
+      'th',
+      'td',
+      'entity',
+    ],
+    allowedSchemes: ['http', 'https', 'ftp', 'mailto', 'tel', 'urn'],
+    parser: {
+      lowerCaseTags: true,
+    },
+    transformTags: {
+      a(tagName, attribs) {
+        const absoluteUrl = /https?:\/\//.test(attribs.href);
+
+        const newTag = {
+          tagName,
+          attribs: {
+            href: attribs.href || '',
+          },
+        };
+
+        if (absoluteUrl) {
+          newTag.attribs.target = '_blank';
+        }
+
+        return newTag;
+      },
+    },
+    exclusiveFilter: (frame) => /^(a|p)$/.test(frame.tag) && !frame.text.trim(),
+  });
+};
 
 class Fields {
   static all() {
@@ -293,7 +354,7 @@ class Fields {
         return htmlToText.fromString(value.html);
       },
       toDb(value) {
-        const html = Helpers.cleanHtml(value.html);
+        const html = cleanHtml(value.html);
         let entities = [];
 
         const pattern = 'href=["\']urn:entity:(\\S+)["\']';
