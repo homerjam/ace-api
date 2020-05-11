@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const Db = require('./db');
-const Helpers = require('./helpers');
+const Utils = require('./utils');
 const Roles = require('./roles');
 
 const roles = new Roles();
@@ -43,7 +43,7 @@ class ClientConfig {
 
     delete clientConfig.roles;
 
-    clientConfig = await Helpers.createOrUpdate(this.config, clientConfig);
+    clientConfig = await Utils.createOrUpdate(this.config, clientConfig);
 
     clientConfig = _.merge({}, DEFAULT_CLIENT_CONFIG, clientConfig);
 

@@ -6,7 +6,7 @@ const Handlebars = require('handlebars');
 const ClientConfig = require('./client-config');
 const Db = require('./db');
 const Fields = require('./fields');
-const Helpers = require('./helpers');
+const Utils = require('./utils');
 const Schema = require('./schema');
 const Assist = require('./assist');
 
@@ -165,7 +165,7 @@ class Entity {
 
     entity.schema = schema.slug;
 
-    const now = Helpers.now();
+    const now = Utils.now();
 
     if (!entity.createdAt) {
       entity.createdAt = now;
@@ -579,7 +579,7 @@ class Entity {
       return [];
     }
 
-    updatedEntities = await Helpers.chunkBulk(this.config, updatedEntities);
+    updatedEntities = await Utils.chunkBulk(this.config, updatedEntities);
 
     return updatedEntities;
   }
@@ -628,7 +628,7 @@ class Entity {
       return entity;
     });
 
-    updatedEntities = await Helpers.chunkBulk(this.config, updatedEntities);
+    updatedEntities = await Utils.chunkBulk(this.config, updatedEntities);
 
     return updatedEntities;
   }
@@ -902,7 +902,7 @@ class Entity {
       return this._prepEntity(entity, clientConfig);
     });
 
-    const createdEntities = await Helpers.chunkBulk(this.config, entities);
+    const createdEntities = await Utils.chunkBulk(this.config, entities);
 
     return createdEntities;
   }
@@ -982,7 +982,7 @@ class Entity {
       // await assist.deleteFiles(oldFileNames);
     }
 
-    updatedEntities = await Helpers.chunkBulk(this.config, updatedEntities);
+    updatedEntities = await Utils.chunkBulk(this.config, updatedEntities);
 
     await this._updateChildEntities(updateChildEntitiesMap);
 
@@ -1023,7 +1023,7 @@ class Entity {
       });
     }
 
-    entities = await Helpers.chunkBulk(this.config, entities);
+    entities = await Utils.chunkBulk(this.config, entities);
 
     return {
       entities,

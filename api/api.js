@@ -21,5 +21,6 @@ Api.Shopify = (...args) => new (require('./lib/shopify'))(...args);
 Api.Taxonomy = (...args) => new (require('./lib/taxonomy'))(...args);
 Api.Tools = (...args) => new (require('./lib/tools'))(...args);
 Api.User = (...args) => new (require('./lib/user'))(...args);
+Api.Utils = (...args) => new (require('./lib/utils'))(...args);
 
 module.exports = Api;
