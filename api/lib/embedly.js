@@ -14,10 +14,12 @@ class Embedly {
 
     const oembed = util.promisify(embedly.oembed);
 
-    return await oembed({
+    const result = await oembed({
       urls: _.isArray(urls) ? urls : [urls],
       format: 'json',
     });
+
+    return result;
   }
 }
 

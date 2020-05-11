@@ -35,7 +35,7 @@ class Entity {
       (result, value) => {
         const id = value._id;
         if (!id) {
-          throw Error('Entity requires `_id`');
+          throw Error(`Entity requires '_id'`);
         }
         result[id] = value;
         return result;
@@ -892,7 +892,7 @@ class Entity {
 
   async entityCreate(entities) {
     if (!entities[0].schema) {
-      throw Error('Entity requires `schema`');
+      throw Error(`Entity requires 'schema'`);
     }
 
     const cc = new ClientConfig(this.config);

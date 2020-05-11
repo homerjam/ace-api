@@ -34,7 +34,7 @@ module.exports = ({
    *  Taxonomy:
    *    type: object
    *    properties:
-   *      title:
+   *      name:
    *        type: string
    *      slug:
    *        type: string
@@ -45,10 +45,34 @@ module.exports = ({
    *          $ref: '#/definitions/TaxonomyTerm'
    */
 
+  /**
+   * @swagger
+   * /taxonomy:
+   *  post:
+   *    tags:
+   *      - taxonomy
+   *    summary: Create taxonomy
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: taxonomy
+   *        description: Taxonomy
+   *        in: body
+   *        required: true
+   *        schema:
+   *          type: object
+   *          $ref: '#/definitions/Taxonomy'
+   *    responses:
+   *      200:
+   *        description: Taxonomy
+   *        schema:
+   *          type: object
+   *          $ref: '#/definitions/Taxonomy'
+   */
   router.post(
     '/taxonomy.:ext?',
     authMiddleware,
-    permissionMiddleware.bind(null, 'taxonomyUpdate'),
+    permissionMiddleware.bind(null, 'taxonomyCreate'),
     asyncMiddleware(async (req, res) => {
       const taxonomy = Taxonomy(await getConfig(req.session));
 
@@ -66,7 +90,7 @@ module.exports = ({
    *  get:
    *    tags:
    *      - taxonomy
-   *    summary: Get taxonomy
+   *    summary: Read taxonomy
    *    produces:
    *      - application/json
    *    parameters:
@@ -101,6 +125,30 @@ module.exports = ({
     })
   );
 
+  /**
+   * @swagger
+   * /taxonomy:
+   *  put:
+   *    tags:
+   *      - taxonomy
+   *    summary: Update taxonomy
+   *    produces:
+   *      - application/json
+   *    parameters:
+   *      - name: taxonomy
+   *        description: Taxonomy
+   *        in: body
+   *        required: true
+   *        schema:
+   *          type: object
+   *          $ref: '#/definitions/Taxonomy'
+   *    responses:
+   *      200:
+   *        description: Taxonomy
+   *        schema:
+   *          type: object
+   *          $ref: '#/definitions/Taxonomy'
+   */
   router.put(
     '/taxonomy.:ext?',
     authMiddleware,
@@ -119,7 +167,7 @@ module.exports = ({
   router.delete(
     '/taxonomy.:ext?',
     authMiddleware,
-    permissionMiddleware.bind(null, 'taxonomyUpdate'),
+    permissionMiddleware.bind(null, 'taxonomyDelete'),
     asyncMiddleware(async (req, res) => {
       const taxonomy = Taxonomy(await getConfig(req.session));
 

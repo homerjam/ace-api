@@ -1,6 +1,7 @@
 const _ = require('lodash');
+const { diff } = require('deep-diff');
 const Db = require('./db');
-const ClientConfig = require('./client-config');
+const Utils = require('./utils');
 
 class Taxonomy {
   constructor(config) {
@@ -8,68 +9,93 @@ class Taxonomy {
   }
 
   async create(taxonomy) {
-    const cc = new ClientConfig(this.config);
-
-    const clientConfig = await cc.get();
-
-    clientConfig.taxonomies.push(taxonomy);
-
-    return cc.set(clientConfig);
+    taxonomy = await this.update(taxonomy);
+    return taxonomy;
   }
 
   async read(taxonomySlug) {
-    const cc = new ClientConfig(this.config);
-
-    const clientConfig = await cc.get();
-
-    const taxonomy = _.find(clientConfig.taxonomies, { slug: taxonomySlug });
+    const taxonomy = await Db.connect(this.config).get(
+      `taxonomy.${taxonomySlug}`
+    );
 
     if (!taxonomy) {
-      throw Error(`Taxonomy not found: ${taxonomySlug}`);
+      throw Error(`Taxonomy not found '${taxonomySlug}'`);
     }
 
     return taxonomy;
   }
 
   async update(taxonomy) {
-    const cc = new ClientConfig(this.config);
-
-    const clientConfig = await cc.get();
-
-    const index = _.findIndex(clientConfig.taxonomies, { slug: taxonomy.slug });
-
-    if (index === -1) {
-      throw Error(`Taxonomy not found: ${taxonomy.slug}`);
+    if (!taxonomy.slug) {
+      throw Error(`Taxonomy requires 'slug'`);
     }
 
-    clientConfig.taxonomies.splice(index, 1, taxonomy);
+    const oldTaxonomy = await this.read(taxonomy.slug);
 
-    return cc.set(clientConfig);
+    if (oldTaxonomy) {
+      const changes = diff(oldTaxonomy, taxonomy);
+
+      // TODO: get diff and update/delete terms
+
+      console.log(changes);
+
+      // const deletedTerms = [];
+
+      // changes.forEach((change) => {
+      //   if (change.kind === 'A' && change.item.kind === 'D') {
+      //     const path = change.path.concat([change.index - 1]);
+      //     const term = _.get(oldTaxonomy, path);
+      //     if (term) {
+      //       deletedTerms.push({
+      //         path,
+      //         term,
+      //       });
+      //     }
+      //   }
+      // });
+
+      // console.log(deletedTerms);
+
+      // const updatedTerms = [];
+
+      // changes.forEach((change) => {
+      //   if (change.kind === 'E') {
+      //     updatedTerms.push(_.get(oldTaxonomy, change.path.slice(0, -1)));
+      //   }
+      // });
+
+      // updatedTerms = _.uniqBy(updatedTerms, 'id');
+
+      // console.log(updatedTerms);
+    }
+
+    taxonomy._id = `taxonomy.${taxonomy.slug}`;
+    taxonomy.type = 'taxonomy';
+
+    taxonomy = await Utils.createOrUpdate(this.config, taxonomy);
+
+    return taxonomy;
   }
 
   async delete(taxonomySlug) {
-    const cc = new ClientConfig(this.config);
+    let taxonomy = await this.read(taxonomySlug);
 
-    const clientConfig = await cc.get();
+    taxonomy._deleted = true;
 
-    taxonomySlug = _.isArray(taxonomySlug) ? taxonomySlug : [taxonomySlug];
+    taxonomy = await Utils.createOrUpdate(this.config, taxonomy);
 
-    clientConfig.taxonomies = clientConfig.taxonomies.filter(
-      taxonomy => taxonomySlug.indexOf(taxonomy.slug) === -1
-    );
-
-    return cc.set(clientConfig);
+    return taxonomy;
   }
 
-  async entitiesByTerm(term) {
+  async entitiesByTerm(termId) {
     const db = Db.connect(this.config);
 
     const entityGroups = (
       await db.view('entity', 'byTaxonomyTerm', {
-        keys: [term.id],
+        keys: [termId],
         group: true,
       })
-    ).rows.map(row => row.value)[0];
+    ).rows.map((row) => row.value)[0];
 
     if (!entityGroups) {
       return [];
@@ -77,7 +103,7 @@ class Taxonomy {
 
     let entityIds = [];
 
-    _.forEach(entityGroups, entities => {
+    _.forEach(entityGroups, (entities) => {
       entityIds = entityIds.concat(entities);
     });
 
@@ -86,8 +112,8 @@ class Taxonomy {
     const entities = (
       await db.fetch({ keys: entityIds, include_docs: true })
     ).rows
-      .filter(row => row.doc)
-      .map(row => row.doc);
+      .filter((row) => row.doc)
+      .map((row) => row.doc);
 
     return entities;
   }
@@ -101,16 +127,16 @@ class Taxonomy {
   }
 
   async updateTerm(term) {
-    let entities = await this.entitiesByTerm(term);
+    let entities = await this.entitiesByTerm(term.id);
 
-    entities = entities.map(entity => {
-      entity.fields = _.mapValues(entity.fields, field => {
+    entities = entities.map((entity) => {
+      entity.fields = _.mapValues(entity.fields, (field) => {
         if (field.type === 'taxonomy' && field.value) {
           if (!field.value.terms) {
             field.value.terms = [];
           }
 
-          field.value.terms = field.value.terms.map(_term => {
+          field.value.terms = field.value.terms.map((_term) => {
             if (_term.id === term.id) {
               _term.title = term.title;
               _term.slug = term.slug;
@@ -120,7 +146,7 @@ class Taxonomy {
               _term.parents = [];
             }
 
-            _term.parents = _term.parents.map(parent => {
+            _term.parents = _term.parents.map((parent) => {
               if (parent.id === term.id) {
                 parent.title = term.title;
                 parent.slug = term.slug;
@@ -137,26 +163,28 @@ class Taxonomy {
       return entity;
     });
 
-    return Db.connect(this.config).bulk({ docs: entities });
+    const result = await Utils.chunkBulk(this.config, entities);
+
+    return result;
   }
 
-  async deleteTerm(term) {
-    let entities = await this.entitiesByTerm(term);
+  async deleteTerm(termId) {
+    let entities = await this.entitiesByTerm(termId);
 
-    entities = entities.map(entity => {
-      entity.fields = _.mapValues(entity.fields, field => {
+    entities = entities.map((entity) => {
+      entity.fields = _.mapValues(entity.fields, (field) => {
         if (field.type === 'taxonomy' && field.value) {
           if (!field.value.terms) {
             field.value.terms = [];
           }
 
-          field.value.terms = field.value.terms.filter(_term => {
-            if (_term.id === term.id) {
+          field.value.terms = field.value.terms.filter((_term) => {
+            if (_term.id === termId) {
               return false;
             }
 
             if (
-              (_term.parents || []).filter(parent => parent.id === term.id)
+              (_term.parents || []).filter((parent) => parent.id === termId)
                 .length
             ) {
               return false;
@@ -171,7 +199,9 @@ class Taxonomy {
       return entity;
     });
 
-    return Db.connect(this.config).bulk({ docs: entities });
+    const result = await Utils.chunkBulk(this.config, entities);
+
+    return result;
   }
 }
 
