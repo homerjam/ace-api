@@ -6,11 +6,12 @@ const ClientConfig = require('./client-config');
 class Assist {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async deleteFiles(fileNames) {
-    const cc = new ClientConfig(this.config);
-    const clientConfig = await cc.get();
+    const clientConfig = await new ClientConfig(this.config).get();
 
     const assetsSlug = _.get(clientConfig, 'assets.slug', this.config.slug);
 

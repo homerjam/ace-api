@@ -22,6 +22,8 @@ class Auth {
       issuer: 'https://' + this.config.auth0.domain + '/',
       algorithms: ['RS256'],
     });
+
+    return this;
   }
 
   async authUser(slug, accessToken) {

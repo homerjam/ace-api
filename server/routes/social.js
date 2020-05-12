@@ -1,5 +1,5 @@
 module.exports = ({
-  ClientConfig,
+  Settings,
   Instagram,
   router,
   cacheMiddleware,
@@ -53,13 +53,11 @@ module.exports = ({
       let accessToken = instagramAccessTokenMap[req.session.slug];
 
       if (!accessToken) {
-        const cc = ClientConfig(config);
-
         try {
-          const clientConfig = await cc.get();
-          accessToken = clientConfig.provider.instagram.access_token;
+          const settings = await Settings(await getConfig(req.session)).read();
+          accessToken = settings.provider.instagram.access_token;
         } catch (error) {
-          handleError(res, Error('Instagram: access_token required'));
+          handleError(res, Error(`Instagram requires 'access_token'`));
           return;
         }
       }

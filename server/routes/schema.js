@@ -13,10 +13,12 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await schema.create(req.body.schema));
+        handleResponse(
+          req,
+          res,
+          await Schema(await getConfig(req.session)).create(req.body.schema)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -28,10 +30,12 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await schema.read(req.query.schemaId));
+        handleResponse(
+          req,
+          res,
+          await Schema(await getConfig(req.session)).read(req.query.schemaId)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -43,10 +47,12 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await schema.update(req.body.schema));
+        handleResponse(
+          req,
+          res,
+          await Schema(await getConfig(req.session)).update(req.body.schema)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -58,13 +64,11 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session));
-
       try {
         handleResponse(
           req,
           res,
-          await schema.delete(
+          await Schema(await getConfig(req.session)).delete(
             req.body.schemaSlug ||
               req.body.schemaSlugs ||
               req.query.schemaSlug ||

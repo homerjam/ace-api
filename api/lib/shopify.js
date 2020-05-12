@@ -2,26 +2,25 @@ const axios = require('axios');
 const he = require('he');
 const Handlebars = require('handlebars');
 const jsontoxml = require('jsontoxml');
-
-const ClientConfig = require('./client-config');
+const Settings = require('./settings');
 
 class Shopify {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async getCatalog({ shopLink, productLinkTemplate }) {
-    const cc = new ClientConfig(this.config);
-
-    const clientConfig = await cc.get();
+    const settings = await Settings(this.config).read();
 
     const result = (
       await axios({
-        url: `https://${clientConfig.provider.shopify.domain}.myshopify.com/api/graphql`,
+        url: `https://${settings.provider.shopify.domain}.myshopify.com/api/graphql`,
         method: 'post',
         headers: {
           'X-Shopify-Storefront-Access-Token':
-            clientConfig.provider.shopify.storefrontAccessToken,
+            settings.provider.shopify.storefrontAccessToken,
         },
         data: {
           query: `
@@ -73,7 +72,7 @@ class Shopify {
 
     const template = Handlebars.compile(productLinkTemplate);
 
-    const products = result.shop.products.edges.map(edge => ({
+    const products = result.shop.products.edges.map((edge) => ({
       'g:id': edge.node.handle,
       'g:title': he.encode(edge.node.title),
       'g:description': he.encode(edge.node.description),
@@ -96,7 +95,7 @@ class Shopify {
       { name: 'description', text: result.shop.description },
     ];
 
-    products.forEach(product => {
+    products.forEach((product) => {
       channel.push({
         name: 'item',
         children: product,

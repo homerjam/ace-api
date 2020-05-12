@@ -5,6 +5,8 @@ const Utils = require('./utils');
 class User {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async create(user) {

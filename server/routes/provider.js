@@ -83,7 +83,7 @@ module.exports = ({
           forceRefresh: true,
         });
 
-        handleResponse(req, res, updatedUser);
+        handleResponse(req, res, updatedUser || {});
       } catch (error) {
         handleError(req, res, error);
       }
@@ -102,7 +102,7 @@ module.exports = ({
           forceRefresh: true,
         });
 
-        handleResponse(req, res, updatedSettings);
+        handleResponse(req, res, updatedSettings || {});
       } catch (error) {
         handleError(req, res, error);
       }

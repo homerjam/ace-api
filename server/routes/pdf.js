@@ -61,14 +61,11 @@ module.exports = ({
     asyncMiddleware(async (req, res) => {
       const config = await getConfig(req.session);
 
-      const cc = ClientConfig(config);
-      const clientConfig = await cc.get();
+      const clientConfig = await ClientConfig(config).get();
 
       const assetSlug = _.get(clientConfig, 'assets.slug', req.session.slug);
 
-      const pdf = Pdf(config);
-
-      pdf
+      Pdf(config)
         .getPayload(req.query.template, req.query.id, req.session.role)
         .then((payload) => {
           payload = JSON.stringify(payload).replace(/'/gi, '’');

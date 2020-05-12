@@ -88,13 +88,13 @@ module.exports = ({
     // cacheMiddleware,
     permissionMiddleware.bind(null, 'settingsRead'),
     asyncMiddleware(async (req, res) => {
-      const settings = Settings(await getConfig(req.session));
-
       try {
         handleResponse(
           req,
           res,
-          await settings.read(req.query.slug || req.query.settingsSlug),
+          await Settings(await getConfig(req.session)).read(
+            req.query.slug || req.query.settingsSlug
+          ),
           true
         );
       } catch (error) {

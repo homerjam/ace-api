@@ -18,6 +18,8 @@ const providerTokenUri = {
 class Provider {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async auth(
@@ -108,28 +110,32 @@ class Provider {
         new Date(providerSettings.expires).getTime() ||
       forceRefresh
     ) {
-      providerSettings = await this.auth(providerSlug, providerSettings, {
-        refresh: true,
-      });
+      try {
+        providerSettings = await this.auth(providerSlug, providerSettings, {
+          refresh: true,
+        });
 
-      if (userId) {
-        updatedUser = await user.update(
-          _.merge({}, userObject, {
-            settings: {
+        if (userId) {
+          updatedUser = await user.update(
+            _.merge({}, userObject, {
+              settings: {
+                provider: {
+                  [providerSlug]: providerSettings,
+                },
+              },
+            })
+          );
+        } else {
+          updatedSettings = await settings.update(
+            _.merge({}, settingsObject, {
               provider: {
                 [providerSlug]: providerSettings,
               },
-            },
-          })
-        );
-      } else {
-        updatedSettings = await settings.update(
-          _.merge({}, settingsObject, {
-            provider: {
-              [providerSlug]: providerSettings,
-            },
-          })
-        );
+            })
+          );
+        }
+      } catch (error) {
+        console.error(error);
       }
     }
 

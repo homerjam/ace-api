@@ -5,6 +5,8 @@ const Db = require('./db');
 class Tools {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async getDb() {

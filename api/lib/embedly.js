@@ -5,6 +5,8 @@ const EmbedlyApi = require('embedly');
 class Embedly {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async oembed(urls) {

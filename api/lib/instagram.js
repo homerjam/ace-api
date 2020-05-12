@@ -11,10 +11,12 @@ class Instagram {
     };
 
     this.options = _.merge({}, defaultOptions, options || {});
+
+    return this;
   }
 
   async get(endpoint, query) {
-    return await got(
+    const result = await got(
       [this.options.host, this.options.version, endpoint].join('/'),
       {
         searchParams: {
@@ -25,6 +27,7 @@ class Instagram {
         responseType: 'json',
       }
     );
+    return result;
   }
 }
 

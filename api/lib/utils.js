@@ -4,6 +4,8 @@ const Db = require('./db');
 class Utils {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   static async createOrUpdate(config, doc) {

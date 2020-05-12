@@ -10,6 +10,8 @@ const ClientConfig = require('./client-config');
 class Pdf {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async getTemplates() {
@@ -65,8 +67,7 @@ class Pdf {
   }
 
   async getPdf(payload) {
-    const cc = new ClientConfig(this.config);
-    const clientConfig = await cc.get();
+    const clientConfig = await ClientConfig(this.config).get();
 
     const assetSlug = _.get(clientConfig, 'assets.slug', this.config.slug);
     const assistPdfUrl = `${this.config.assist.url}/${assetSlug}/pdf/download`;

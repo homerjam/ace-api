@@ -1,5 +1,5 @@
 module.exports = ({
-  ClientConfig,
+  Settings,
   router,
   cacheMiddleware,
   asyncMiddleware,
@@ -30,12 +30,10 @@ module.exports = ({
     '/metadata.:ext?',
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
-      const cc = ClientConfig(await getConfig(req.session));
-
-      const clientConfig = await cc.get();
+      const settings = await Settings(await getConfig(req.session)).read();
 
       try {
-        handleResponse(req, res, clientConfig.client.metadata, true);
+        handleResponse(req, res, settings.metadata, true);
       } catch (error) {
         handleError(req, res, error);
       }

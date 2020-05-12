@@ -13,6 +13,8 @@ const Assist = require('./assist');
 class Entity {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   static flattenValues(docs) {
@@ -806,8 +808,7 @@ class Entity {
       result = await Db.connect(this.config).find(mangoQuery);
     } catch (error) {
       if (error.error === 'no_usable_index') {
-        const schema = new Schema(this.config);
-        await schema.updateEntityIndex();
+        await new Schema(this.config).updateEntityIndex();
 
         result = await Db.connect(this.config).find(mangoQuery);
       }
@@ -895,8 +896,7 @@ class Entity {
       throw Error(`Entity requires 'schema'`);
     }
 
-    const cc = new ClientConfig(this.config);
-    const clientConfig = await cc.get();
+    const clientConfig = await new ClientConfig(this.config).get();
 
     entities = entities.map((entity) => {
       return this._prepEntity(entity, clientConfig);
@@ -922,8 +922,7 @@ class Entity {
       })
     ).rows;
 
-    const cc = new ClientConfig(this.config);
-    const clientConfig = await cc.get();
+    const clientConfig = await new ClientConfig(this.config).get();
 
     const updateChildEntitiesMap = {};
     const oldFileNames = [];

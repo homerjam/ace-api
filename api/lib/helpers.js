@@ -4,6 +4,8 @@ class Helpers {
     this.config = config;
     this.assistUrl = config.assist.url;
     this.slug = config.slug;
+
+    return this;
   }
 
   static groupEntities(entities, groupSize = Infinity) {

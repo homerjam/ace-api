@@ -11,12 +11,14 @@ module.exports = ({
   router.get(
     '/users.:ext?',
     authMiddleware,
-    permissionMiddleware.bind(null, 'user'),
+    permissionMiddleware.bind(null, 'readUsers'),
     asyncMiddleware(async (req, res) => {
-      const user = User(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await user.read());
+        handleResponse(
+          req,
+          res,
+          await User(await getConfig(req.session)).read()
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -26,12 +28,14 @@ module.exports = ({
   router.post(
     '/user.:ext?',
     authMiddleware,
-    permissionMiddleware.bind(null, 'user'),
+    permissionMiddleware.bind(null, 'createUsers'),
     asyncMiddleware(async (req, res) => {
-      const user = User(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await user.create(req.body.user));
+        handleResponse(
+          req,
+          res,
+          await User(await getConfig(req.session)).create(req.body.user)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -41,12 +45,15 @@ module.exports = ({
   router.get(
     '/user.:ext?',
     authMiddleware,
-    permissionMiddleware.bind(null, 'user'),
+    // permissionMiddleware.bind(null, 'readUsers'),
     asyncMiddleware(async (req, res) => {
-      const user = User(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await user.read(req.query.userId));
+        // handleResponse(req, res, await User(await getConfig(req.session)).read(req.query.userId));
+        handleResponse(
+          req,
+          res,
+          await User(await getConfig(req.session)).read(req.session.userId)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -56,12 +63,14 @@ module.exports = ({
   router.put(
     '/user.:ext?',
     authMiddleware,
-    permissionMiddleware.bind(null, 'user'),
+    permissionMiddleware.bind(null, 'updateUsers'),
     asyncMiddleware(async (req, res) => {
-      const user = User(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await user.update(req.body.user));
+        handleResponse(
+          req,
+          res,
+          await User(await getConfig(req.session)).update(req.body.user)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -71,15 +80,15 @@ module.exports = ({
   router.delete(
     '/user.:ext?',
     authMiddleware,
-    permissionMiddleware.bind(null, 'user'),
+    permissionMiddleware.bind(null, 'deleteUsers'),
     asyncMiddleware(async (req, res) => {
-      const user = User(await getConfig(req.session));
-
       try {
         handleResponse(
           req,
           res,
-          await user.delete(req.body.userId || req.query.userId)
+          await User(await getConfig(req.session)).delete(
+            req.body.userId || req.query.userId
+          )
         );
       } catch (error) {
         handleError(req, res, error);

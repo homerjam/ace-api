@@ -46,6 +46,8 @@ const termMatcher = (value) => {
 class Taxonomy {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async create(taxonomy) {

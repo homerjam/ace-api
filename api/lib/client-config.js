@@ -20,6 +20,8 @@ const DEFAULT_CLIENT_CONFIG = {
 class ClientConfig {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async get() {

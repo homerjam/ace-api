@@ -33,6 +33,8 @@ class Email {
       'mj-column': ['mc-image'],
       'mj-hero': ['mc-image'],
     });
+
+    return this;
   }
 
   async getTemplate(templateSlug, templateData = {}, templateOptions = {}) {
@@ -82,8 +84,7 @@ class Email {
         .replace(/"/g, "'");
     }
 
-    const cc = new ClientConfig(this.config);
-    const clientConfig = await cc.get();
+    const clientConfig = await new ClientConfig(this.config).get();
     const helpers = new Helpers(this.config);
 
     templateData = _.merge({}, templateData, {
@@ -187,9 +188,7 @@ class Email {
   }
 
   async subscribe(details, provider, listId) {
-    const cc = new ClientConfig(this.config);
-
-    const clientConfig = await cc.get();
+    const clientConfig = await new ClientConfig(this.config).get();
 
     if (provider === 'createsend') {
       if (!clientConfig.provider.createsend) {

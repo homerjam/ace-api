@@ -17,6 +17,8 @@ const defaultSettings = {
 class Settings {
   constructor(config) {
     this.config = config;
+
+    return this;
   }
 
   async create(settings) {

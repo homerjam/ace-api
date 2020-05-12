@@ -110,13 +110,13 @@ module.exports = ({
     '/taxonomy.:ext?',
     cacheMiddleware,
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session));
-
       try {
         handleResponse(
           req,
           res,
-          await taxonomy.read(req.query.slug || req.query.taxonomySlug),
+          await Taxonomy(await getConfig(req.session)).read(
+            req.query.slug || req.query.taxonomySlug
+          ),
           true
         );
       } catch (error) {
@@ -154,10 +154,12 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await taxonomy.update(req.body.taxonomy));
+        handleResponse(
+          req,
+          res,
+          await Taxonomy(await getConfig(req.session)).update(req.body.taxonomy)
+        );
       } catch (error) {
         handleError(req, res, error);
       }
@@ -169,13 +171,11 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyDelete'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session));
-
       try {
         handleResponse(
           req,
           res,
-          await taxonomy.delete(
+          await Taxonomy(await getConfig(req.session)).delete(
             req.body.taxonomySlug ||
               req.body.taxonomySlugs ||
               req.query.taxonomySlug ||
@@ -193,13 +193,11 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session));
-
       try {
         handleResponse(
           req,
           res,
-          await taxonomy.createTerm(
+          await Taxonomy(await getConfig(req.session)).createTerm(
             req.body.slug || req.body.taxonomySlug,
             req.body.term
           )
@@ -215,13 +213,13 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session));
-
       try {
         handleResponse(
           req,
           res,
-          await taxonomy.updateTerm(req.query.term || req.body.term)
+          await Taxonomy(await getConfig(req.session)).updateTerm(
+            req.query.term || req.body.term
+          )
         );
       } catch (error) {
         handleError(req, res, error);
@@ -234,13 +232,13 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyUpdate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session));
-
       try {
         handleResponse(
           req,
           res,
-          await taxonomy.deleteTerm(req.query.term || req.body.term)
+          await Taxonomy(await getConfig(req.session)).deleteTerm(
+            req.query.term || req.body.term
+          )
         );
       } catch (error) {
         handleError(req, res, error);

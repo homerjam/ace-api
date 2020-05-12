@@ -23,9 +23,7 @@ class Schema {
   }
 
   async read(schemaSlug) {
-    const cc = new ClientConfig(this.config);
-
-    const clientConfig = await cc.get();
+    const clientConfig = await new ClientConfig(this.config).get();
 
     const schema = _.find(clientConfig.schemas, { slug: schemaSlug });
 
@@ -102,8 +100,7 @@ class Schema {
 
   async updateEntityIndex(schemas) {
     if (!schemas) {
-      const cc = new ClientConfig(this.config);
-      const clientConfig = await cc.get();
+      const clientConfig = await new ClientConfig(this.config).get();
       schemas = clientConfig.schemas;
     }
 
