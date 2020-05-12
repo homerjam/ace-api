@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const jsonQuery = require('json-query');
-const { diff } = require('deep-diff');
+const odiff = require('odiff');
 const he = require('he');
 const Handlebars = require('handlebars');
 const ClientConfig = require('./client-config');
@@ -950,27 +950,25 @@ class Entity {
       updatedEntity = this._prepEntity(updatedEntity, clientConfig);
 
       if (newEntity) {
-        const diffs = diff(oldEntity, newEntity) || [];
+        const changes = odiff(oldEntity, newEntity);
 
-        diffs.forEach((diff) => {
-          // If any reference fields have changed, update all references
-          if (
-            ['published', 'slug', 'title', 'thumbnail'].includes(diff.path[0])
-          ) {
-            updateChildEntitiesMap[updatedEntity._id] = updatedEntity;
-          }
-
-          // If any file fields have changed, remove the old file
-          if (diff.path[0] === 'fields' && diff.path[2] === 'value') {
-            const field = oldEntity.fields[diff.path[1]];
+        changes
+          .filter((change) => change.type === 'set')
+          .forEach((change) => {
+            // If any reference fields have changed, update all references
             if (
-              ['attachment', 'image', 'audio', 'video'].includes(field.type) &&
-              field.value
+              ['published', 'slug', 'title', 'thumbnail'].includes(
+                change.path[0]
+              )
             ) {
-              oldFileNames.push(field.value.file.name);
+              updateChildEntitiesMap[updatedEntity._id] = updatedEntity;
             }
-          }
-        });
+
+            // If any file fields have changed, remove the old file
+            if (change.path.slice(2).join('.') === 'value.file.name') {
+              oldFileNames.push(change.val);
+            }
+          });
       }
 
       return updatedEntity;

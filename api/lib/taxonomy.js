@@ -1,7 +1,47 @@
 const _ = require('lodash');
-const { diff } = require('deep-diff');
+const odiff = require('odiff');
 const Db = require('./db');
 const Utils = require('./utils');
+
+const deepFind = (object, match, result = []) => {
+  return _.reduce(
+    object,
+    (result, value, key) => {
+      const item = match(value, key, object);
+
+      if (item) {
+        if (_.isArray(result)) {
+          result.push(item);
+        } else {
+          result = {
+            ...result,
+            ...item,
+          };
+        }
+      }
+
+      if (_.isPlainObject(value) || _.isArray(value)) {
+        return deepFind(value, match, result);
+      }
+
+      return result;
+    },
+    result
+  );
+};
+
+const termMatcher = (value) => {
+  if (value.id) {
+    return {
+      [value.id]: {
+        id: value.id,
+        slug: value.slug,
+        title: value.title,
+      },
+    };
+  }
+  return false;
+};
 
 class Taxonomy {
   constructor(config) {
@@ -33,40 +73,28 @@ class Taxonomy {
     const oldTaxonomy = await this.read(taxonomy.slug);
 
     if (oldTaxonomy) {
-      const changes = diff(oldTaxonomy, taxonomy);
+      const oldTerms = deepFind(oldTaxonomy, termMatcher, {});
+      const terms = deepFind(taxonomy, termMatcher, {});
 
-      // TODO: get diff and update/delete terms
+      const changes = odiff(oldTerms, terms);
 
-      console.log(changes);
+      const deletedTerms = [];
+      changes.forEach((change) => {
+        if (change.type === 'unset') {
+          deletedTerms.push(this.deleteTerm(change.path[0]));
+        }
+      });
 
-      // const deletedTerms = [];
+      await Promise.all(deletedTerms);
 
-      // changes.forEach((change) => {
-      //   if (change.kind === 'A' && change.item.kind === 'D') {
-      //     const path = change.path.concat([change.index - 1]);
-      //     const term = _.get(oldTaxonomy, path);
-      //     if (term) {
-      //       deletedTerms.push({
-      //         path,
-      //         term,
-      //       });
-      //     }
-      //   }
-      // });
+      const updatedTerms = [];
+      changes.forEach((change) => {
+        if (change.type === 'set' && change.path[1] === 'slug') {
+          updatedTerms.push(this.updateTerm(terms[change.path[0]]));
+        }
+      });
 
-      // console.log(deletedTerms);
-
-      // const updatedTerms = [];
-
-      // changes.forEach((change) => {
-      //   if (change.kind === 'E') {
-      //     updatedTerms.push(_.get(oldTaxonomy, change.path.slice(0, -1)));
-      //   }
-      // });
-
-      // updatedTerms = _.uniqBy(updatedTerms, 'id');
-
-      // console.log(updatedTerms);
+      await Promise.all(updatedTerms);
     }
 
     taxonomy._id = `taxonomy.${taxonomy.slug}`;
@@ -88,6 +116,10 @@ class Taxonomy {
   }
 
   async entitiesByTerm(termId) {
+    if (!termId) {
+      throw Error(`'termId' required`);
+    }
+
     const db = Db.connect(this.config);
 
     const entityGroups = (
@@ -126,8 +158,8 @@ class Taxonomy {
     return this.update(taxonomy);
   }
 
-  async updateTerm(term) {
-    let entities = await this.entitiesByTerm(term.id);
+  async updateTerm({ id, slug, title }) {
+    let entities = await this.entitiesByTerm(id);
 
     entities = entities.map((entity) => {
       entity.fields = _.mapValues(entity.fields, (field) => {
@@ -136,25 +168,25 @@ class Taxonomy {
             field.value.terms = [];
           }
 
-          field.value.terms = field.value.terms.map((_term) => {
-            if (_term.id === term.id) {
-              _term.title = term.title;
-              _term.slug = term.slug;
+          field.value.terms = field.value.terms.map((term) => {
+            if (term.id === id) {
+              term.title = title;
+              term.slug = slug;
             }
 
-            if (!_term.parents) {
-              _term.parents = [];
+            if (!term.parents) {
+              term.parents = [];
             }
 
-            _term.parents = _term.parents.map((parent) => {
-              if (parent.id === term.id) {
-                parent.title = term.title;
-                parent.slug = term.slug;
+            term.parents = term.parents.map((parent) => {
+              if (parent.id === id) {
+                parent.title = title;
+                parent.slug = slug;
               }
               return parent;
             });
 
-            return _term;
+            return term;
           });
         }
 
@@ -168,8 +200,8 @@ class Taxonomy {
     return result;
   }
 
-  async deleteTerm(termId) {
-    let entities = await this.entitiesByTerm(termId);
+  async deleteTerm(id) {
+    let entities = await this.entitiesByTerm(id);
 
     entities = entities.map((entity) => {
       entity.fields = _.mapValues(entity.fields, (field) => {
@@ -178,15 +210,16 @@ class Taxonomy {
             field.value.terms = [];
           }
 
-          field.value.terms = field.value.terms.filter((_term) => {
-            if (_term.id === termId) {
+          field.value.terms = field.value.terms.filter((term) => {
+            if (term.id === id) {
               return false;
             }
 
-            if (
-              (_term.parents || []).filter((parent) => parent.id === termId)
-                .length
-            ) {
+            if (!term.parents) {
+              term.parents = [];
+            }
+
+            if (_.find(term.parents, (parent) => parent.id === id)) {
               return false;
             }
 

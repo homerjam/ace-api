@@ -2901,11 +2901,6 @@ decompress-response@^5.0.0:
   dependencies:
     mimic-response "^2.0.0"
 
-deep-diff@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/deep-diff/-/deep-diff-1.0.2.tgz#afd3d1f749115be965e89c63edc7abb1506b9c26"
-  integrity sha512-aWS3UIVH+NPGCD1kki+DCU9Dua032iSsO43LqQpcs4R3+dVv7tX0qBGjiVHJHjplsoUM2XRO/KB92glqc68awg==
-
 deep-extend@^0.5.0:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/deep-extend/-/deep-extend-0.5.1.tgz#b894a9dd90d3023fbf1c55a394fb858eb2066f1f"
@@ -7106,6 +7101,11 @@ object.reduce@^1.0.0:
   dependencies:
     for-own "^1.0.0"
     make-iterator "^1.0.0"
+
+odiff@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/odiff/-/odiff-1.4.0.tgz#b70112e813ebc244ff4e395118d9b72a27de9d8b"
+  integrity sha512-+serfEiFyvDEPKlmvunntssDUzmPpmF6k9L8EsV1iG6LR+TmeiHiyXL51nXkA65kawcz2kpSloZ3NjvhTDX6nw==
 
 on-finished@~2.3.0:
   version "2.3.0"
