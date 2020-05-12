@@ -1,70 +1,76 @@
 const _ = require('lodash');
-const ClientConfig = require('./client-config');
+const Db = require('./db');
+const Utils = require('./utils');
 
 class User {
   constructor(config) {
     this.config = config;
-
-    return this;
   }
 
   async create(user) {
-    const cc = new ClientConfig(this.config);
-
-    const clientConfig = await cc.get();
-
-    user.id = user.id.toLowerCase();
-    user.email = user.email.toLowerCase();
-
-    clientConfig.users.push(user);
-
-    return cc.set(clientConfig);
-  }
-
-  async read(userId) {
-    const cc = new ClientConfig(this.config);
-
-    const clientConfig = await cc.get();
-
-    const user = _.find(clientConfig.users, { id: userId });
-
-    if (!user) {
-      throw Error(`User not found: ${userId}`);
-    }
-
+    user = await this.update(user);
     return user;
   }
 
+  async read(userId) {
+    let users;
+
+    try {
+      users = await Db.connect(this.config).get('users');
+    } catch (error) {
+      users = {
+        users: {},
+      };
+    }
+
+    if (userId) {
+      if (!users.users[userId]) {
+        throw Error(`User not found '${userId}'`);
+      }
+
+      return { [userId]: users.users[userId] };
+    }
+
+    return users.users;
+  }
+
   async update(user) {
-    const cc = new ClientConfig(this.config);
-
-    const clientConfig = await cc.get();
-
-    const index = _.findIndex(clientConfig.users, { id: user.id });
-
-    if (index === -1) {
-      throw Error(`User not found: ${user.id}`);
+    if (!user.email) {
+      throw Error(`User requires 'email'`);
     }
 
     user.email = user.email.toLowerCase();
 
-    clientConfig.users.splice(index, 1, user);
+    if (!user.id) {
+      user.id = user.email;
+    }
 
-    return cc.set(clientConfig);
+    let users = await this.read();
+
+    users = await Utils.createOrUpdate(this.config, {
+      users: {
+        ...users,
+        [user.id]: _.merge({}, users[user.id], user),
+      },
+      _id: 'users',
+      type: 'users',
+    });
+
+    return { [user.id]: users.users[user.id] };
   }
 
   async delete(userId) {
-    const cc = new ClientConfig(this.config);
+    let users = await this.read();
 
-    const clientConfig = await cc.get();
+    delete users[userId];
 
-    userId = _.isArray(userId) ? userId : [userId];
+    users = await Utils.createOrUpdate(this.config, {
+      users,
+      _id: 'users',
+      type: 'users',
+    });
 
-    clientConfig.users = clientConfig.users.filter(
-      user => userId.indexOf(user.id) === -1
-    );
-
-    return cc.set(clientConfig);
+    return { [userId]: null };
   }
 }
 

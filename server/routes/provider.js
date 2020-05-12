@@ -2,8 +2,7 @@ const _ = require('lodash');
 const axios = require('axios');
 
 module.exports = ({
-  Auth,
-  ClientConfig,
+  Provider,
   router,
   cacheMiddleware,
   asyncMiddleware,
@@ -20,58 +19,35 @@ module.exports = ({
 
   const providerApiHandler = asyncMiddleware(async (req, res) => {
     const method = req.method;
-    const provider = req.params[0];
+    const providerSlug = req.params[0];
     const userId = req.params[2] ? req.params[1] : null;
     const endpoint = (req.params[2] || req.params[1])
       .split('/')
       .filter((param) => param !== '')
       .join('/');
 
-    const config = await getConfig(req.session);
+    const provider = Provider(await getConfig(req.session));
 
-    const cc = ClientConfig(config);
-
-    let clientConfig = await cc.get();
-    let providerConfig;
-
-    if (userId) {
-      if (!clientConfig.userSettings[userId]) {
-        throw Error(`User settings not found: ${userId}`);
-      }
-      providerConfig = clientConfig.userSettings[userId].provider[provider];
-    } else {
-      providerConfig = clientConfig.provider[provider];
-    }
-
-    if (
-      Math.floor(new Date().getTime() / 1000) - (providerConfig.begins || 0) >
-      providerConfig.expires_in
-    ) {
-      const auth = Auth(await getConfig(req.session));
-
-      if (userId) {
-        clientConfig = await auth.authProvider(provider, {}, userId, true);
-        providerConfig = clientConfig.userSettings[userId].provider[provider];
-      } else {
-        clientConfig = await auth.authProvider(provider, {}, null, true);
-        providerConfig = clientConfig.provider[provider];
-      }
-    }
+    const { providerSettings } = await provider.settings(providerSlug, {
+      userId,
+    });
 
     let params = _.merge({}, req.query);
+
+    // Omit any proprietary params
     params = _.omitBy(params, (value, key) => /^(__)/.test(key));
 
-    if (!/bearer/i.test(providerConfig.token_type)) {
-      params.access_token = providerConfig.access_token;
+    if (!/bearer/i.test(providerSettings.token_type)) {
+      params.access_token = providerSettings.access_token;
     }
 
     try {
       const result = await axios.request({
         url: endpoint,
-        baseURL: providerApiBaseUrl[provider],
+        baseURL: providerApiBaseUrl[providerSlug],
         method,
         headers: {
-          Authorization: `Bearer ${providerConfig.access_token}`,
+          Authorization: `Bearer ${providerSettings.access_token}`,
         },
         params,
       });
@@ -92,5 +68,44 @@ module.exports = ({
     /\/provider\/([^/]+)\/api\/?(.+)?/,
     cacheMiddleware,
     providerApiHandler
+  );
+
+  router.put(
+    '/provider/:providerSlug/:userId/refresh',
+    asyncMiddleware(async (req, res) => {
+      const { providerSlug, userId } = req.params;
+
+      try {
+        const provider = Provider(await getConfig(req.session));
+
+        const { updatedUser } = await provider.settings(providerSlug, {
+          userId,
+          forceRefresh: true,
+        });
+
+        handleResponse(req, res, updatedUser);
+      } catch (error) {
+        handleError(req, res, error);
+      }
+    })
+  );
+
+  router.put(
+    '/provider/:providerSlug/refresh',
+    asyncMiddleware(async (req, res) => {
+      const { providerSlug } = req.params;
+
+      try {
+        const provider = Provider(await getConfig(req.session));
+
+        const { updatedSettings } = await provider.settings(providerSlug, {
+          forceRefresh: true,
+        });
+
+        handleResponse(req, res, updatedSettings);
+      } catch (error) {
+        handleError(req, res, error);
+      }
+    })
   );
 };

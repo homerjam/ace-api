@@ -62,7 +62,7 @@ class Taxonomy {
       throw Error(`Taxonomy not found '${taxonomySlug}'`);
     }
 
-    return taxonomy;
+    return { [taxonomySlug]: taxonomy.taxonomy };
   }
 
   async update(taxonomy) {
@@ -99,12 +99,13 @@ class Taxonomy {
       //
     }
 
-    taxonomy._id = `taxonomy.${taxonomy.slug}`;
-    taxonomy.type = 'taxonomy';
+    taxonomy = await Utils.createOrUpdate(this.config, {
+      taxonomy,
+      _id: `taxonomy.${taxonomy.slug}`,
+      type: 'taxonomy',
+    });
 
-    taxonomy = await Utils.createOrUpdate(this.config, taxonomy);
-
-    return taxonomy;
+    return { [taxonomy.slug]: taxonomy.taxonomy };
   }
 
   async delete(taxonomySlug) {
@@ -114,7 +115,7 @@ class Taxonomy {
 
     taxonomy = await Utils.createOrUpdate(this.config, taxonomy);
 
-    return taxonomy;
+    return { [taxonomySlug]: null };
   }
 
   async entitiesByTerm(termId) {

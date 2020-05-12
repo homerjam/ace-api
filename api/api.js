@@ -14,6 +14,7 @@ Api.Helpers = (...args) => new (require('./lib/helpers'))(...args);
 Api.Instagram = (...args) => new (require('./lib/instagram'))(...args);
 Api.Jwt = (...args) => new (require('./lib/jwt'))(...args);
 Api.Pdf = (...args) => new (require('./lib/pdf'))(...args);
+Api.Provider = (...args) => new (require('./lib/provider'))(...args);
 Api.Roles = (...args) => new (require('./lib/roles'))(...args);
 Api.Schema = (...args) => new (require('./lib/schema'))(...args);
 Api.Settings = (...args) => new (require('./lib/settings'))(...args);

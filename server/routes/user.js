@@ -8,6 +8,21 @@ module.exports = ({
   handleResponse,
   handleError,
 }) => {
+  router.get(
+    '/users.:ext?',
+    authMiddleware,
+    permissionMiddleware.bind(null, 'user'),
+    asyncMiddleware(async (req, res) => {
+      const user = User(await getConfig(req.session));
+
+      try {
+        handleResponse(req, res, await user.read());
+      } catch (error) {
+        handleError(req, res, error);
+      }
+    })
+  );
+
   router.post(
     '/user.:ext?',
     authMiddleware,
@@ -64,12 +79,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await user.delete(
-            req.body.userId ||
-              req.body.userIds ||
-              req.query.userId ||
-              req.query.userIds
-          )
+          await user.delete(req.body.userId || req.query.userId)
         );
       } catch (error) {
         handleError(req, res, error);

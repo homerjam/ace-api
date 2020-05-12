@@ -348,6 +348,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     });
   };
 
+  // TODO: convert params to explicit/object
   const handleResponse = async (req, res, response, cacheResponse = false) => {
     if (response === undefined || response === null) {
       response = '';

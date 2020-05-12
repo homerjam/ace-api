@@ -27,7 +27,7 @@ class Settings {
   async read() {
     const settings = await Db.connect(this.config).get('settings');
 
-    return _.merge(defaultSettings, settings);
+    return _.merge(defaultSettings, settings.settings);
   }
 
   async update(settings) {
@@ -38,12 +38,13 @@ class Settings {
       //
     }
 
-    settings._id = 'settings';
-    settings.type = 'settings';
+    settings = await Utils.createOrUpdate(this.config, {
+      settings,
+      _id: 'settings',
+      type: 'settings',
+    });
 
-    settings = await Utils.createOrUpdate(this.config, settings);
-
-    return _.merge(defaultSettings, settings);
+    return _.merge(defaultSettings, settings.settings);
   }
 }
 
