@@ -5,8 +5,6 @@ const roles = [
     name: 'Admin',
     slug: 'admin',
     permissions: {
-      entityGrid: true,
-
       entityCreate: true,
       entityRead: true,
       entityUpdate: true,
@@ -22,10 +20,14 @@ const roles = [
       fileUpdate: true,
       fileDelete: true,
 
+      settingsCreate: true,
+      settingsRead: true,
+      settingsUpdate: true,
+      settingsDelete: true,
+
       config: false,
       schema: false,
       user: true,
-      settings: true,
       userSettings: true,
       tools: true,
     },
@@ -34,8 +36,6 @@ const roles = [
     name: 'Editor',
     slug: 'editor',
     permissions: {
-      entityGrid: true,
-
       entityCreate: true,
       entityRead: true,
       entityUpdate: true,
@@ -51,10 +51,14 @@ const roles = [
       fileUpdate: true,
       fileDelete: true,
 
+      settingsCreate: true,
+      settingsRead: true,
+      settingsUpdate: true,
+      settingsDelete: true,
+
       config: false,
       schema: false,
       user: false,
-      settings: false,
       userSettings: true,
       tools: false,
     },
@@ -63,8 +67,6 @@ const roles = [
     name: 'Guest',
     slug: 'guest',
     permissions: {
-      entityGrid: true,
-
       entityCreate: false,
       entityRead: true,
       entityUpdate: false,
@@ -80,10 +82,14 @@ const roles = [
       fileUpdate: false,
       fileDelete: false,
 
+      settingsCreate: false,
+      settingsRead: false,
+      settingsUpdate: false,
+      settingsDelete: false,
+
       config: false,
       schema: false,
       user: false,
-      settings: false,
       userSettings: false,
       tools: false,
     },
@@ -92,7 +98,7 @@ const roles = [
 
 class Roles {
   roles() {
-    return roles.map(role => Object.freeze(role));
+    return roles.map((role) => Object.freeze(role));
   }
   role(slug) {
     return _.find(this.roles(), { slug });

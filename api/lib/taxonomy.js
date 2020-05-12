@@ -70,9 +70,9 @@ class Taxonomy {
       throw Error(`Taxonomy requires 'slug'`);
     }
 
-    const oldTaxonomy = await this.read(taxonomy.slug);
+    try {
+      const oldTaxonomy = await this.read(taxonomy.slug);
 
-    if (oldTaxonomy) {
       const oldTerms = deepFind(oldTaxonomy, termMatcher, {});
       const terms = deepFind(taxonomy, termMatcher, {});
 
@@ -95,6 +95,8 @@ class Taxonomy {
       });
 
       await Promise.all(updatedTerms);
+    } catch (error) {
+      //
     }
 
     taxonomy._id = `taxonomy.${taxonomy.slug}`;
