@@ -1,11 +1,16 @@
 const _ = require('lodash');
 
 class Roles {
-  static ADMIN = 'guest';
-  static EDITOR = 'guest';
+  // static SUPER = 'super';
+  static ADMIN = 'admin';
+  static EDITOR = 'editor';
   static GUEST = 'guest';
 
   static roles = [
+    // {
+    //   slug: Roles.SUPER,
+    //   name: 'Super',
+    // },
     {
       slug: Roles.ADMIN,
       name: 'Admin',
