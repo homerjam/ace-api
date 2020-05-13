@@ -19,7 +19,7 @@ const redis = require('redis');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 
-const Api = require('../api/api');
+const App = require('../app/app');
 
 const PORT = process.env.PORT || 5001;
 const HOST = process.env.HOST || 'localhost';
@@ -29,10 +29,10 @@ const defaultConfig = require('./server.config');
 
 function Server(customConfig = {}, customContext = {}, listen = true) {
   const config = deepFreeze(
-    _.merge({}, Api.defaultConfig, defaultConfig, customConfig)
+    _.merge({}, App.defaultConfig, defaultConfig, customConfig)
   );
 
-  const app = express();
+  const expressApp = express();
 
   const sessionOptions = {
     secret: config.session.secret,
@@ -73,22 +73,22 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     };
   }
 
-  app.use(helmet());
-  app.use(logger('tiny'));
-  app.use(cookieParser());
-  app.use(
+  expressApp.use(helmet());
+  expressApp.use(logger('tiny'));
+  expressApp.use(cookieParser());
+  expressApp.use(
     bodyParser.json({
       limit: '50mb',
     })
   );
-  app.use(
+  expressApp.use(
     bodyParser.urlencoded({
       extended: true,
       limit: '50mb',
     })
   );
-  app.use(methodOverride());
-  app.use(session(sessionOptions));
+  expressApp.use(methodOverride());
+  expressApp.use(session(sessionOptions));
 
   // Async middleware
 
@@ -171,12 +171,12 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     let authorised = false;
 
     permissions.forEach((permission) => {
-      if (Api.Roles.find(req.session.role).permissions[permission.trim()]) {
+      if (App.Roles.find(req.session.role).permissions[permission.trim()]) {
         authorised = true;
       }
     });
 
-    if (!Api.Roles.find(req.session.role) || !authorised) {
+    if (!App.Roles.find(req.session.role) || !authorised) {
       res.status(401);
       res.send({
         permissions,
@@ -397,7 +397,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
 
   // Session middleware
 
-  const jwt = Api.Jwt(config);
+  const jwt = App.Jwt(config);
 
   const sessionMiddleware = (req, res, next) => {
     if (skipMiddleware(req)) {
@@ -502,23 +502,28 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
   };
 
   if (config.environment === 'production' && config.api.forceHttps === true) {
-    if (app.enable) {
-      app.enable('trust proxy');
+    if (expressApp.enable) {
+      expressApp.enable('trust proxy');
     }
-    app.use(forceHttps);
+    expressApp.use(forceHttps);
   }
 
-  app.get(`/${config.api.prefix}`, (req, res) => {
+  expressApp.get(`/${config.api.prefix}`, (req, res) => {
     res.send('<pre>ace-api</pre>');
   });
 
-  app.use(`/${config.api.prefix}`, headerMiddleware, sessionMiddleware, router);
+  expressApp.use(
+    `/${config.api.prefix}`,
+    headerMiddleware,
+    sessionMiddleware,
+    router
+  );
 
   // Context
 
   const context = _.merge(
     {
-      app,
+      expressApp,
       router,
       cache,
       authMiddleware,
@@ -532,10 +537,10 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     customContext
   );
 
-  // Inject API into context
+  // Inject App into context
 
-  Object.keys(Api).forEach((key) => {
-    context[key] = Api[key];
+  Object.keys(App).forEach((key) => {
+    context[key] = App[key];
   });
 
   const afterResponse = (req, res) => {
@@ -544,7 +549,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
   };
 
   if (config.environment !== 'production') {
-    app.use((req, res, next) => {
+    expressApp.use((req, res, next) => {
       res.on('finish', afterResponse.bind(null, req, res));
       res.on('close', afterResponse.bind(null, req, res));
       next();
@@ -575,14 +580,14 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
   require('./routes/user')(context, config);
 
   if (listen) {
-    const server = http.createServer(app);
+    const server = http.createServer(expressApp);
     server.on('listening', () => {
       console.log(`listening: http://${HOST}:${PORT}`);
     });
     server.listen(PORT);
   }
 
-  return app;
+  return expressApp;
 }
 
 module.exports = Server;

@@ -4,7 +4,7 @@ const nodeExternals = require('webpack-node-externals');
 module.exports = [
   {
     devtool: 'source-map',
-    entry: './api/api.js',
+    entry: './app/app.js',
     target: 'node',
     externals: [nodeExternals()],
     module: {
@@ -21,10 +21,10 @@ module.exports = [
       ],
     },
     output: {
-      library: 'AceApi',
+      library: 'App',
       libraryTarget: 'umd',
       path: path.join(__dirname, 'dist'),
-      filename: 'api.js',
+      filename: 'app.js',
     },
   },
   {
@@ -46,7 +46,7 @@ module.exports = [
       ],
     },
     output: {
-      library: 'AceApiServer',
+      library: 'AppServer',
       libraryTarget: 'umd',
       path: path.join(__dirname, 'dist'),
       filename: 'server.js',

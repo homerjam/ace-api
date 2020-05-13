@@ -16,8 +16,8 @@ const defaultSettings = {
 };
 
 class Settings {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
@@ -28,7 +28,7 @@ class Settings {
   }
 
   async read() {
-    const settings = await Db.connect(this.config).get('settings');
+    const settings = await Db.connect(this.appConfig).get('settings');
 
     return _.merge({}, defaultSettings, settings.settings);
   }
@@ -41,7 +41,7 @@ class Settings {
       //
     }
 
-    settings = await Utils.createOrUpdate(this.config, {
+    settings = await Utils.createOrUpdate(this.appConfig, {
       settings,
       _id: 'settings',
       type: 'settings',

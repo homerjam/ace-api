@@ -4,26 +4,26 @@ const Db = require('./db');
 const Fields = require('./fields');
 
 class Schema {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
 
   async create(schema) {
-    const cc = new ClientConfig(this.config);
+    const cc = new ClientConfig(this.appConfig);
 
-    const clientConfig = await cc.get();
+    const clientConfig = await cc.read();
 
     clientConfig.schemas.push(schema);
 
     await this.updateEntityIndex(clientConfig.schemas);
 
-    return cc.set(clientConfig);
+    return cc.update(clientConfig);
   }
 
   async read(schemaSlug) {
-    const clientConfig = await new ClientConfig(this.config).get();
+    const clientConfig = await new ClientConfig(this.appConfig).read();
 
     const schema = _.find(clientConfig.schemas, { slug: schemaSlug });
 
@@ -35,9 +35,9 @@ class Schema {
   }
 
   async update(schema) {
-    const cc = new ClientConfig(this.config);
+    const cc = new ClientConfig(this.appConfig);
 
-    const clientConfig = await cc.get();
+    const clientConfig = await cc.read();
 
     const index = _.findIndex(clientConfig.schemas, { slug: schema.slug });
 
@@ -49,13 +49,13 @@ class Schema {
 
     await this.updateEntityIndex(clientConfig.schemas);
 
-    return cc.set(clientConfig);
+    return cc.update(clientConfig);
   }
 
   async delete(schemaSlugs) {
-    const cc = new ClientConfig(this.config);
+    const cc = new ClientConfig(this.appConfig);
 
-    const clientConfig = await cc.get();
+    const clientConfig = await cc.read();
 
     schemaSlugs = _.isArray(schemaSlugs) ? schemaSlugs : [schemaSlugs];
 
@@ -83,24 +83,24 @@ class Schema {
 
     await this.updateEntityIndex(clientConfig.schemas);
 
-    return cc.set(clientConfig);
+    return cc.update(clientConfig);
   }
 
   async updateAll(schemas) {
-    const cc = new ClientConfig(this.config);
+    const cc = new ClientConfig(this.appConfig);
 
-    const clientConfig = await cc.get();
+    const clientConfig = await cc.read();
 
     clientConfig.schemas = schemas;
 
     // await this.updateEntityIndex(clientConfig.schemas);
 
-    return cc.set(clientConfig);
+    return cc.update(clientConfig);
   }
 
   async updateEntityIndex(schemas) {
     if (!schemas) {
-      const clientConfig = await new ClientConfig(this.config).get();
+      const clientConfig = await new ClientConfig(this.appConfig).read();
       schemas = clientConfig.schemas;
     }
 
@@ -186,7 +186,7 @@ class Schema {
       }
     });
 
-    const result = await Db.connect(this.config).index(index);
+    const result = await Db.connect(this.appConfig).index(index);
 
     return result;
   }

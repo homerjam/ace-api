@@ -1,9 +1,9 @@
 const _ = require('lodash');
 class Helpers {
-  constructor(config) {
-    this.config = config;
-    this.assistUrl = config.assist.url;
-    this.slug = config.slug;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
+    this.assistUrl = this.appConfig.assist.url;
+    this.slug = this.appConfig.slug;
 
     return this;
   }

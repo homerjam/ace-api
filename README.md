@@ -83,8 +83,6 @@ password: pass
 
     EMBEDLY_API_KEY=
 
-    LOGENTRIES_TOKEN=
-
     REDIS_URL=
     # or
     REDIS_HOST=

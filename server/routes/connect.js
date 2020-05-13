@@ -1,9 +1,9 @@
 const grant = require('grant-express');
 
-module.exports = async ({ app, getConfig }) => {
+module.exports = async ({ router, getConfig }) => {
   const config = await getConfig();
 
-  app.all('/connect*', (req, res, next) => {
+  router.all('/connect*', (req, res, next) => {
     grant({
       defaults: {
         origin: req.protocol + '://' + req.get('Host'),

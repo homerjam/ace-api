@@ -11,8 +11,8 @@ const Schema = require('./schema');
 const Assist = require('./assist');
 
 class Entity {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
@@ -173,11 +173,11 @@ class Entity {
       entity.createdAt = now;
     }
     if (!entity.createdBy) {
-      entity.createdBy = this.config.userId;
+      entity.createdBy = this.appConfig.userId;
     }
 
     entity.modifiedAt = now;
-    entity.modifiedBy = this.config.userId;
+    entity.modifiedBy = this.appConfig.userId;
 
     if (entity.published) {
       // entity.publishedAt = JSON.stringify(entity.publishedAt).replace(/"/g, '');
@@ -211,7 +211,7 @@ class Entity {
   }
 
   async fieldValues(fieldSlug, searchTerm) {
-    const result = await Db.connect(this.config).viewWithList(
+    const result = await Db.connect(this.appConfig).viewWithList(
       'entity',
       'byField',
       'search',
@@ -322,7 +322,7 @@ class Entity {
   }
 
   async _entityMapById(ids = [], { parents = false, role = 'guest' }) {
-    const { rows } = await Db.connect(this.config).view(
+    const { rows } = await Db.connect(this.appConfig).view(
       'entity',
       parents ? 'byIdExtended' : 'byId',
       {
@@ -552,7 +552,7 @@ class Entity {
     entities = entities.map((entity) => entity._id);
 
     entities = (
-      await Db.connect(this.config).view('entity', 'byChildren', {
+      await Db.connect(this.appConfig).view('entity', 'byChildren', {
         keys: entities,
         include_docs: true,
       })
@@ -581,7 +581,7 @@ class Entity {
       return [];
     }
 
-    updatedEntities = await Utils.chunkBulk(this.config, updatedEntities);
+    updatedEntities = await Utils.chunkBulk(this.appConfig, updatedEntities);
 
     return updatedEntities;
   }
@@ -591,7 +591,7 @@ class Entity {
       return [];
     }
 
-    const { rows: entities } = await Db.connect(this.config).view(
+    const { rows: entities } = await Db.connect(this.appConfig).view(
       'entity',
       'byChildren',
       {
@@ -630,7 +630,7 @@ class Entity {
       return entity;
     });
 
-    updatedEntities = await Utils.chunkBulk(this.config, updatedEntities);
+    updatedEntities = await Utils.chunkBulk(this.appConfig, updatedEntities);
 
     return updatedEntities;
   }
@@ -681,7 +681,7 @@ class Entity {
       delete queryParams.group_field;
     }
 
-    const result = await Db.connect(this.config).search(
+    const result = await Db.connect(this.appConfig).search(
       'entity',
       queryParams.index || 'all',
       queryParams
@@ -805,12 +805,12 @@ class Entity {
     let result;
 
     try {
-      result = await Db.connect(this.config).find(mangoQuery);
+      result = await Db.connect(this.appConfig).find(mangoQuery);
     } catch (error) {
       if (error.error === 'no_usable_index') {
-        await new Schema(this.config).updateEntityIndex();
+        await new Schema(this.appConfig).updateEntityIndex();
 
-        result = await Db.connect(this.config).find(mangoQuery);
+        result = await Db.connect(this.appConfig).find(mangoQuery);
       }
     }
 
@@ -835,7 +835,7 @@ class Entity {
   }
 
   async entityRevisions(entityId) {
-    const db = Db.connect(this.config);
+    const db = Db.connect(this.appConfig);
 
     const revisionsInfo = (
       await db.get(entityId, {
@@ -896,19 +896,19 @@ class Entity {
       throw Error(`Entity requires 'schema'`);
     }
 
-    const clientConfig = await new ClientConfig(this.config).get();
+    const clientConfig = await new ClientConfig(this.appConfig).read();
 
     entities = entities.map((entity) => {
       return this._prepEntity(entity, clientConfig);
     });
 
-    const createdEntities = await Utils.chunkBulk(this.config, entities);
+    const createdEntities = await Utils.chunkBulk(this.appConfig, entities);
 
     return createdEntities;
   }
 
   async entityRead(entityId) {
-    const entity = await Db.connect(this.config).get(entityId);
+    const entity = await Db.connect(this.appConfig).get(entityId);
     return entity;
   }
 
@@ -916,13 +916,13 @@ class Entity {
     const entityMap = Entity._mapEntities(entities);
 
     entities = (
-      await Db.connect(this.config).fetch({
+      await Db.connect(this.appConfig).fetch({
         keys: _.keys(entityMap),
         include_docs: true,
       })
     ).rows;
 
-    const clientConfig = await new ClientConfig(this.config).get();
+    const clientConfig = await new ClientConfig(this.appConfig).read();
 
     const updateChildEntitiesMap = {};
     const oldFileNames = [];
@@ -975,11 +975,11 @@ class Entity {
 
     if (oldFileNames.length) {
       // TODO: fix delete orphaned files
-      // const assist = new Assist(this.config);
+      // const assist = new Assist(this.appConfig);
       // await assist.deleteFiles(oldFileNames);
     }
 
-    updatedEntities = await Utils.chunkBulk(this.config, updatedEntities);
+    updatedEntities = await Utils.chunkBulk(this.appConfig, updatedEntities);
 
     await this._updateChildEntities(updateChildEntitiesMap);
 
@@ -989,7 +989,7 @@ class Entity {
   async _entityDelete(entityIds, forever = false) {
     let files;
 
-    let entities = await Db.connect(this.config).fetch({
+    let entities = await Db.connect(this.appConfig).fetch({
       keys: _.isArray(entityIds) ? entityIds : [entityIds],
       include_docs: true,
     });
@@ -1004,7 +1004,7 @@ class Entity {
       const fileNames = Entity._fileNames(entities);
 
       if (fileNames.length) {
-        const assist = new Assist(this.config);
+        const assist = new Assist(this.appConfig);
         files = await assist.deleteFiles(fileNames);
       }
 
@@ -1020,7 +1020,7 @@ class Entity {
       });
     }
 
-    entities = await Utils.chunkBulk(this.config, entities);
+    entities = await Utils.chunkBulk(this.appConfig, entities);
 
     return {
       entities,
@@ -1031,7 +1031,7 @@ class Entity {
   async entityDelete(entities, forever = false) {
     if (entities === 'trashed') {
       const entityIds = (
-        await Db.connect(this.config).view('entity', 'trashed', {})
+        await Db.connect(this.appConfig).view('entity', 'trashed', {})
       ).rows.map((row) => row.id);
 
       const result = await this._entityDelete(entityIds, true);

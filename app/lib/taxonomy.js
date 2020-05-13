@@ -44,8 +44,8 @@ const termMatcher = (value) => {
 };
 
 class Taxonomy {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
@@ -56,7 +56,7 @@ class Taxonomy {
   }
 
   async read(taxonomySlug) {
-    const taxonomy = await Db.connect(this.config).get(
+    const taxonomy = await Db.connect(this.appConfig).get(
       `taxonomy.${taxonomySlug}`
     );
 
@@ -101,7 +101,7 @@ class Taxonomy {
       //
     }
 
-    taxonomy = await Utils.createOrUpdate(this.config, {
+    taxonomy = await Utils.createOrUpdate(this.appConfig, {
       taxonomy,
       _id: `taxonomy.${taxonomy.slug}`,
       type: 'taxonomy',
@@ -115,7 +115,7 @@ class Taxonomy {
 
     taxonomy._deleted = true;
 
-    taxonomy = await Utils.createOrUpdate(this.config, taxonomy);
+    taxonomy = await Utils.createOrUpdate(this.appConfig, taxonomy);
 
     return { [taxonomySlug]: null };
   }
@@ -125,7 +125,7 @@ class Taxonomy {
       throw Error(`'termId' required`);
     }
 
-    const db = Db.connect(this.config);
+    const db = Db.connect(this.appConfig);
 
     const entityGroups = (
       await db.view('entity', 'byTaxonomyTerm', {
@@ -200,7 +200,7 @@ class Taxonomy {
       return entity;
     });
 
-    const result = await Utils.chunkBulk(this.config, entities);
+    const result = await Utils.chunkBulk(this.appConfig, entities);
 
     return result;
   }
@@ -237,7 +237,7 @@ class Taxonomy {
       return entity;
     });
 
-    const result = await Utils.chunkBulk(this.config, entities);
+    const result = await Utils.chunkBulk(this.appConfig, entities);
 
     return result;
   }

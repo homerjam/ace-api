@@ -5,14 +5,14 @@ const jsontoxml = require('jsontoxml');
 const Settings = require('./settings');
 
 class Shopify {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
 
   async getCatalog({ shopLink, productLinkTemplate }) {
-    const settings = await Settings(this.config).read();
+    const settings = await Settings(this.appConfig).read();
 
     const result = (
       await axios({

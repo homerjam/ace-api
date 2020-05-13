@@ -3,14 +3,14 @@ const Cloudant = require('@cloudant/cloudant');
 const Db = require('./db');
 
 class Tools {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
 
   async getDb() {
-    const result = await Db.connect(this.config).fetch({
+    const result = await Db.connect(this.appConfig).fetch({
       include_docs: true,
     });
 
@@ -18,7 +18,7 @@ class Tools {
   }
 
   async getChanges() {
-    const result = await Db.connect(this.config).changes({
+    const result = await Db.connect(this.appConfig).changes({
       limit: 50,
       include_docs: true,
       filter: 'entity/changes',
@@ -28,7 +28,7 @@ class Tools {
   }
 
   async importDb(dbBackupFile) {
-    const dbName = this.config.db.name;
+    const dbName = this.appConfig.db.name;
 
     const fileConents = await fs.readFile(dbBackupFile.path);
 
@@ -41,7 +41,7 @@ class Tools {
     await fs.unlink(dbBackupFile.path);
 
     const cloudant = new Cloudant({
-      url: this.config.db.url,
+      url: this.appConfig.db.url,
       plugins: ['promises', 'retry'],
     }).db;
 
@@ -53,7 +53,7 @@ class Tools {
 
     await cloudant.create(dbName);
 
-    const result = await Db.connect(this.config, dbName).bulk({ docs });
+    const result = await Db.connect(this.appConfig, dbName).bulk({ docs });
 
     return result;
   }

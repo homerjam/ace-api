@@ -16,8 +16,8 @@ const providerTokenUri = {
 };
 
 class Provider {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
@@ -27,7 +27,7 @@ class Provider {
     providerSettings,
     { refresh = false, code = undefined }
   ) {
-    const providerConfig = this.config.provider[providerSlug];
+    const providerConfig = this.appConfig.provider[providerSlug];
 
     const data = {
       grant_type: refresh ? 'refresh_token' : 'authorization_code',
@@ -91,8 +91,8 @@ class Provider {
     let userObject;
     let settingsObject;
 
-    const user = new User(this.config);
-    const settings = new Settings(this.config);
+    const user = new User(this.appConfig);
+    const settings = new Settings(this.appConfig);
 
     if (userId) {
       userObject = (await user.read(userId))[userId];

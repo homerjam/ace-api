@@ -1,6 +1,6 @@
 const path = require('path');
 
-const config = {
+const appConfig = {
   environment: process.env.ENVIRONMENT || 'development',
   debug: process.env.DEBUG || false,
 
@@ -88,4 +88,4 @@ const config = {
   },
 };
 
-module.exports = config;
+module.exports = appConfig;

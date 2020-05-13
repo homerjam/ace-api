@@ -1,4 +1,4 @@
-process.on('unhandledRejection', rejection => console.error(rejection));
+process.on('unhandledRejection', (rejection) => console.error(rejection));
 
 const Cloudant = require('@cloudant/cloudant');
 const Schema = require('../lib/schema');
@@ -12,13 +12,13 @@ if (!args[1]) {
 const dbUrl = args[0];
 const dbNames = args.slice(1);
 
-dbNames.forEach(async dbName => {
+dbNames.forEach(async (dbName) => {
   const db = new Cloudant({
     url: dbUrl,
     plugins: ['promises', 'retry'],
   }).db.use(dbName);
 
-  const clientConfig = await db.get('config');
+  const config = await db.get('config');
 
   const schema = new Schema({
     db: {
@@ -27,7 +27,7 @@ dbNames.forEach(async dbName => {
     },
   });
 
-  await schema.updateEntityIndex(clientConfig.schemas);
+  await schema.updateEntityIndex(config.config.schemas);
 
   console.log(`${dbName} --> entity index updated`);
 });

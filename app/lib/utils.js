@@ -2,14 +2,14 @@ const _ = require('lodash');
 const Db = require('./db');
 
 class Utils {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
 
-  static async createOrUpdate(config, doc) {
-    const db = Db.connect(config);
+  static async createOrUpdate(appConfig, doc) {
+    const db = Db.connect(appConfig);
     let response;
 
     try {
@@ -36,8 +36,8 @@ class Utils {
     return doc;
   }
 
-  static async chunkBulk(config, docs, chunkSize = 1000) {
-    const db = Db.connect(config);
+  static async chunkBulk(appConfig, docs, chunkSize = 1000) {
+    const db = Db.connect(appConfig);
 
     const chunks = _.chunk(docs, chunkSize);
 

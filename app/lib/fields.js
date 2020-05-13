@@ -78,10 +78,10 @@ class Fields {
       return '';
     }
 
-    const config = Fields.find(schemaField.type);
+    const fieldConfig = Fields.find(schemaField.type);
 
-    if (config.toText) {
-      return config.toText(field.value) || '';
+    if (fieldConfig.toText) {
+      return fieldConfig.toText(field.value) || '';
     }
 
     return field.value;
@@ -92,11 +92,11 @@ class Fields {
       return undefined;
     }
 
-    const config = Fields.find(schemaField.type);
+    const fieldConfig = Fields.find(schemaField.type);
 
-    if (config.toThumbnail) {
+    if (fieldConfig.toThumbnail) {
       const thumbnail =
-        config.toThumbnail(field.value, clientConfig) || undefined;
+        fieldConfig.toThumbnail(field.value, clientConfig) || undefined;
 
       if (thumbnail && thumbnail.width && thumbnail.height) {
         thumbnail.ratio = _.round(thumbnail.width / thumbnail.height, 5);
@@ -113,10 +113,10 @@ class Fields {
       return undefined;
     }
 
-    const config = Fields.find(schemaField.type);
+    const fieldConfig = Fields.find(schemaField.type);
 
-    if (config.toDb) {
-      return config.toDb(field.value, schemaField.settings) || undefined;
+    if (fieldConfig.toDb) {
+      return fieldConfig.toDb(field.value, schemaField.settings) || undefined;
     }
 
     return field.value;

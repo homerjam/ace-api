@@ -4,16 +4,16 @@ const passwordHash = require('password-hash');
 const ClientConfig = require('./client-config');
 
 class Assist {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
 
   async deleteFiles(fileNames) {
-    const clientConfig = await new ClientConfig(this.config).get();
+    const clientConfig = await new ClientConfig(this.appConfig).read();
 
-    const assetsSlug = _.get(clientConfig, 'assets.slug', this.config.slug);
+    const assetsSlug = _.get(clientConfig, 'assets.slug', this.appConfig.slug);
 
     if (fileNames.length === 0) {
       return [];
@@ -21,12 +21,12 @@ class Assist {
 
     const result = (
       await axios.post(
-        `${this.config.assist.url}/${assetsSlug}/file/delete`,
+        `${this.appConfig.assist.url}/${assetsSlug}/file/delete`,
         { fileNames },
         {
           auth: {
-            username: this.config.assist.username,
-            password: passwordHash.generate(this.config.assist.password),
+            username: this.appConfig.assist.username,
+            password: passwordHash.generate(this.appConfig.assist.password),
           },
         }
       )

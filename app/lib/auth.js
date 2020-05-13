@@ -7,8 +7,8 @@ const Jwt = require('./jwt');
 const ErrorCode = require('./error-code');
 
 class Auth {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     this.jwtCheck = expressJwt({
       secret: jwks.expressJwtSecret({
@@ -16,10 +16,10 @@ class Auth {
         rateLimit: true,
         jwksRequestsPerMinute: 5,
         jwksUri:
-          'https://' + this.config.auth0.domain + '/.well-known/jwks.json',
+          'https://' + this.appConfig.auth0.domain + '/.well-known/jwks.json',
       }),
-      audience: this.config.auth0.audience,
-      issuer: 'https://' + this.config.auth0.domain + '/',
+      audience: this.appConfig.auth0.audience,
+      issuer: 'https://' + this.appConfig.auth0.domain + '/',
       algorithms: ['RS256'],
     });
 
@@ -28,7 +28,7 @@ class Auth {
 
   async authUser(slug, accessToken) {
     const auth0 = new AuthenticationClient({
-      domain: this.config.auth0.domain,
+      domain: this.appConfig.auth0.domain,
     });
 
     const auth0Profile = await auth0.getProfile(accessToken);
@@ -36,7 +36,7 @@ class Auth {
     const userId = auth0Profile.email;
 
     const isSuperUser =
-      _.get(this.config, 'auth.superUserId', '')
+      _.get(this.appConfig, 'auth.superUserId', '')
         .split(',')
         .map((superUser) => superUser.trim())
         .indexOf(userId) > -1;
@@ -50,7 +50,7 @@ class Auth {
       };
     } else {
       try {
-        const users = await Db.connect(this.config, slug).get('users');
+        const users = await Db.connect(this.appConfig, slug).get('users');
         user = users.users[userId.toLowerCase()];
       } catch (error) {
         throw new ErrorCode(404, `Database not found: ${slug}`);
@@ -72,7 +72,7 @@ class Auth {
       role: user.role,
     };
 
-    const jwt = new Jwt(this.config);
+    const jwt = new Jwt(this.appConfig);
 
     const apiToken = jwt.signToken(payload, {
       // expiresIn: 7200,

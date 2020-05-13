@@ -1,4 +1,4 @@
-const pick = require('lodash/pick');
+const _ = require('lodash');
 
 module.exports = ({
   ClientConfig,
@@ -13,11 +13,11 @@ module.exports = ({
   router.get(
     '/config/info.:ext?',
     asyncMiddleware(async (req, res) => {
-      const clientConfig = ClientConfig(
+      const clientConfig = await ClientConfig(
         await getConfig({ slug: req.query.slug || req.session.slug })
-      );
+      ).read();
 
-      const clientInfo = pick(await clientConfig.get(), ['client.name']);
+      const clientInfo = _.pick(clientConfig, ['client.name']);
 
       if (Object.keys(clientInfo).length === 0) {
         handleError(req, res, Error('Account ID not found'));
@@ -36,25 +36,31 @@ module.exports = ({
     '/config.:ext?',
     authMiddleware,
     asyncMiddleware(async (req, res) => {
-      const clientConfig = ClientConfig(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await clientConfig.get());
+        handleResponse(
+          req,
+          res,
+          await ClientConfig(await getConfig(req.session)).read()
+        );
       } catch (error) {
         handleError(req, res, error);
       }
     })
   );
 
-  router.post(
+  router.put(
     '/config.:ext?',
     authMiddleware,
     permissionMiddleware.bind(null, 'config'),
     asyncMiddleware(async (req, res) => {
-      const clientConfig = ClientConfig(await getConfig(req.session));
-
       try {
-        handleResponse(req, res, await clientConfig.set(req.body.config));
+        handleResponse(
+          req,
+          res,
+          await ClientConfig(await getConfig(req.session)).update(
+            req.body.config
+          )
+        );
       } catch (error) {
         handleError(req, res, error);
       }

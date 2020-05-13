@@ -31,10 +31,10 @@ module.exports = ({
 
       const pattern = cache.store.name === 'redis' ? '*' : undefined;
 
-      cache.keys(pattern).then(keys => {
-        const items = keys.filter(key => key.indexOf(req.session.slug) === 0);
+      cache.keys(pattern).then((keys) => {
+        const items = keys.filter((key) => key.indexOf(req.session.slug) === 0);
 
-        items.forEach(key => cache.del(key));
+        items.forEach((key) => cache.del(key));
 
         handleResponse(req, res, `${items.length} items removed from cache`);
       });

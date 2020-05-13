@@ -8,8 +8,8 @@ const Entity = require('./entity');
 const ClientConfig = require('./client-config');
 
 class Pdf {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
@@ -17,7 +17,7 @@ class Pdf {
   async getTemplates() {
     const templates = {};
 
-    const files = await readdir(this.config.pdf.templatesPath);
+    const files = await readdir(this.appConfig.pdf.templatesPath);
 
     files.forEach((file) => {
       if (!/\.js$/.test(file)) {
@@ -25,7 +25,7 @@ class Pdf {
       }
 
       const id = file
-        .replace(`${this.config.pdf.templatesPath}/`, '')
+        .replace(`${this.appConfig.pdf.templatesPath}/`, '')
         .replace('.js', '');
 
       // eslint-disable-next-line
@@ -45,13 +45,13 @@ class Pdf {
     // }
 
     const templateFile = await fs.readFile(
-      path.join(this.config.pdf.templatesPath, `${templateId}.js`),
+      path.join(this.appConfig.pdf.templatesPath, `${templateId}.js`),
       'utf-8'
     );
 
     const template = _eval(templateFile, `${templateId}.js`, {}, true);
 
-    const entity = new Entity(this.config);
+    const entity = new Entity(this.appConfig);
 
     const entities = (
       await entity.entityList([entityId], { children: 2, role })
@@ -67,10 +67,10 @@ class Pdf {
   }
 
   async getPdf(payload) {
-    const clientConfig = await ClientConfig(this.config).get();
+    const clientConfig = await ClientConfig(this.appConfig).read();
 
-    const assetSlug = _.get(clientConfig, 'assets.slug', this.config.slug);
-    const assistPdfUrl = `${this.config.assist.url}/${assetSlug}/pdf/download`;
+    const assetSlug = _.get(clientConfig, 'assets.slug', this.appConfig.slug);
+    const assistPdfUrl = `${this.appConfig.assist.url}/${assetSlug}/pdf/download`;
 
     const { body } = await got.post(assistPdfUrl, {
       form: payload,

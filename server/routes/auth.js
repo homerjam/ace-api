@@ -6,8 +6,7 @@ module.exports = async ({
   handleResponse,
   handleError,
 }) => {
-  const config = await getConfig();
-  const auth = Auth(config);
+  const auth = Auth(await getConfig());
 
   router.get(
     '/auth/user.:ext?',

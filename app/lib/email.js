@@ -21,8 +21,8 @@ const ClientConfig = require('./client-config');
 const Helpers = require('./helpers');
 
 class Email {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     this.inky = new Inky();
 
@@ -49,7 +49,10 @@ class Email {
       templateOptions
     );
 
-    let templatePath = path.join(this.config.email.templatesPath, templateSlug);
+    let templatePath = path.join(
+      this.appConfig.email.templatesPath,
+      templateSlug
+    );
 
     try {
       await fs.stat(templatePath);
@@ -84,13 +87,13 @@ class Email {
         .replace(/"/g, "'");
     }
 
-    const clientConfig = await new ClientConfig(this.config).get();
-    const helpers = new Helpers(this.config);
+    const clientConfig = await new ClientConfig(this.appConfig).read();
+    const helpers = new Helpers(this.appConfig);
 
     templateData = _.merge({}, templateData, {
       config: _.merge(
         {},
-        _.pick(this.config, ['cms']),
+        _.pick(this.appConfig, ['cms']),
         _.pick(clientConfig, ['slug', 'client', 'assets'])
       ),
       helpers,
@@ -164,8 +167,8 @@ class Email {
     const nodemailerMailgun = nodemailer.createTransport(
       nodemailerMailgunTransport({
         auth: {
-          api_key: this.config.mailgun.apiKey,
-          domain: this.config.mailgun.domain,
+          api_key: this.appConfig.mailgun.apiKey,
+          domain: this.appConfig.mailgun.domain,
         },
       })
     );
@@ -188,7 +191,7 @@ class Email {
   }
 
   async subscribe(details, provider, listId) {
-    const clientConfig = await new ClientConfig(this.config).get();
+    const clientConfig = await new ClientConfig(this.appConfig).read();
 
     if (provider === 'createsend') {
       if (!clientConfig.provider.createsend) {

@@ -21,8 +21,8 @@ const defaultUser = {
 };
 
 class User {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
@@ -36,7 +36,7 @@ class User {
     let users;
 
     try {
-      users = await Db.connect(this.config).get('users');
+      users = await Db.connect(this.appConfig).get('users');
     } catch (error) {
       users = {
         users: {},
@@ -71,7 +71,7 @@ class User {
 
     let users = await this.read();
 
-    users = await Utils.createOrUpdate(this.config, {
+    users = await Utils.createOrUpdate(this.appConfig, {
       users: {
         ...users,
         [user.id]: _.merge({}, users[user.id], user),
@@ -92,7 +92,7 @@ class User {
 
     delete users[userId];
 
-    users = await Utils.createOrUpdate(this.config, {
+    users = await Utils.createOrUpdate(this.appConfig, {
       users,
       _id: 'users',
       type: 'users',

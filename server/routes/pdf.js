@@ -61,7 +61,7 @@ module.exports = ({
     asyncMiddleware(async (req, res) => {
       const config = await getConfig(req.session);
 
-      const clientConfig = await ClientConfig(config).get();
+      const clientConfig = await ClientConfig(config).read();
 
       const assetSlug = _.get(clientConfig, 'assets.slug', req.session.slug);
 

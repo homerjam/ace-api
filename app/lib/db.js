@@ -1,15 +1,15 @@
 const Cloudant = require('@cloudant/cloudant');
 
 class Db {
-  constructor(config, dbName) {
-    this.config = config;
+  constructor(appConfig, dbName) {
+    this.appConfig = appConfig;
 
-    return Db.connect(config, dbName);
+    return Db.connect(this.appConfig, dbName);
   }
 
-  static connect(config, dbName) {
+  static connect(appConfig, dbName) {
     const cloudant = new Cloudant({
-      url: config.db.url,
+      url: appConfig.db.url,
       maxAttempt: 5,
       plugins: [
         'promises',
@@ -22,7 +22,7 @@ class Db {
       ],
     });
 
-    return cloudant.db.use(dbName || config.db.name);
+    return cloudant.db.use(dbName || appConfig.db.name);
   }
 }
 

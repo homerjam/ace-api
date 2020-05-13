@@ -3,15 +3,15 @@ const _ = require('lodash');
 const EmbedlyApi = require('embedly');
 
 class Embedly {
-  constructor(config) {
-    this.config = config;
+  constructor(appConfig) {
+    this.appConfig = appConfig;
 
     return this;
   }
 
   async oembed(urls) {
     const embedly = new EmbedlyApi({
-      key: this.config.embedly.apiKey,
+      key: this.appConfig.embedly.apiKey,
     });
 
     const oembed = util.promisify(embedly.oembed);

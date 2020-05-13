@@ -1,4 +1,4 @@
-const config = {
+const serverConfig = {
   environment: process.env.ENVIRONMENT || 'development',
 
   api: {
@@ -32,8 +32,6 @@ const config = {
     password: process.env.REDIS_PASSWORD,
     db: parseInt(process.env.REDIS_DB || 0, 10),
   },
-
-  logentriesToken: process.env.LOGENTRIES_TOKEN,
 };
 
-module.exports = config;
+module.exports = serverConfig;
