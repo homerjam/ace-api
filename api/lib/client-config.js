@@ -1,9 +1,6 @@
 const _ = require('lodash');
 const Db = require('./db');
 const Utils = require('./utils');
-const Roles = require('./roles');
-
-const roles = new Roles();
 
 const DEFAULT_CLIENT_CONFIG = {
   _id: 'config',
@@ -11,10 +8,6 @@ const DEFAULT_CLIENT_CONFIG = {
   assets: {},
   schemas: [],
   taxonomies: [],
-  users: [],
-  roles: roles.roles(),
-  provider: {},
-  module: {},
 };
 
 class ClientConfig {
@@ -42,8 +35,6 @@ class ClientConfig {
 
   async set(clientConfig) {
     clientConfig._id = 'config';
-
-    delete clientConfig.roles;
 
     clientConfig = await Utils.createOrUpdate(this.config, clientConfig);
 

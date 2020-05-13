@@ -3,13 +3,14 @@ const Db = require('./db');
 const Utils = require('./utils');
 
 const defaultSettings = {
-  darkMode: true,
   metadata: {
     description: '',
   },
+  darkMode: true,
   provider: {
     google: {},
     instagram: {},
+    spotify: {},
     vimeo: {},
   },
 };
@@ -29,7 +30,7 @@ class Settings {
   async read() {
     const settings = await Db.connect(this.config).get('settings');
 
-    return _.merge(defaultSettings, settings.settings);
+    return _.merge({}, defaultSettings, settings.settings);
   }
 
   async update(settings) {
@@ -46,7 +47,7 @@ class Settings {
       type: 'settings',
     });
 
-    return _.merge(defaultSettings, settings.settings);
+    return _.merge({}, defaultSettings, settings.settings);
   }
 }
 

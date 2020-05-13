@@ -107,7 +107,7 @@ class Provider {
 
     if (
       new Date(dayjs().utc().format()).getTime() >
-        new Date(providerSettings.expires).getTime() ||
+        new Date(_.get(providerSettings, 'expires', 0)).getTime() ||
       forceRefresh
     ) {
       try {

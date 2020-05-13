@@ -1,6 +1,24 @@
 const _ = require('lodash');
 const Db = require('./db');
+const Roles = require('./roles');
 const Utils = require('./utils');
+
+const defaultUser = {
+  firstName: '',
+  lastName: '',
+  email: '',
+  role: Roles.roles()[0].slug,
+  active: true,
+  settings: {
+    darkMode: true,
+    provider: {
+      google: {},
+      instagram: {},
+      spotify: {},
+      vimeo: {},
+    },
+  },
+};
 
 class User {
   constructor(config) {
@@ -24,6 +42,10 @@ class User {
         users: {},
       };
     }
+
+    users.users = _.mapValues(users.users, (user) =>
+      _.merge({}, defaultUser, user)
+    );
 
     if (userId) {
       if (!users.users[userId]) {
@@ -57,6 +79,10 @@ class User {
       _id: 'users',
       type: 'users',
     });
+
+    users.users = _.mapValues(users.users, (user) =>
+      _.merge({}, defaultUser, user)
+    );
 
     return { [user.id]: users.users[user.id] };
   }

@@ -103,14 +103,14 @@ const roles = [
       tools: false,
     },
   },
-];
+].map((role) => Object.freeze(role));
 
 class Roles {
-  roles() {
-    return roles.map((role) => Object.freeze(role));
+  static roles() {
+    return roles;
   }
-  role(slug) {
-    return _.find(this.roles(), { slug });
+  static role(slug) {
+    return _.find(roles, { slug });
   }
 }
 

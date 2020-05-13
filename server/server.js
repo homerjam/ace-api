@@ -164,8 +164,6 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
       return;
     }
 
-    const roles = Api.Roles();
-
     if (_.isString(permissions)) {
       permissions = permissions.split(',');
     }
@@ -173,12 +171,12 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     let authorised = false;
 
     permissions.forEach((permission) => {
-      if (roles.role(req.session.role).permissions[permission.trim()]) {
+      if (Api.Roles.role(req.session.role).permissions[permission.trim()]) {
         authorised = true;
       }
     });
 
-    if (!roles.role(req.session.role) || !authorised) {
+    if (!Api.Roles.role(req.session.role) || !authorised) {
       res.status(401);
       res.send({
         permissions,
