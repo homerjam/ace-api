@@ -5,7 +5,7 @@ module.exports = ({
   permissionMiddleware,
   // cacheMiddleware,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   handleError,
 }) => {
@@ -51,7 +51,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'settingsCreate'),
     asyncMiddleware(async (req, res) => {
-      const settings = Settings(await getConfig(req.session));
+      const settings = Settings(await getAppConfig(req.session));
 
       try {
         handleResponse(req, res, await settings.create(req.body.settings));
@@ -92,10 +92,9 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Settings(await getConfig(req.session)).read(
+          await Settings(await getAppConfig(req.session)).read(
             req.query.slug || req.query.settingsSlug
-          ),
-          true
+          )
         );
       } catch (error) {
         handleError(req, res, error);
@@ -132,7 +131,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'settingsUpdate'),
     asyncMiddleware(async (req, res) => {
-      const settings = Settings(await getConfig(req.session));
+      const settings = Settings(await getAppConfig(req.session));
 
       try {
         handleResponse(req, res, await settings.update(req.body.settings));

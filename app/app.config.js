@@ -2,15 +2,18 @@ const path = require('path');
 
 const appConfig = {
   environment: process.env.ENVIRONMENT || 'development',
+
   debug: process.env.DEBUG || false,
 
-  slug: process.env.SLUG,
-  baseUrl: process.env.BASE_URL || '',
+  client: {
+    slug: process.env.CLIENT_SLUG,
+    userId: process.env.CLIENT_USER_ID,
+    baseUrl: process.env.CLIENT_BASE_URL || '',
+  },
 
   db: {
     url: process.env.DB_URL,
     host: process.env.DB_HOST,
-    name: process.env.DB_NAME,
     requestPlugin: process.env.DB_REQUEST_PLUGIN,
     meterType: process.env.DB_METER_TYPE,
   },
@@ -23,11 +26,6 @@ const appConfig = {
   auth0: {
     domain: process.env.AUTH0_DOMAIN,
     audience: process.env.AUTH0_AUDIENCE,
-  },
-
-  dev: {
-    userId: process.env.DEV_USER_ID || 'dev',
-    role: process.env.DEV_ROLE || 'super',
   },
 
   cms: {

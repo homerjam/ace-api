@@ -22,7 +22,7 @@ class Db {
       ],
     });
 
-    return cloudant.db.use(dbName || appConfig.db.name);
+    return cloudant.db.use(dbName || appConfig.client.slug);
   }
 }
 

@@ -28,7 +28,7 @@ class Tools {
   }
 
   async importDb(dbBackupFile) {
-    const dbName = this.appConfig.db.name;
+    const dbName = this.appConfig.client.slug;
 
     const fileConents = await fs.readFile(dbBackupFile.path);
 

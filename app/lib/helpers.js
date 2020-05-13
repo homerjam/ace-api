@@ -3,7 +3,7 @@ class Helpers {
   constructor(appConfig) {
     this.appConfig = appConfig;
     this.assistUrl = this.appConfig.assist.url;
-    this.slug = this.appConfig.slug;
+    this.clientSlug = this.appConfig.client.slug;
 
     return this;
   }
@@ -82,14 +82,16 @@ class Helpers {
 
     if (/(image)/.test(thumbnail.thumbnailType)) {
       if (thumbnail.ext === 'svg') {
-        return [this.assistUrl, this.slug, thumbnail.name + thumbnail.ext].join(
-          '/'
-        );
+        return [
+          this.assistUrl,
+          this.clientSlug,
+          thumbnail.name + thumbnail.ext,
+        ].join('/');
       }
 
       return [
         this.assistUrl,
-        this.slug,
+        this.clientSlug,
         'transform',
         settingsString,
         thumbnail.name + thumbnail.ext,
@@ -99,7 +101,7 @@ class Helpers {
     if (/(video)/.test(thumbnail.thumbnailType)) {
       return [
         this.assistUrl,
-        this.slug,
+        this.clientSlug,
         'transform',
         settingsString,
         thumbnail.name,
@@ -112,7 +114,7 @@ class Helpers {
 
       return [
         this.assistUrl,
-        this.slug,
+        this.clientSlug,
         'proxy',
         'transform',
         settingsString,

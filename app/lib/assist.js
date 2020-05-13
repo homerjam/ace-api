@@ -13,7 +13,11 @@ class Assist {
   async deleteFiles(fileNames) {
     const clientConfig = await new ClientConfig(this.appConfig).read();
 
-    const assetsSlug = _.get(clientConfig, 'assets.slug', this.appConfig.slug);
+    const assetsSlug = _.get(
+      clientConfig,
+      'assets.slug',
+      this.appConfig.client.slug
+    );
 
     if (fileNames.length === 0) {
       return [];

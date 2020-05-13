@@ -1,5 +1,5 @@
 const fs = require('fs');
-const ConfigValidator = require('./config-validator');
+const ConfigValidator = require('../app/lib/config-validator');
 
 const slug = process.argv.slice(3)[0];
 

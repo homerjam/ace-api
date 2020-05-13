@@ -4,7 +4,7 @@ module.exports = ({
   authMiddleware,
   permissionMiddleware,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   handleError,
 }) => {
@@ -17,7 +17,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Schema(await getConfig(req.session)).create(req.body.schema)
+          await Schema(await getAppConfig(req.session)).create(req.body.schema)
         );
       } catch (error) {
         handleError(req, res, error);
@@ -34,7 +34,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Schema(await getConfig(req.session)).read(req.query.schemaId)
+          await Schema(await getAppConfig(req.session)).read(req.query.schemaId)
         );
       } catch (error) {
         handleError(req, res, error);
@@ -51,7 +51,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Schema(await getConfig(req.session)).update(req.body.schema)
+          await Schema(await getAppConfig(req.session)).update(req.body.schema)
         );
       } catch (error) {
         handleError(req, res, error);
@@ -68,7 +68,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Schema(await getConfig(req.session)).delete(
+          await Schema(await getAppConfig(req.session)).delete(
             req.body.schemaSlug ||
               req.body.schemaSlugs ||
               req.query.schemaSlug ||
@@ -86,7 +86,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'schema'),
     asyncMiddleware(async (req, res) => {
-      const schema = Schema(await getConfig(req.session));
+      const schema = Schema(await getAppConfig(req.session));
 
       try {
         handleResponse(req, res, await schema.updateAll(req.body.schemas));

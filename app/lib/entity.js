@@ -173,11 +173,11 @@ class Entity {
       entity.createdAt = now;
     }
     if (!entity.createdBy) {
-      entity.createdBy = this.appConfig.userId;
+      entity.createdBy = this.appConfig.client.userId;
     }
 
     entity.modifiedAt = now;
-    entity.modifiedBy = this.appConfig.userId;
+    entity.modifiedBy = this.appConfig.client.userId;
 
     if (entity.published) {
       // entity.publishedAt = JSON.stringify(entity.publishedAt).replace(/"/g, '');
@@ -198,7 +198,6 @@ class Entity {
       }
 
       field.type = schemaField.type;
-      field.fieldType = schemaField.type; // TODO: remove fieldType
 
       field.value = Fields.toDb(field, schemaField);
 

@@ -3,7 +3,7 @@ module.exports = ({
   router,
   authMiddleware,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   handleError,
 }) => {
@@ -11,7 +11,7 @@ module.exports = ({
     '/embedly/oembed.:ext?',
     authMiddleware,
     asyncMiddleware(async (req, res) => {
-      const embedly = Embedly(await getConfig());
+      const embedly = Embedly(await getAppConfig());
 
       try {
         handleResponse(

@@ -2,11 +2,11 @@ module.exports = async ({
   Auth,
   router,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   handleError,
 }) => {
-  const auth = Auth(await getConfig());
+  const auth = Auth(await getAppConfig());
 
   router.get(
     '/auth/user.:ext?',

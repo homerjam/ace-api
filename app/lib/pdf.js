@@ -69,7 +69,11 @@ class Pdf {
   async getPdf(payload) {
     const clientConfig = await ClientConfig(this.appConfig).read();
 
-    const assetSlug = _.get(clientConfig, 'assets.slug', this.appConfig.slug);
+    const assetSlug = _.get(
+      clientConfig,
+      'assets.slug',
+      this.appConfig.client.slug
+    );
     const assistPdfUrl = `${this.appConfig.assist.url}/${assetSlug}/pdf/download`;
 
     const { body } = await got.post(assistPdfUrl, {

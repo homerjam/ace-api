@@ -25,36 +25,44 @@ const PORT = process.env.PORT || 5001;
 const HOST = process.env.HOST || 'localhost';
 const HASH_SEED = 0xabcd;
 
-const defaultConfig = require('./server.config');
+const defaultServerConfig = require('./server.config');
+const defaultAppConfig = require('../app/app.config');
 
-function Server(customConfig = {}, customContext = {}, listen = true) {
-  const config = deepFreeze(
-    _.merge({}, App.defaultConfig, defaultConfig, customConfig)
+function Server({
+  customServerConfig = {},
+  customAppConfig = {},
+  customContext = {},
+  listen = true,
+} = {}) {
+  const serverConfig = deepFreeze(
+    _.merge({}, defaultServerConfig, customServerConfig)
   );
+
+  const appConfig = deepFreeze(_.merge({}, defaultAppConfig, customAppConfig));
 
   const expressApp = express();
 
   const sessionOptions = {
-    secret: config.session.secret,
+    secret: serverConfig.session.secret,
     resave: true,
     saveUninitialized: true,
   };
 
   if (
-    config.environment === 'production' &&
-    (config.redis.url || config.redis.host)
+    serverConfig.environment === 'production' &&
+    (serverConfig.redis.url || serverConfig.redis.host)
   ) {
     const redisOptions = {
-      ttl: config.session.ttl,
+      ttl: serverConfig.session.ttl,
     };
 
-    if (config.redis.url) {
-      redisOptions.url = config.redis.url;
+    if (serverConfig.redis.url) {
+      redisOptions.url = serverConfig.redis.url;
     } else {
-      redisOptions.host = config.redis.host;
-      redisOptions.port = config.redis.port;
-      redisOptions.password = config.redis.password;
-      redisOptions.db = config.redis.db;
+      redisOptions.host = serverConfig.redis.host;
+      redisOptions.port = serverConfig.redis.port;
+      redisOptions.password = serverConfig.redis.password;
+      redisOptions.db = serverConfig.redis.db;
     }
 
     const redisClient = redis.createClient(redisOptions);
@@ -69,7 +77,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     sessionOptions.store = new RedisStore({ client: redisClient });
   } else {
     sessionOptions.cookie = {
-      maxAge: config.session.ttl,
+      maxAge: serverConfig.session.ttl,
     };
   }
 
@@ -116,7 +124,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     }
 
     if (
-      config.environment === 'development' &&
+      serverConfig.environment === 'development' &&
       _.find(devAllowedRoutes, (route) =>
         new RegExp(`^${route}`).test(req.path)
       )
@@ -208,41 +216,40 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     return obj;
   };
 
-  const cloneConfig = (config) =>
-    _.mergeWith(
-      {},
-      JSON.parse(JSON.stringify(config)),
-      omitUndefined(_.cloneDeep(config))
-    );
+  // const clone = (obj) =>
+  //   _.mergeWith(
+  //     {},
+  //     JSON.parse(JSON.stringify(obj)),
+  //     omitUndefined(_.cloneDeep(obj))
+  //   );
 
-  const getConfig = async ({ slug, userId } = {}) => {
-    const configClone = cloneConfig(config);
+  const getAppConfig = async ({ slug, userId } = {}) => {
+    // const appConfigClone = clone(appConfig);
+    const appConfigClone = omitUndefined(_.cloneDeep(appConfig));
 
-    configClone.slug = slug;
-    configClone.userId = userId;
+    appConfigClone.client.slug = slug;
+    appConfigClone.client.userId = userId;
 
-    configClone.db.name = slug;
-
-    return configClone;
+    return appConfigClone;
   };
 
   // Cache
 
   let cache;
 
-  if (config.cache.enabled) {
-    if (config.redis.url || config.redis.host) {
+  if (serverConfig.cache.enabled) {
+    if (serverConfig.redis.url || serverConfig.redis.host) {
       const redisOptions = {
-        ttl: config.cache.ttl,
+        ttl: serverConfig.cache.ttl,
       };
 
-      if (config.redis.url) {
-        redisOptions.url = config.redis.url;
+      if (serverConfig.redis.url) {
+        redisOptions.url = serverConfig.redis.url;
       } else {
-        redisOptions.host = config.redis.host;
-        redisOptions.port = config.redis.port;
-        redisOptions.password = config.redis.password;
-        redisOptions.db = config.redis.db;
+        redisOptions.host = serverConfig.redis.host;
+        redisOptions.port = serverConfig.redis.port;
+        redisOptions.password = serverConfig.redis.password;
+        redisOptions.db = serverConfig.redis.db;
       }
 
       cache = cacheManager.caching(
@@ -259,8 +266,8 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     } else {
       cache = cacheManager.caching({
         store: 'memory',
-        ttl: config.cache.ttl,
-        max: config.cache.memory.max,
+        ttl: serverConfig.cache.ttl,
+        max: serverConfig.cache.memory.max,
         length: (item) => {
           // const length = Buffer.byteLength(item, 'utf8')
           const length = sizeof(item);
@@ -286,8 +293,8 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
 
   const cacheMiddleware = asyncMiddleware(async (req, res, next) => {
     const useCachedResponse =
-      config.cache.enabled &&
-      req.session.role === 'guest' && // TODO: Replace 'guest' with constant
+      serverConfig.cache.enabled &&
+      req.session.role === App.Roles.GUEST &&
       (req.query.__cache && JSON.parse(req.query.__cache)) !== false;
 
     if (useCachedResponse) {
@@ -314,7 +321,10 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
       }
     }
 
+    res.locals.cacheResponse = true;
+
     res.set('X-Cached-Response', false);
+
     next();
   });
 
@@ -346,8 +356,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     });
   };
 
-  // TODO: convert params to explicit/object
-  const handleResponse = async (req, res, response, cacheResponse = false) => {
+  const handleResponse = async (req, res, response) => {
     if (response === undefined || response === null) {
       response = '';
       res.status(204);
@@ -358,13 +367,16 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
       res.send(JSON.parse(response));
     }
 
-    if (cacheResponse && config.cache.enabled && req.session.role === 'guest') {
-      // TODO: Replace 'guest' with constant
+    if (
+      res.locals.cacheResponse &&
+      serverConfig.cache.enabled &&
+      req.session.role === 'guest'
+    ) {
       const key = hash(req);
 
       const ttl = req.query.__cache
         ? parseInt(req.query.__cache, 10)
-        : config.cache.ttl;
+        : serverConfig.cache.ttl;
 
       cache.set(key, response, { ttl });
     }
@@ -397,7 +409,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
 
   // Session middleware
 
-  const jwt = App.Jwt(config);
+  const jwt = App.Jwt(appConfig);
 
   const sessionMiddleware = (req, res, next) => {
     if (skipMiddleware(req)) {
@@ -413,7 +425,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
         .slice(-2)
         .join('.');
 
-      if (config.api.blacklistReferrer.indexOf(referrerHostname) > -1) {
+      if (serverConfig.api.blacklistReferrer.indexOf(referrerHostname) > -1) {
         res.status(401);
         res.send({
           code: 401,
@@ -435,7 +447,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
       return;
     }
 
-    if (config.api.blacklistToken.indexOf(token) > -1) {
+    if (serverConfig.api.blacklistToken.indexOf(token) > -1) {
       res.status(401);
       res.send({
         code: 401,
@@ -449,7 +461,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
 
       req.session.userId = payload.userId;
       req.session.slug = payload.slug;
-      req.session.role = payload.role || 'guest'; // TODO: Replace 'guest' with constant
+      req.session.role = payload.role || App.Roles.GUEST;
     } catch (error) {
       res.status(401);
       res.send({
@@ -477,7 +489,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
       res.set('X-User-Id', req.session.userId);
     }
 
-    res.set('X-Environment', config.environment);
+    res.set('X-Environment', serverConfig.environment);
     res.set('X-Slug', req.session.slug);
     res.set('X-Role', req.session.role);
 
@@ -501,19 +513,22 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     next();
   };
 
-  if (config.environment === 'production' && config.api.forceHttps === true) {
+  if (
+    serverConfig.environment === 'production' &&
+    serverConfig.api.forceHttps === true
+  ) {
     if (expressApp.enable) {
       expressApp.enable('trust proxy');
     }
     expressApp.use(forceHttps);
   }
 
-  expressApp.get(`/${config.api.prefix}`, (req, res) => {
-    res.send('<pre>ace-api</pre>');
+  expressApp.get(`/${serverConfig.api.prefix}`, (req, res) => {
+    res.send('<pre>api</pre>');
   });
 
   expressApp.use(
-    `/${config.api.prefix}`,
+    `/${serverConfig.api.prefix}`,
     headerMiddleware,
     sessionMiddleware,
     router
@@ -523,14 +538,14 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
 
   const context = _.merge(
     {
-      expressApp,
+      serverConfig,
       router,
       cache,
       authMiddleware,
       permissionMiddleware,
       cacheMiddleware,
       asyncMiddleware,
-      getConfig,
+      getAppConfig,
       handleResponse,
       handleError,
     },
@@ -548,7 +563,7 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     res.removeListener('close', afterResponse);
   };
 
-  if (config.environment !== 'production') {
+  if (serverConfig.environment !== 'production') {
     expressApp.use((req, res, next) => {
       res.on('finish', afterResponse.bind(null, req, res));
       res.on('close', afterResponse.bind(null, req, res));
@@ -558,26 +573,25 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
 
   // Bootstrap Routes
 
-  require('./routes/analytics')(context, config);
-  require('./routes/auth')(context, config);
-  require('./routes/connect')(context, config);
-  require('./routes/cache')(context, config);
-  require('./routes/config')(context, config);
-  require('./routes/debug')(context, config);
-  require('./routes/email')(context, config);
-  require('./routes/embedly')(context, config);
-  require('./routes/entity')(context, config);
-  require('./routes/metadata')(context, config);
-  require('./routes/pdf')(context, config);
-  require('./routes/provider')(context, config);
-  require('./routes/schema')(context, config);
-  require('./routes/settings')(context, config);
-  require('./routes/shopify')(context, config);
-  require('./routes/social')(context, config);
-  require('./routes/taxonomy')(context, config);
-  require('./routes/token')(context, config);
-  require('./routes/tools')(context, config);
-  require('./routes/user')(context, config);
+  require('./routes/auth')(context);
+  require('./routes/connect')(context);
+  require('./routes/cache')(context);
+  require('./routes/config')(context);
+  require('./routes/debug')(context);
+  require('./routes/email')(context);
+  require('./routes/embedly')(context);
+  require('./routes/entity')(context);
+  require('./routes/metadata')(context);
+  require('./routes/pdf')(context);
+  require('./routes/provider')(context);
+  require('./routes/schema')(context);
+  require('./routes/settings')(context);
+  require('./routes/shopify')(context);
+  require('./routes/social')(context);
+  require('./routes/taxonomy')(context);
+  require('./routes/token')(context);
+  require('./routes/tools')(context);
+  require('./routes/user')(context);
 
   if (listen) {
     const server = http.createServer(expressApp);

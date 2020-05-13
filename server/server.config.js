@@ -1,6 +1,12 @@
 const serverConfig = {
   environment: process.env.ENVIRONMENT || 'development',
 
+  dev: {
+    slug: process.env.DEV_SLUG || 'dev',
+    userId: process.env.DEV_USER_ID || 'dev',
+    role: process.env.DEV_ROLE || 'super',
+  },
+
   api: {
     prefix: process.env.API_PREFIX || '',
     forceHttps: process.env.API_FORCE_HTTPS

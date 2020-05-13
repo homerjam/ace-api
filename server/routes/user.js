@@ -4,7 +4,7 @@ module.exports = ({
   authMiddleware,
   permissionMiddleware,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   handleError,
 }) => {
@@ -17,7 +17,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await User(await getConfig(req.session)).read()
+          await User(await getAppConfig(req.session)).read()
         );
       } catch (error) {
         handleError(req, res, error);
@@ -34,7 +34,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await User(await getConfig(req.session)).create(req.body.user)
+          await User(await getAppConfig(req.session)).create(req.body.user)
         );
       } catch (error) {
         handleError(req, res, error);
@@ -48,11 +48,11 @@ module.exports = ({
     // permissionMiddleware.bind(null, 'readUsers'),
     asyncMiddleware(async (req, res) => {
       try {
-        // handleResponse(req, res, await User(await getConfig(req.session)).read(req.query.userId));
+        // handleResponse(req, res, await User(await getAppConfig(req.session)).read(req.query.userId));
         handleResponse(
           req,
           res,
-          await User(await getConfig(req.session)).read(req.session.userId)
+          await User(await getAppConfig(req.session)).read(req.session.userId)
         );
       } catch (error) {
         handleError(req, res, error);
@@ -69,7 +69,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await User(await getConfig(req.session)).update(req.body.user)
+          await User(await getAppConfig(req.session)).update(req.body.user)
         );
       } catch (error) {
         handleError(req, res, error);
@@ -86,7 +86,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await User(await getConfig(req.session)).delete(
+          await User(await getAppConfig(req.session)).delete(
             req.body.userId || req.query.userId
           )
         );

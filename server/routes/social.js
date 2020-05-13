@@ -4,7 +4,7 @@ module.exports = ({
   router,
   cacheMiddleware,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   handleError,
 }) => {
@@ -17,23 +17,22 @@ module.exports = ({
       const method = req.params[0];
       const params = req.params[1].split('/').filter((param) => param !== '');
 
-      const config = await getConfig(req.session);
+      const appConfig = await getAppConfig(req.session);
 
       const Twitter = require('twitter');
 
       const twitter = new Twitter({
-        consumer_key: config.provider.twitter.consumerKey,
-        consumer_secret: config.provider.twitter.consumerSecret,
-        access_token_key: config.provider.twitter.accessTokenKey,
-        access_token_secret: config.provider.twitter.accessTokenSecret,
+        consumer_key: appConfig.provider.twitter.consumerKey,
+        consumer_secret: appConfig.provider.twitter.consumerSecret,
+        access_token_key: appConfig.provider.twitter.accessTokenKey,
+        access_token_secret: appConfig.provider.twitter.accessTokenSecret,
       });
 
       try {
         handleResponse(
           req,
           res,
-          await twitter[`${method}`](params.join('/'), req.query),
-          true
+          await twitter[`${method}`](params.join('/'), req.query)
         );
       } catch (error) {
         handleError(req, res, error);
@@ -48,13 +47,15 @@ module.exports = ({
       const method = req.params[0];
       const params = req.params[1].split('/').filter((param) => param !== '');
 
-      const config = await getConfig(req.session);
+      const appConfig = await getAppConfig(req.session);
 
       let accessToken = instagramAccessTokenMap[req.session.slug];
 
       if (!accessToken) {
         try {
-          const settings = await Settings(await getConfig(req.session)).read();
+          const settings = await Settings(
+            await getAppConfig(req.session)
+          ).read();
           accessToken = settings.provider.instagram.access_token;
         } catch (error) {
           handleError(res, Error(`Instagram requires 'access_token'`));
@@ -66,7 +67,7 @@ module.exports = ({
       instagramAccessTokenMap[req.session.slug] = accessToken;
 
       const instagram = Instagram({
-        client_id: config.provider.instagram.clientId,
+        client_id: appConfig.provider.instagram.clientId,
       });
 
       try {
@@ -79,7 +80,7 @@ module.exports = ({
         } catch (error) {
           //
         }
-        handleResponse(req, res, result, true);
+        handleResponse(req, res, result);
       } catch (error) {
         handleError(req, res, error);
       }

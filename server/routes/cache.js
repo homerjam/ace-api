@@ -1,10 +1,4 @@
-module.exports = ({
-  router,
-  cache,
-  asyncMiddleware,
-  getConfig,
-  handleResponse,
-}) => {
+module.exports = ({ router, cache, asyncMiddleware, handleResponse }) => {
   /**
    * @swagger
    * /cache/clear:
@@ -22,9 +16,7 @@ module.exports = ({
   router.get(
     '/cache/clear.:ext?',
     asyncMiddleware(async (req, res) => {
-      const config = await getConfig();
-
-      if (!config.cache.enabled) {
+      if (!cache) {
         handleResponse(req, res, 'Cache disabled');
         return;
       }

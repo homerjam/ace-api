@@ -1,9 +1,10 @@
 module.exports = ({
   Jwt,
+  serverConfig,
   router,
   authMiddleware,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   // handleError,
 }) => {
@@ -47,7 +48,7 @@ module.exports = ({
     '/token.:ext?',
     authMiddleware,
     asyncMiddleware(async (req, res) => {
-      const config = await getConfig();
+      const appConfig = await getAppConfig();
 
       const payload = {
         role: req.session.role,
@@ -57,13 +58,15 @@ module.exports = ({
 
       if (
         req.session.role === 'super' ||
-        config.environment === 'development'
+        serverConfig.environment === 'development'
       ) {
-        payload.role = req.query.role || req.session.role || config.dev.role;
-        payload.slug = req.query.slug || req.session.slug || config.dev.slug;
+        payload.role =
+          req.query.role || req.session.role || serverConfig.dev.role;
+        payload.slug =
+          req.query.slug || req.session.slug || serverConfig.dev.slug;
         if (payload.role !== 'guest') {
           payload.userId =
-            req.query.userId || req.session.userId || config.dev.userId;
+            req.query.userId || req.session.userId || serverConfig.dev.userId;
         }
       }
 
@@ -75,7 +78,7 @@ module.exports = ({
         )
       );
 
-      options = _.mapValues(options, value => {
+      options = _.mapValues(options, (value) => {
         if (!_.isNaN(+value)) {
           // Check if value is a numeric string
           return +value; // Convert numeric string to number
@@ -83,7 +86,7 @@ module.exports = ({
         return value;
       });
 
-      const jwt = Jwt(config);
+      const jwt = Jwt(appConfig);
 
       const token = jwt.signToken(payload, options);
 

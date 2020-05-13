@@ -28,13 +28,6 @@ class ClientConfig {
   }
 
   async update(config) {
-    try {
-      const oldConfig = await this.read();
-      config = _.merge({}, oldConfig, config);
-    } catch (error) {
-      //
-    }
-
     config = await Utils.createOrUpdate(this.appConfig, {
       config,
       _id: 'config',

@@ -6,7 +6,7 @@ module.exports = ({
   router,
   cacheMiddleware,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   handleError,
 }) => {
@@ -26,7 +26,7 @@ module.exports = ({
       .filter((param) => param !== '')
       .join('/');
 
-    const provider = Provider(await getConfig(req.session));
+    const provider = Provider(await getAppConfig(req.session));
 
     const { providerSettings } = await provider.settings(providerSlug, {
       userId,
@@ -52,7 +52,7 @@ module.exports = ({
         params,
       });
 
-      handleResponse(req, res, result.data, true);
+      handleResponse(req, res, result.data);
     } catch (error) {
       handleError(req, res, error);
     }
@@ -76,7 +76,7 @@ module.exports = ({
       const { providerSlug, userId } = req.params;
 
       try {
-        const provider = Provider(await getConfig(req.session));
+        const provider = Provider(await getAppConfig(req.session));
 
         const { updatedUser } = await provider.settings(providerSlug, {
           userId,
@@ -96,7 +96,7 @@ module.exports = ({
       const { providerSlug } = req.params;
 
       try {
-        const provider = Provider(await getConfig(req.session));
+        const provider = Provider(await getAppConfig(req.session));
 
         const { updatedSettings } = await provider.settings(providerSlug, {
           forceRefresh: true,

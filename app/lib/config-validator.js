@@ -8,20 +8,21 @@ class ConfigValidator {
       id: '/client',
       type: 'object',
       properties: {
+        slug: { type: 'string' },
         name: { type: 'string' },
         baseUrl: { type: 'string' },
       },
       additionalProperties: false,
-      required: ['name', 'baseUrl'],
+      required: ['slug', 'name', 'baseUrl'],
     };
 
     const schema = {
       id: '/schema',
       type: 'object',
       properties: {
+        slug: { type: 'string' },
         name: { type: 'string' },
         collectionName: { type: 'string' },
-        slug: { type: 'string' },
         settings: {
           type: 'object',
           properties: {
@@ -41,11 +42,11 @@ class ConfigValidator {
           type: 'array',
           items: { type: 'string' },
         },
-        titleTemplate: { type: 'string' },
         slugTemplate: { type: 'string' },
+        titleTemplate: { type: 'string' },
       },
       additionalProperties: false,
-      required: ['name', 'slug', 'settings', 'fields'],
+      required: ['slug', 'name', 'settings', 'fields'],
     };
 
     const field = {
@@ -130,15 +131,15 @@ class ConfigValidator {
         },
       },
       additionalProperties: false,
-      required: ['name', 'slug', 'type', 'settings'],
+      required: ['slug', 'name', 'type', 'settings'],
     };
 
     const action = {
       id: '/action',
       type: 'object',
       properties: {
-        name: { type: 'string' },
         slug: { type: 'string' },
+        name: { type: 'string' },
         type: {
           enum: ['url'],
         },
@@ -150,7 +151,7 @@ class ConfigValidator {
         },
       },
       additionalProperties: false,
-      required: ['name', 'slug', 'type', 'settings'],
+      required: ['slug', 'name', 'type', 'settings'],
     };
 
     // const user = {
@@ -174,11 +175,10 @@ class ConfigValidator {
       id: '/config',
       type: 'object',
       properties: {
-        _id: {
-          enum: ['config'],
-        },
-        _rev: { type: 'string' },
-        slug: { type: 'string' },
+        // _id: {
+        //   enum: ['config'],
+        // },
+        // _rev: { type: 'string' },
         client: { $ref: '/client' },
         assets: {
           type: 'object',
@@ -195,11 +195,11 @@ class ConfigValidator {
           items: {
             type: 'object',
             properties: {
-              name: { type: 'string' },
               slug: { type: 'string' },
+              name: { type: 'string' },
             },
             additionalProperties: false,
-            required: ['name', 'slug'],
+            required: ['slug', 'name'],
           },
         },
         // users: {
@@ -245,9 +245,8 @@ class ConfigValidator {
       },
       additionalProperties: false,
       required: [
-        '_id',
-        '_rev',
-        'slug',
+        // '_id',
+        // '_rev',
         'client',
         'assets',
         'schemas',

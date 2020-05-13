@@ -5,7 +5,7 @@ module.exports = ({
   permissionMiddleware,
   cacheMiddleware,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   handleError,
 }) => {
@@ -74,7 +74,7 @@ module.exports = ({
     authMiddleware,
     permissionMiddleware.bind(null, 'taxonomyCreate'),
     asyncMiddleware(async (req, res) => {
-      const taxonomy = Taxonomy(await getConfig(req.session));
+      const taxonomy = Taxonomy(await getAppConfig(req.session));
 
       try {
         handleResponse(req, res, await taxonomy.create(req.body.taxonomy));
@@ -114,10 +114,9 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Taxonomy(await getConfig(req.session)).read(
+          await Taxonomy(await getAppConfig(req.session)).read(
             req.query.slug || req.query.taxonomySlug
-          ),
-          true
+          )
         );
       } catch (error) {
         handleError(req, res, error);
@@ -158,7 +157,9 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Taxonomy(await getConfig(req.session)).update(req.body.taxonomy)
+          await Taxonomy(await getAppConfig(req.session)).update(
+            req.body.taxonomy
+          )
         );
       } catch (error) {
         handleError(req, res, error);
@@ -175,7 +176,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Taxonomy(await getConfig(req.session)).delete(
+          await Taxonomy(await getAppConfig(req.session)).delete(
             req.body.taxonomySlug ||
               req.body.taxonomySlugs ||
               req.query.taxonomySlug ||
@@ -197,7 +198,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Taxonomy(await getConfig(req.session)).createTerm(
+          await Taxonomy(await getAppConfig(req.session)).createTerm(
             req.body.slug || req.body.taxonomySlug,
             req.body.term
           )
@@ -217,7 +218,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Taxonomy(await getConfig(req.session)).updateTerm(
+          await Taxonomy(await getAppConfig(req.session)).updateTerm(
             req.query.term || req.body.term
           )
         );
@@ -236,7 +237,7 @@ module.exports = ({
         handleResponse(
           req,
           res,
-          await Taxonomy(await getConfig(req.session)).deleteTerm(
+          await Taxonomy(await getAppConfig(req.session)).deleteTerm(
             req.query.term || req.body.term
           )
         );

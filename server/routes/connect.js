@@ -1,7 +1,7 @@
 const grant = require('grant-express');
 
-module.exports = async ({ router, getConfig }) => {
-  const config = await getConfig();
+module.exports = async ({ router, getAppConfig }) => {
+  const appConfig = await getAppConfig();
 
   router.all('/connect*', (req, res, next) => {
     grant({
@@ -11,37 +11,37 @@ module.exports = async ({ router, getConfig }) => {
         // state: true,
       },
       google: {
-        key: config.provider.google.clientId,
-        secret: config.provider.google.clientSecret,
+        key: appConfig.provider.google.clientId,
+        secret: appConfig.provider.google.clientSecret,
         scope: ['openid', 'profile', 'email'],
         nonce: true,
         custom_params: { access_type: 'offline' },
-        callback: config.cms.url + '/connect',
+        callback: appConfig.cms.url + '/connect',
       },
       instagram: {
-        key: config.provider.instagram.clientId,
-        secret: config.provider.instagram.clientSecret,
+        key: appConfig.provider.instagram.clientId,
+        secret: appConfig.provider.instagram.clientSecret,
         scope: ['basic'],
         nonce: true,
-        callback: config.cms.url + '/connect',
+        callback: appConfig.cms.url + '/connect',
       },
       spotify: {
-        key: config.provider.spotify.clientId,
-        secret: config.provider.spotify.clientSecret,
+        key: appConfig.provider.spotify.clientId,
+        secret: appConfig.provider.spotify.clientSecret,
         scope: [
           'user-read-email',
           'user-top-read',
           'user-read-recently-played',
         ],
         nonce: true,
-        callback: config.cms.url + '/connect',
+        callback: appConfig.cms.url + '/connect',
       },
       vimeo: {
-        key: config.provider.vimeo.clientId,
-        secret: config.provider.vimeo.clientSecret,
+        key: appConfig.provider.vimeo.clientId,
+        secret: appConfig.provider.vimeo.clientSecret,
         scope: ['public', 'private', 'video_files'],
         nonce: true,
-        callback: config.cms.url + '/connect',
+        callback: appConfig.cms.url + '/connect',
       },
     })(req, res, next);
   });

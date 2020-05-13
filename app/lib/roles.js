@@ -1,18 +1,14 @@
 const _ = require('lodash');
 
 class Roles {
-  static all() {
-    return Roles.roles;
-  }
-
-  static find(slug) {
-    return _.find(Roles.roles, { slug });
-  }
+  static ADMIN = 'guest';
+  static EDITOR = 'guest';
+  static GUEST = 'guest';
 
   static roles = [
     {
+      slug: Roles.ADMIN,
       name: 'Admin',
-      slug: 'admin',
       permissions: {
         entityCreate: true,
         entityRead: true,
@@ -45,8 +41,8 @@ class Roles {
       },
     },
     {
+      slug: Roles.EDITOR,
       name: 'Editor',
-      slug: 'editor',
       permissions: {
         entityCreate: true,
         entityRead: true,
@@ -79,8 +75,8 @@ class Roles {
       },
     },
     {
+      slug: Roles.GUEST,
       name: 'Guest',
-      slug: 'guest',
       permissions: {
         entityCreate: false,
         entityRead: true,
@@ -113,6 +109,14 @@ class Roles {
       },
     },
   ].map((role) => Object.freeze(role));
+
+  static all() {
+    return Roles.roles;
+  }
+
+  static find(slug) {
+    return _.find(Roles.roles, { slug });
+  }
 }
 
 module.exports = Roles;

@@ -1,9 +1,9 @@
 module.exports = ({
   Shopify,
   router,
-  cacheMiddleware,
+  // cacheMiddleware,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleResponse,
   handleError,
 }) => {
@@ -34,13 +34,13 @@ module.exports = ({
    */
   router.get(
     '/shopify/catalog.:ext?',
-    cacheMiddleware,
+    // cacheMiddleware,
     asyncMiddleware(async (req, res) => {
-      const shopify = Shopify(await getConfig(req.session));
+      const shopify = Shopify(await getAppConfig(req.session));
 
       try {
         res.setHeader('Content-Type', 'application/rss+xml');
-        handleResponse(req, res, await shopify.getCatalog(req.query), true);
+        handleResponse(req, res, await shopify.getCatalog(req.query));
       } catch (error) {
         handleError(req, res, error);
       }

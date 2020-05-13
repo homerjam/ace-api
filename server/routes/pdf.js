@@ -5,13 +5,13 @@ module.exports = ({
   ClientConfig,
   router,
   asyncMiddleware,
-  getConfig,
+  getAppConfig,
   handleError,
 }) => {
   router.get(
     '/pdf/view.:ext?',
     asyncMiddleware(async (req, res) => {
-      const pdf = Pdf(await getConfig(req.session));
+      const pdf = Pdf(await getAppConfig(req.session));
 
       pdf
         .getPayload(req.query.template, req.query.id, req.session.role)
@@ -28,7 +28,7 @@ module.exports = ({
   router.get(
     '/pdf/download.:ext?',
     asyncMiddleware(async (req, res) => {
-      const pdf = Pdf(await getConfig(req.session));
+      const pdf = Pdf(await getAppConfig(req.session));
 
       pdf
         .getPayload(req.query.template, req.query.id, req.session.role)
@@ -45,7 +45,7 @@ module.exports = ({
   router.get(
     '/pdf/payload.:ext?',
     asyncMiddleware(async (req, res) => {
-      const pdf = Pdf(await getConfig(req.session));
+      const pdf = Pdf(await getAppConfig(req.session));
 
       pdf
         .getPayload(req.query.template, req.query.id, req.session.role)
@@ -59,13 +59,13 @@ module.exports = ({
   router.get(
     '/pdf/submit.:ext?',
     asyncMiddleware(async (req, res) => {
-      const config = await getConfig(req.session);
+      const appConfig = await getAppConfig(req.session);
 
-      const clientConfig = await ClientConfig(config).read();
+      const clientConfig = await ClientConfig(appConfig).read();
 
       const assetSlug = _.get(clientConfig, 'assets.slug', req.session.slug);
 
-      Pdf(config)
+      Pdf(appConfig)
         .getPayload(req.query.template, req.query.id, req.session.role)
         .then((payload) => {
           payload = JSON.stringify(payload).replace(/'/gi, '’');
@@ -73,7 +73,7 @@ module.exports = ({
           res.status(200);
           res.send(`
           <body onload='form.submit()'>
-            <form id='form' method='POST' action='${config.assist.url}/${assetSlug}/pdf/download' target='_self'>
+            <form id='form' method='POST' action='${appConfig.assist.url}/${assetSlug}/pdf/download' target='_self'>
               <input type='hidden' name='payload' value='${payload}' />
             </form>
           </body>
