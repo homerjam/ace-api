@@ -8,29 +8,22 @@ class ConfigValidator {
       id: '/client',
       type: 'object',
       properties: {
-        name: { type: 'string', required: true },
-        baseUrl: { type: 'string', required: true },
-        metadata: {
-          type: 'object',
-          required: true,
-          properties: {
-            description: { type: 'string', required: true },
-          },
-        },
-        gaView: { type: 'string', required: true },
+        name: { type: 'string' },
+        baseUrl: { type: 'string' },
       },
+      additionalProperties: false,
+      required: ['name', 'baseUrl'],
     };
 
     const schema = {
       id: '/schema',
       type: 'object',
       properties: {
-        name: { type: 'string', required: true },
+        name: { type: 'string' },
         collectionName: { type: 'string' },
-        slug: { type: 'string', required: true },
+        slug: { type: 'string' },
         settings: {
           type: 'object',
-          required: true,
           properties: {
             singular: { type: 'boolean' },
             hidden: { type: 'boolean' },
@@ -42,7 +35,6 @@ class ConfigValidator {
         },
         fields: {
           type: 'array',
-          required: true,
           items: { $ref: '/field' },
         },
         thumbnailFields: {
@@ -52,17 +44,17 @@ class ConfigValidator {
         titleTemplate: { type: 'string' },
         slugTemplate: { type: 'string' },
       },
+      additionalProperties: false,
+      required: ['name', 'slug', 'settings', 'fields'],
     };
 
     const field = {
       id: '/field',
       type: 'object',
       properties: {
-        name: { type: 'string', required: true },
-        slug: { type: 'string', required: true },
+        name: { type: 'string' },
+        slug: { type: 'string' },
         type: {
-          type: 'string',
-          required: true,
           enum: [
             'attachment',
             'audio',
@@ -76,26 +68,26 @@ class ConfigValidator {
             'image',
             'keyValue',
             'number',
-            'richText',
             'select',
             'taxonomy',
             'text',
             'textArea',
+            'textRich',
             'user',
             'video',
             'vimeo',
           ],
         },
-        dataType: {
-          type: 'string',
-          required: true,
-          enum: ['string', 'number', 'boolean', 'object', 'array'],
-        },
         settings: {
           type: 'object',
-          required: true,
           properties: {
-            gridColumn: { type: 'boolean' },
+            display: {
+              type: 'object',
+              properties: {
+                sort: { type: 'boolean' },
+                tile: { type: 'boolean' },
+              },
+            },
             required: { type: 'boolean' },
             minWidth: { type: 'integer', minimum: 0 },
             minHeight: { type: 'integer', minimum: 0 },
@@ -107,20 +99,27 @@ class ConfigValidator {
               items: {
                 type: 'object',
                 properties: {
-                  name: { type: 'string', required: true },
-                  slug: { type: 'string', required: true },
-                  ratio: { type: 'number', required: true, minimum: 0 },
-                  minWidth: { type: 'integer', required: true, minimum: 0 },
-                  minHeight: { type: 'integer', required: true, minimum: 0 },
+                  name: { type: 'string' },
+                  slug: { type: 'string' },
+                  ratio: { type: 'number', minimum: 0 },
+                  minWidth: { type: 'integer', minimum: 0 },
+                  minHeight: { type: 'integer', minimum: 0 },
                   gravity: {
                     type: 'string',
-                    required: true,
-                    pattern: /center|north/i,
+                    regexp: '/center|north/i',
                   },
                 },
+                required: [
+                  'name',
+                  'slug',
+                  'ratio',
+                  'minWidth',
+                  'minHeight',
+                  'gravity',
+                ],
               },
             },
-            schemas: { type: 'array', items: { type: 'string ' } },
+            schemas: { type: 'array', items: { type: 'string' } },
             groupEnabled: { type: 'boolean' },
             groupSizeLimit: { type: 'integer', minimum: 0 },
             options: { type: 'array', items: { type: 'string' } },
@@ -130,117 +129,154 @@ class ConfigValidator {
           },
         },
       },
+      additionalProperties: false,
+      required: ['name', 'slug', 'type', 'settings'],
     };
 
     const action = {
       id: '/action',
       type: 'object',
       properties: {
-        name: { type: 'string', required: true },
-        slug: { type: 'string', required: true },
-        type: { type: 'string', required: true, enum: ['url'] },
+        name: { type: 'string' },
+        slug: { type: 'string' },
+        type: {
+          enum: ['url'],
+        },
         settings: {
           type: 'object',
-          required: true,
           properties: {
             url: { type: 'string' },
           },
         },
       },
+      additionalProperties: false,
+      required: ['name', 'slug', 'type', 'settings'],
     };
 
-    const user = {
-      id: '/user',
-      type: 'object',
-      properties: {
-        id: { type: 'string', required: true },
-        email: { type: 'string', required: true, format: 'email' },
-        firstName: { type: 'string', required: true },
-        lastName: { type: 'string', required: true },
-        role: {
-          type: 'string',
-          required: true,
-          enum: ['admin', 'editor', 'guest'],
-        },
-        active: { type: 'boolean', required: true },
-      },
-    };
+    // const user = {
+    //   id: '/user',
+    //   type: 'object',
+    //   properties: {
+    //     id: { type: 'string' },
+    //     email: { type: 'string', format: 'email' },
+    //     firstName: { type: 'string' },
+    //     lastName: { type: 'string' },
+    //     role: {
+    //       enum: ['admin', 'editor', 'guest'],
+    //     },
+    //     active: { type: 'boolean' },
+    //   },
+    //   additionalProperties: false,
+    //   required: ['id', 'email', 'firstName', 'lastName', 'role', 'active'],
+    // };
 
     this.configSchema = {
       id: '/config',
       type: 'object',
       properties: {
-        _id: { type: 'string', required: true, enum: ['config'] },
+        _id: {
+          enum: ['config'],
+        },
         _rev: { type: 'string' },
-        slug: { type: 'string', required: true },
-        client: { $ref: '/client', required: true },
+        slug: { type: 'string' },
+        client: { $ref: '/client' },
         assets: {
           type: 'object',
-          required: true,
-          properties: { slug: { type: 'string', required: true } },
+          properties: { slug: { type: 'string' } },
+          additionalProperties: false,
+          required: ['slug'],
         },
         schemas: {
           type: 'array',
-          required: true,
           items: { $ref: '/schema' },
         },
         taxonomies: {
           type: 'array',
-          required: true,
           items: {
             type: 'object',
             properties: {
-              name: { type: 'string', required: true },
-              slug: { type: 'string', required: true },
+              name: { type: 'string' },
+              slug: { type: 'string' },
             },
+            additionalProperties: false,
+            required: ['name', 'slug'],
           },
         },
-        users: {
-          type: 'array',
-          required: true,
-          items: { $ref: '/user' },
-        },
-        userSettings: {
-          type: 'object',
-          patternProperties: {
-            '.*': {
-              type: 'object',
-              properties: {
-                provider: {
-                  type: 'object',
-                  properties: {
-                    instagram: { type: ['object', null] },
-                    spotify: { type: ['object', null] },
-                  },
-                },
-              },
-            },
-          },
-        },
-        provider: {
-          type: 'object',
-          properties: {
-            google: { type: ['object', null] },
-            instagram: { type: ['object', null] },
-            spotify: { type: ['object', null] },
-            vimeo: { type: ['object', null] },
-          },
-        },
+        // users: {
+        //   type: 'array',
+        //   items: { $ref: '/user' },
+        // },
+        // userSettings: {
+        //   type: 'object',
+        //   patternProperties: {
+        //     '.*': {
+        //       type: 'object',
+        //       properties: {
+        //         provider: {
+        //           type: 'object',
+        //           properties: {
+        //             instagram: { type: ['object', 'null'] },
+        //             spotify: { type: ['object', 'null'] },
+        //           },
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        // provider: {
+        //   type: 'object',
+        //   properties: {
+        //     google: { type: ['object', 'null'] },
+        //     instagram: { type: ['object', 'null'] },
+        //     spotify: { type: ['object', 'null'] },
+        //     vimeo: { type: ['object', 'null'] },
+        //   },
+        // },
         providerEnabled: {
           type: 'object',
           properties: {
+            google: { type: 'boolean' },
             instagram: { type: 'boolean' },
+            spotify: { type: 'boolean' },
             vimeo: { type: 'boolean' },
           },
+          additionalProperties: false,
         },
       },
+      additionalProperties: false,
+      required: [
+        '_id',
+        '_rev',
+        'slug',
+        'client',
+        'assets',
+        'schemas',
+        'taxonomies',
+        // 'users',
+      ],
+    };
+
+    this.configSchemaRefs = {
+      '/client': client,
+      '/schema': schema,
+      '/field': field,
+      '/action': action,
+      // '/user': user,
     };
 
     this.v.addSchema(client, '/client');
     this.v.addSchema(schema, '/schema');
     this.v.addSchema(field, '/field');
     this.v.addSchema(action, '/action');
-    this.v.addSchema(user, '/user');
+    // this.v.addSchema(user, '/user');
+  }
+
+  schema() {
+    return this.configSchema;
+  }
+
+  refs() {
+    return this.configSchemaRefs;
   }
 
   validate(config, options) {

@@ -171,12 +171,12 @@ function Server(customConfig = {}, customContext = {}, listen = true) {
     let authorised = false;
 
     permissions.forEach((permission) => {
-      if (Api.Roles.role(req.session.role).permissions[permission.trim()]) {
+      if (Api.Roles.find(req.session.role).permissions[permission.trim()]) {
         authorised = true;
       }
     });
 
-    if (!Api.Roles.role(req.session.role) || !authorised) {
+    if (!Api.Roles.find(req.session.role) || !authorised) {
       res.status(401);
       res.send({
         permissions,

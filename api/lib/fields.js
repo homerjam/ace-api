@@ -347,7 +347,7 @@ class Fields {
       dataType: 'number',
     },
     {
-      type: 'richText',
+      type: 'textRich',
       name: 'Rich Text',
       dataType: 'object',
       toText(value) {

@@ -7,7 +7,7 @@ const defaultUser = {
   firstName: '',
   lastName: '',
   email: '',
-  role: Roles.roles()[0].slug,
+  role: Roles.all()[0].slug,
   active: true,
   settings: {
     darkMode: true,
