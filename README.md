@@ -16,6 +16,22 @@ Push design docs to your couchdb instance using `DB_URL` stored in `.env` file:
 $ npm run db:design [DOC_NAME] [DB_NAME[,DB_NAME,DB_NAME]]
 ```
 
+### Development
+
+```bash
+pnpm env use --global 14
+
+yarn
+yarn dev
+
+yarn release
+```
+
+#### Email template preview
+
+`http://localhost:5001/email/preview?slug=twin&templateSlug=twin/newsletter&mjml=true`
+
+
 ### Environment Variables
 
     PORT=5000
