@@ -33,7 +33,7 @@
   "dependencies": {
     "@babel/runtime": "^7.7.6",
     "@cloudant/cloudant": "^4.2.3",
-    "axios": "^0.19.0",
+    "axios": "^0.21.2",
     "bluebird": "^3.7.2",
     "body-parser": "^1.18.3",
     "cache-manager": "^2.10.1",
