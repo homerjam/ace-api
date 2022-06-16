@@ -1748,12 +1748,12 @@ axios-cookiejar-support@^1.0.0, axios-cookiejar-support@^1.0.1:
     is-redirect "^1.0.0"
     pify "^5.0.0"
 
-axios@^0.19.0:
-  version "0.19.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.19.2.tgz#3ea36c5d8818d0d5f8a8a97a6d36b86cdc00cb27"
-  integrity sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==
+axios@^0.21.2:
+  version "0.21.2"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.2.tgz#21297d5084b2aeeb422f5d38e7be4fbb82239017"
+  integrity sha512-87otirqUw3e8CzHTMO+/9kh/FSgXt/eVDvipijwDtEuwbkySWZ9SBm6VEubmJ/kLKEoLQV/POhxXFb66bfekfg==
   dependencies:
-    follow-redirects "1.5.10"
+    follow-redirects "^1.14.0"
 
 axios@^0.26.1:
   version "0.26.1"
@@ -3164,7 +3164,7 @@ debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   dependencies:
     ms "2.0.0"
 
-debug@3.1.0, debug@=3.1.0:
+debug@3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
   integrity sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
@@ -4371,14 +4371,7 @@ flush-write-stream@^1.0.0, flush-write-stream@^1.0.2:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
 
-follow-redirects@1.5.10:
-  version "1.5.10"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.5.10.tgz#7b7a9f9aea2fdff36786a94ff643ed07f4ff5e2a"
-  integrity sha512-0V5l4Cizzvqt5D44aTXbFZz+FtyXV1vrDN6qrelxtfYQKW0KO0W2T/hkE8xvGa/540LkZlkaUjO4ailYTFtHVQ==
-  dependencies:
-    debug "=3.1.0"
-
-follow-redirects@^1.14.8:
+follow-redirects@^1.14.0, follow-redirects@^1.14.8:
   version "1.15.1"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.1.tgz#0ca6a452306c9b276e4d3127483e29575e207ad5"
   integrity sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==
@@ -6788,7 +6781,7 @@ mjml-body@4.12.0:
     lodash "^4.17.21"
     mjml-core "4.12.0"
 
-mjml-button@4.12.0, mjml-button@^4.4.0-beta.1:
+mjml-button@4.12.0, mjml-button@^4.12.0:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/mjml-button/-/mjml-button-4.12.0.tgz#c89103f702181f0722787ab9905affe98f326c73"
   integrity sha512-XJfLP+mHvCr6Ky16ooYz5+8ODkf10+ATyvENCKyrof+rietr5WxN2FxWCZA9Orq20OE74/hvaOeZZdkxwtsXig==
@@ -6832,7 +6825,7 @@ mjml-column@4.12.0:
     lodash "^4.17.21"
     mjml-core "4.12.0"
 
-mjml-core@4.12.0, mjml-core@^4.4.0-beta.1:
+mjml-core@4.12.0, mjml-core@^4.12.0:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/mjml-core/-/mjml-core-4.12.0.tgz#acb6268cd9cd31f7bdfcf54a6dcb10708f976b48"
   integrity sha512-B3gUkV3kFN1IlzIV3GnpWBmE21XHH5ARyydMxacR75iC53PvJ9c50hr6DWLGdrrDCC6Fdud8jTmgD9dnWPmJhQ==
@@ -6947,7 +6940,7 @@ mjml-hero@4.12.0:
     lodash "^4.17.21"
     mjml-core "4.12.0"
 
-mjml-image@4.12.0, mjml-image@^4.4.0-beta.1:
+mjml-image@4.12.0, mjml-image@^4.12.0:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/mjml-image/-/mjml-image-4.12.0.tgz#3ac0fd5917aa51c55b3619fa16e460489b0c11c8"
   integrity sha512-P77M+PLLNn7QvGhL8sx+6yzkQbEMxIQO3yxqUC+x8Ie8kXS8phSNGcqx8qfhdN7p7sQ3CZdOIZSXkG7RRAF94w==
@@ -6956,18 +6949,20 @@ mjml-image@4.12.0, mjml-image@^4.4.0-beta.1:
     lodash "^4.17.21"
     mjml-core "4.12.0"
 
-mjml-mailchimp@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/mjml-mailchimp/-/mjml-mailchimp-0.0.5.tgz#9648efb56bf4b61c6cf57e6a77b68c10f594f33d"
-  integrity sha512-nrSl6jrCsV5Rr4hiLfStTKQVijma3uiYrZ4ZhlRyrI1Aa5HaAgQtOmyKSrRcs1mdQZ6jqlJat6yRcBAjwz1PZg==
+mjml-mailchimp@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/mjml-mailchimp/-/mjml-mailchimp-0.0.6.tgz#70a60d0076af7f09db4efc15b944f630f3e981b4"
+  integrity sha512-ezOkMECglzV5eeXfotQG996LiVsrpRfF6lp0TTQ7bRCnR7F+aoMFNHe4vtPcSn0gdXmoa1SNUGhXmfrZnZyfuA==
   dependencies:
     babel-runtime "^6.26.0"
-    mjml-button "^4.4.0-beta.1"
-    mjml-core "^4.4.0-beta.1"
-    mjml-image "^4.4.0-beta.1"
-    mjml-section "^4.4.0-beta.1"
-    mjml-text "^4.4.0-beta.1"
-    mjml-validator "^4.4.0-beta.1"
+    lodash "^4.17.21"
+    mjml "^4.12.0"
+    mjml-button "^4.12.0"
+    mjml-core "^4.12.0"
+    mjml-image "^4.12.0"
+    mjml-section "^4.12.0"
+    mjml-text "^4.12.0"
+    mjml-validator "^4.12.0"
 
 mjml-migrate@4.12.0:
   version "4.12.0"
@@ -6989,11 +6984,6 @@ mjml-navbar@4.12.0:
     "@babel/runtime" "^7.14.6"
     lodash "^4.17.21"
     mjml-core "4.12.0"
-
-mjml-ncc-bundle@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/mjml-ncc-bundle/-/mjml-ncc-bundle-0.2.0.tgz#cf79f9936cbe0c5b1c0d65071024c86009bb36b4"
-  integrity sha512-hktczoH3O4U7aEdwaggRWgMZr/NTxp8xlCaW9V+rM9yjz/0ChcuIjJ2meidMwYiAnZpU41jYJfsbNrz1R4yJUQ==
 
 mjml-parser-xml@4.12.0:
   version "4.12.0"
@@ -7046,7 +7036,7 @@ mjml-raw@4.12.0:
     lodash "^4.17.21"
     mjml-core "4.12.0"
 
-mjml-section@4.12.0, mjml-section@^4.4.0-beta.1:
+mjml-section@4.12.0, mjml-section@^4.12.0:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/mjml-section/-/mjml-section-4.12.0.tgz#9d67bd52bb8418a76765d556f60467a506ed79b9"
   integrity sha512-5BdHrAghS/XJ40t3qtLHpY3rIVuBnJXv8dGm8U+oMVAzw3L4ySk5WI+FulRkchdPFCKpeXQZjXZaX0C7pmNaIw==
@@ -7082,7 +7072,7 @@ mjml-table@4.12.0:
     lodash "^4.17.21"
     mjml-core "4.12.0"
 
-mjml-text@4.12.0, mjml-text@^4.4.0-beta.1:
+mjml-text@4.12.0, mjml-text@^4.12.0:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/mjml-text/-/mjml-text-4.12.0.tgz#615af59c8932433b82dd8c7f5d132ec7625f397f"
   integrity sha512-AFcXiQBC48ZfKKgAdU0NRS2nqftc8zLGxBtPwHNgFkuh5Lf2rWgPK6JRubNi7qhb8Sd7M8stU+LIRA5sxM1nRQ==
@@ -7091,7 +7081,7 @@ mjml-text@4.12.0, mjml-text@^4.4.0-beta.1:
     lodash "^4.17.21"
     mjml-core "4.12.0"
 
-mjml-validator@4.12.0, mjml-validator@^4.4.0-beta.1:
+mjml-validator@4.12.0, mjml-validator@^4.12.0:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/mjml-validator/-/mjml-validator-4.12.0.tgz#f359f89f8ca6bfe955af2bf351a48055d59db903"
   integrity sha512-EmOScfcJJ4LdIyHnE+K4FdkryQ+c6QRV7qp+zlunAHE5AUPaBS0OrHPHuNo1sOu7g1tc+bVl7eHR4FIb0Wkzwg==
@@ -7108,7 +7098,7 @@ mjml-wrapper@4.12.0:
     mjml-core "4.12.0"
     mjml-section "4.12.0"
 
-mjml@^4.5.1:
+mjml@^4.12.0:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/mjml/-/mjml-4.12.0.tgz#bcf5c508075c5b05d84f611180234f4a2b3e13b0"
   integrity sha512-uWDu1pPQVyoX4iKIrM02J6qOBN6PC1rSMP64DKi2qGU4dpOztVgvTBh6JttIbINV4ZiALtpeGu+jeEUqp2ROXA==
@@ -9057,9 +9047,10 @@ shebang-regex@^1.0.0:
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
   integrity sha512-wpoSFAxys6b2a2wHZ1XpDSgD7N9iVjg29Ph9uV/uaP9Ex/KXlkTZTeddxDPSYQpgvzKLGJke2UU0AzoGCjNIvQ==
 
-"shell@git+https://github.com/glynnbird/node-shell.git":
+"shell@https://github.com/glynnbird/node-shell.git":
   version "0.5.0"
-  resolved "git+https://github.com/glynnbird/node-shell.git#25844ffc1fae5cfb4185712c05726e8c9e439106"
+  uid "25844ffc1fae5cfb4185712c05726e8c9e439106"
+  resolved "https://github.com/glynnbird/node-shell.git#25844ffc1fae5cfb4185712c05726e8c9e439106"
   dependencies:
     each "1.2.2"
     pad "3.2.0"
