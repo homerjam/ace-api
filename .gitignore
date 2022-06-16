@@ -4,5 +4,3 @@
 .vscode
 tmp
 node_modules
-package-lock.json
-yarn.lock
