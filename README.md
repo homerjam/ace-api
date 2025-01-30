@@ -19,18 +19,18 @@ $ npm run db:design [DOC_NAME] [DB_NAME[,DB_NAME,DB_NAME]]
 ### Development
 
 ```bash
-pnpm env use --global 14
+nvm install 14
 
-yarn
-yarn dev
+npm install
 
-yarn release
+npm run dev
+
+npm run release
 ```
 
 #### Email template preview
 
 `http://localhost:5001/email/preview?slug=twin&templateSlug=twin/newsletter&mjml=true`
-
 
 ### Environment Variables
 
